@@ -77,7 +77,11 @@ export const SCALE_TYPES = FAMILIES.flatMap((family) => {
       const degrees = stepsToDegrees(steps);
       return {
         key: `${family.key}:${name}`,
-        label: name,
+        // A non-breaking hyphen (not the plain ASCII "-" from `name`, which stays as-is
+        // since it's also the identity key's suffix) — otherwise "(W-H)"/"(H-W)" are
+        // fair game for the browser to split right at the hyphen when wrapping, landing
+        // "(W-" on one line and "H)" on the next.
+        label: name.replace(/-/g, '‑'),
         category: family.label,
         degrees,
         chordIntervals: scaleToChordIntervals(degrees),
