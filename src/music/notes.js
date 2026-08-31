@@ -24,6 +24,14 @@ export function pitchClassToName(pc) {
   return spellingFor(pc).name;
 }
 
+// Same spelling, but with the proper Unicode accidental glyphs (♯ ♭) instead of the
+// ASCII "#"/"b" stand-ins — for anything shown to the user. Tone.js's note parser only
+// understands the ASCII forms, so pitchClassToName/pitchClassToNoteName above stay
+// ASCII; this is display-only.
+export function pitchClassToDisplayName(pc) {
+  return spellingFor(pc).name.replace('#', '♯').replace(/b$/, '♭');
+}
+
 export function pitchClassAccidentals(pc) {
   return spellingFor(pc).accidentals;
 }

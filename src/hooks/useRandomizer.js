@@ -3,7 +3,7 @@ import * as Tone from 'tone';
 import { TonalCenterPlayer } from '../audio/engine';
 import { pickRandomTonalCenter, pickRandomDuration, coreModeKeyForCategory } from '../music/pool';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
-import { pitchClassToName } from '../music/notes';
+import { pitchClassToDisplayName } from '../music/notes';
 
 const MAX_REPEAT_AVOIDANCE_ATTEMPTS = 20;
 
@@ -22,7 +22,7 @@ function makeSegment(s, avoid) {
       rootPc,
       type,
       duration,
-      rootName: pitchClassToName(rootPc),
+      rootName: pitchClassToDisplayName(rootPc),
       typeLabel: type.label,
       modeKey: coreModeKeyForCategory(type.category),
     };
