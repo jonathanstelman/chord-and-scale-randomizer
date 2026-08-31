@@ -8,7 +8,7 @@ export default function Display({
       {!isRunning && (
         <div className="sleeve-idle">
           <span className="sleeve-idle-mark">▷</span>
-          <p>Press Start Session to cue up the first tonal center.</p>
+          <p>Press Start Session to begin.</p>
         </div>
       )}
       {isRunning && (

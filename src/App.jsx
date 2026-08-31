@@ -13,11 +13,12 @@ export default function App() {
   return (
     <div className="app">
       <header className="masthead">
-        <div className="masthead-title">
-          <span className="masthead-eyebrow">Vol. I — Modal Randomizer</span>
-          <h1>Ear Trainer</h1>
-        </div>
-        <span className="masthead-catalog">EN&#8209;4060</span>
+        <h1>Chord and Scale Randomizer</h1>
+        <p className="masthead-subtitle">
+          A <strong>tonal center</strong> is the root note, chord, or scale your ear is
+          currently focused on. This tool switches to a new one at random, on a timer, so
+          you can practice recognizing the change.
+        </p>
       </header>
 
       <Display
@@ -40,8 +41,6 @@ export default function App() {
         onStart={start}
         onStop={stop}
       />
-
-      <footer className="liner-credit">Recorded live — no two takes alike.</footer>
     </div>
   );
 }

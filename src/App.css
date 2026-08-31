@@ -7,27 +7,9 @@
 /* ---------- Masthead ---------- */
 
 .masthead {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 1rem;
+  padding-bottom: 1.25rem;
   margin-bottom: 2rem;
   border-bottom: 2px solid var(--cobalt);
-}
-
-.masthead-title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.masthead-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--brass);
 }
 
 .masthead h1 {
@@ -37,12 +19,17 @@
   line-height: 0.95;
 }
 
-.masthead-catalog {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+.masthead-subtitle {
+  margin: 0.85rem 0 0;
+  max-width: 38rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: var(--paper-dim);
-  white-space: nowrap;
-  padding-bottom: 0.35rem;
+}
+
+.masthead-subtitle strong {
+  color: var(--paper);
+  font-weight: 600;
 }
 
 /* ---------- Sleeve / Display ---------- */
@@ -524,26 +511,9 @@
   margin-right: 0.1rem;
 }
 
-/* ---------- Footer ---------- */
-
-.liner-credit {
-  margin-top: 2.5rem;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  color: var(--paper-dim);
-}
-
 /* ---------- Responsive ---------- */
 
 @media (max-width: 480px) {
-  .masthead {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
   .session-data {
     gap: 1rem;
   }
@@ -563,8 +533,7 @@
     align-items: start;
   }
 
-  .masthead,
-  .liner-credit {
+  .masthead {
     grid-column: 1 / -1;
   }
 

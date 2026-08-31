@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DEFAULT_ENABLED_TYPES, typeKeysInCategories } from '../music/pool';
 
-const STORAGE_KEY = 'ear-training-settings';
+const STORAGE_KEY = 'chord-scale-randomizer-settings';
 
 const DEFAULT_SETTINGS = {
   bpm: 60,

@@ -1,4 +1,4 @@
-# Ear Trainer
+# Chord and Scale Randomizer
 
 A browser-based ear-training tool that plays a randomized sequence of tonal centers —
 root notes, triads, seventh chords, or chords implied by diatonic/modal/nondiatonic

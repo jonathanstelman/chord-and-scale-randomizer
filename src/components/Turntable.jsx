@@ -2,7 +2,7 @@
 // answer is plain text read as one phrase ("A Phrygian"), not split across the badge and
 // a separate caption. Splitting root and quality apart (a giant number in a circle, then
 // a differently-sized label underneath) was cute but cognitively harder to read fast,
-// which defeats the point of an ear-training tool.
+// which defeats the point of a chord/scale-recognition tool.
 function RecordBadge({ modeKey, spinning }) {
   return <div className={`record-badge record-badge--${modeKey}${spinning ? ' is-spinning' : ''}`} />;
 }

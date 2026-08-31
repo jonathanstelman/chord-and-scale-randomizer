@@ -160,7 +160,7 @@ function Controls({
       </div>
 
       <details className="advanced">
-        <summary>▸ Advanced — session personnel</summary>
+        <summary>▸ Advanced settings</summary>
         <div className="type-groups">
           {Object.entries(CATEGORY_GROUPS).map(([category, types]) => {
             const categoryMode = { categories: [category] };
