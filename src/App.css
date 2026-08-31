@@ -85,7 +85,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  /* nowrap deliberately: with `wrap`, flexbox decides whether "next" sits beside or
+     below "current" based on how much horizontal room their *combined* content needs —
+     so a short "next" chord stayed on the right, but a longer one (e.g. a long scale
+     name) pushed the whole block down, for no reason a viewer could predict. Each side
+     already wraps its own text within its own max-width column (see .chord-name /
+     .chord-name--next), so nowrap here keeps "next" pinned to the right at any text
+     length; only the dedicated mobile breakpoint below switches to a stacked layout. */
+  flex-wrap: nowrap;
   gap: 1.5rem;
   width: 100%;
 }
@@ -512,6 +519,12 @@
 }
 
 /* ---------- Responsive ---------- */
+
+@media (max-width: 560px) {
+  .reading-row {
+    flex-wrap: wrap;
+  }
+}
 
 @media (max-width: 480px) {
   .session-data {
