@@ -19,6 +19,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   flag (major/minor/modal types are restricted to roots with a sane key signature — see
   `notes.js`'s circle-of-fifths spelling table — so you get "B♭" not "A♯"; symmetric
   scales/dim/aug aren't restricted since they don't imply a key).
+- `notes.js` has two spellings per pitch class on purpose: `pitchClassToName`/
+  `pitchClassToNoteName` stay ASCII ("Bb4") because that's all Tone.js's note parser
+  accepts, while `pitchClassToDisplayName` swaps in the real Unicode glyphs (♭ ♯) for
+  anything shown to the user. Don't collapse these into one function.
 - `voicing.js` turns a root + interval list into actual voiced notes spread across
   octaves (root low, everything else stacked above), and separately
   `padToSimpleArpeggioLength` pads an arpeggio's note count up to 1/2/4/8 — the set of
