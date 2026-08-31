@@ -1,0 +1,574 @@
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+/* ---------- Masthead ---------- */
+
+.masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--cobalt);
+}
+
+.masthead-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.masthead-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.masthead h1 {
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+
+.masthead-catalog {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--paper-dim);
+  white-space: nowrap;
+  padding-bottom: 0.35rem;
+}
+
+/* ---------- Sleeve / Display ---------- */
+
+.sleeve {
+  position: relative;
+  min-height: 15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: var(--panel);
+  border: 1px solid rgba(244, 238, 221, 0.08);
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  margin-bottom: 2rem;
+  padding: 2rem 1.5rem;
+}
+
+.sleeve-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--paper-dim);
+}
+
+.sleeve-idle-mark {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--flame);
+}
+
+.sleeve-hint {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--paper-dim);
+  margin: 0;
+}
+
+/* ---------- Turntable (signature element) ---------- */
+
+.turntable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 1.25rem;
+}
+
+.reading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.reading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.reading--next {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  opacity: 0.85;
+}
+
+.reading-next-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reading-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+/* A small spinning-disc badge for flavor — the actual answer is the text beside it,
+   read as one phrase, not a second information source to decode separately. */
+.record-badge {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      var(--vinyl) 0,
+      var(--vinyl) 2px,
+      #201c18 2px,
+      #201c18 3px
+    );
+  border: 2px solid var(--paper);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  animation: spin-disc 4.2s linear infinite;
+  animation-play-state: paused;
+}
+
+.record-badge.is-spinning {
+  animation-play-state: running;
+}
+
+.reading--next .record-badge {
+  width: 2rem;
+  height: 2rem;
+}
+
+.record-badge--triads { border-color: var(--cobalt); }
+.record-badge--sevenths { border-color: var(--brass); }
+.record-badge--extended { border-color: var(--flame); }
+
+@keyframes spin-disc {
+  to { transform: rotate(360deg); }
+}
+
+/* Root + quality read as one phrase ("A Phrygian"), same line, same style — splitting
+   them apart (a giant number, then a separate caption) was harder to read at speed. */
+.chord-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--paper);
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  max-width: 17rem;
+}
+
+.chord-name--next {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: var(--paper-dim);
+  max-width: 12rem;
+  text-align: right;
+}
+
+.chord-name--gap {
+  color: var(--paper-dim);
+  font-style: italic;
+}
+
+.beat-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.beat-numeral {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-display);
+  color: var(--paper);
+}
+
+.beat-numeral-current {
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  line-height: 1;
+  color: var(--flame);
+}
+
+.beat-numeral-total {
+  font-size: 1.1rem;
+  color: var(--paper-dim);
+}
+
+.beat-track {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+  max-width: 26rem;
+}
+
+.beat-block {
+  width: 0.9rem;
+  height: 1.3rem;
+  border-radius: 2px;
+  border: 1px solid var(--paper-faint);
+  background: transparent;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, transform 0.15s ease-out;
+}
+
+.beat-block--past {
+  background: rgba(244, 238, 221, 0.3);
+  border-color: transparent;
+}
+
+.beat-block--current {
+  /* transform + background only (no box-shadow): this class toggles every single beat,
+     and box-shadow forces a paint rather than just a cheap compositor update — avoidable
+     main-thread work competing with Tone.js's live audio scheduling for no visual payoff
+     worth the cost. */
+  background: var(--flame);
+  border-color: var(--flame);
+  transform: scaleY(1.15);
+}
+
+.beat-block--current.beat-block--gap {
+  /* Cobalt instead of flame during the silent gap — visually distinct from an actively
+     sounding beat, same shape/language. */
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.transport-button {
+  align-self: flex-start;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--flame);
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.7rem 1.75rem;
+  cursor: pointer;
+  transition: transform 0.1s ease-out, filter 0.15s ease-out;
+}
+
+.transport-button:hover {
+  filter: brightness(1.08);
+}
+
+.transport-button:active {
+  transform: scale(0.98);
+}
+
+.session-data {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--paper-faint);
+  border-bottom: 1px solid var(--paper-faint);
+}
+
+.data-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.data-field span:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+.data-field input,
+.data-field select {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--paper);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--cobalt);
+  padding: 0.15rem 0.1rem;
+  width: 4.5rem;
+}
+
+.data-field select {
+  width: auto;
+}
+
+.data-field input:focus,
+.data-field select:focus {
+  outline: none;
+  border-bottom-color: var(--brass);
+}
+
+.data-unit {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--paper-dim);
+}
+
+.toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--paper-dim);
+}
+
+.checkbox-label input[type='checkbox'] {
+  accent-color: var(--brass);
+  width: 1rem;
+  height: 1rem;
+}
+
+.metronome-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--paper-faint);
+  border-radius: 0.4rem;
+}
+
+.metronome-volume {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+.metronome-volume input[type='range'] {
+  accent-color: var(--brass);
+  width: 8rem;
+}
+
+.metronome-volume input[type='range']:disabled {
+  opacity: 0.4;
+}
+
+/* ---------- Mode blocks ---------- */
+
+.mode-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+}
+
+.mode-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.3rem;
+  border: 2px solid var(--paper-faint);
+  color: var(--paper-dim);
+  cursor: pointer;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
+}
+
+.mode-block input {
+  accent-color: currentColor;
+}
+
+.mode-block--root.is-on {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
+.mode-block--triads.is-on {
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+  color: var(--paper);
+}
+
+.mode-block--sevenths.is-on {
+  background: var(--brass);
+  border-color: var(--brass);
+  color: var(--ink);
+}
+
+.mode-block--extended.is-on {
+  background: var(--flame);
+  border-color: var(--flame);
+  color: var(--paper);
+}
+
+.mode-block.is-partial {
+  border-style: dashed;
+  color: var(--paper);
+}
+
+/* ---------- Advanced / liner notes ---------- */
+
+.advanced summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--paper-dim);
+  margin-bottom: 1rem;
+  list-style: none;
+}
+
+.advanced summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced summary:hover {
+  color: var(--paper);
+}
+
+.type-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.type-groups fieldset {
+  border: none;
+  border-top: 1px solid var(--paper-faint);
+  padding: 0.75rem 0 0;
+  margin: 0;
+}
+
+.fieldset-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.type-groups legend {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brass);
+  padding: 0;
+  white-space: nowrap;
+}
+
+.category-select-all {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--paper-dim);
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+.category-select-all::before {
+  content: '[ ';
+}
+
+.category-select-all::after {
+  content: ' ]';
+}
+
+.track-row {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  margin: 0.35rem 0;
+}
+
+.track-number {
+  color: var(--paper-dim);
+  margin-right: 0.1rem;
+}
+
+/* ---------- Footer ---------- */
+
+.liner-credit {
+  margin-top: 2.5rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--paper-dim);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .masthead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .session-data {
+    gap: 1rem;
+  }
+}
+
+/* A wide window shouldn't leave the page stranded in a narrow column with the rest of
+   the desk empty — past this width, the sleeve and the controls sit side by side like a
+   gatefold, sharing the extra room instead of ignoring it. */
+@media (min-width: 1040px) {
+  .app {
+    max-width: 1080px;
+    padding-top: 3.5rem;
+    display: grid;
+    grid-template-columns: minmax(320px, 460px) 1fr;
+    column-gap: 3rem;
+    row-gap: 2rem;
+    align-items: start;
+  }
+
+  .masthead,
+  .liner-credit {
+    grid-column: 1 / -1;
+  }
+
+  .sleeve {
+    margin-bottom: 0;
+  }
+}

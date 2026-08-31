@@ -1,0 +1,56 @@
+:root {
+  /* Palette — a record sleeve at rest on a dark table. */
+  --ink: #12202e;      /* page background */
+  --panel: #17293b;    /* sleeve/card surface, a shade lighter than ink */
+  --paper: #f4eedd;    /* cream ink for type and outlines */
+  --cobalt: #2b6e96;   /* Triads block + structural lines */
+  --brass: #ce9b2e;    /* Sevenths block + "next" sticker */
+  --flame: #d8481f;    /* Extended block + primary action + downbeat accent */
+  --vinyl: #121011;    /* the record disc itself */
+
+  --paper-dim: rgba(244, 238, 221, 0.62);
+  --paper-faint: rgba(244, 238, 221, 0.14);
+
+  --font-display: 'Anton', 'Arial Narrow', sans-serif;
+  --font-body: 'Work Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, Consolas, monospace;
+
+  font: 16px/1.5 var(--font-body);
+  color-scheme: dark;
+  color: var(--paper);
+  background: var(--ink);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--ink);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--paper);
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
