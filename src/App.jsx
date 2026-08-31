@@ -17,7 +17,7 @@ export default function App() {
         <p className="masthead-subtitle">
           A <strong>tonal center</strong> is the root note, chord, or scale your ear is
           currently focused on. This tool switches to a new one at random, on a timer, so
-          you can practice recognizing the change.
+          you can practice hearing and responding to the change.
         </p>
       </header>
 
