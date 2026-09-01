@@ -55,16 +55,10 @@ randomly. This is the biggest item here; some open questions to resolve before b
   `useRandomizer.js`'s `makeSegment` are the two places that would need a custom-bank
   source instead of (or blended with) `ALL_TONAL_CENTER_TYPES`.
 
-## 5. Prepare for Vercel deployment
+## 5. Prepare for Vercel deployment — done
 
-This is a static Vite/React app with no backend (all state is `localStorage`), so this
-should be close to zero-config:
-- Vercel auto-detects Vite; build command `npm run build`, output directory `dist/` (the
-  Vite default — unchanged in `vite.config.js`).
-- No environment variables or serverless functions needed today.
-- The only external network dependency is the Google Fonts `<link>` tags in
-  `index.html` (Anton, Work Sans, Space Mono) — fine for a Vercel-hosted static site,
-  just worth knowing it's not fully self-contained/offline.
-- Sanity-check after deploying: audio requires a user gesture to start (`Tone.start()`
-  in `useRandomizer.js`'s `start()`), which works the same over HTTPS on Vercel as it
-  does locally — nothing deploy-specific there, just confirm it in practice once live.
+Deployed 2026-08-31. Repo renamed to match the app's actual name
+(`chord-and-scale-randomizer`, per `package.json`/README) and pushed to
+`github.com/jonathanstelman/chord-and-scale-randomizer`; Vercel auto-detected Vite
+(`npm run build` / `dist/`) with zero config changes needed. Post-deploy audio sanity
+check (`Tone.start()` needing a user gesture) passed live.
