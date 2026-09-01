@@ -510,6 +510,60 @@
   color: var(--paper);
 }
 
+/* ---------- Custom bank ---------- */
+
+.custom-bank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--paper-faint);
+  border-radius: 0.4rem;
+}
+
+.custom-bank-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+}
+
+.custom-bank-mode {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.custom-bank-input {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--paper);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--cobalt);
+  padding: 0.3rem 0.1rem;
+  resize: vertical;
+}
+
+.custom-bank-input:focus {
+  outline: none;
+  border-bottom-color: var(--brass);
+}
+
+.custom-bank-parsed {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--paper-dim);
+  margin: 0;
+}
+
+.custom-bank-error {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--flame);
+  margin: 0;
+}
+
 /* ---------- Advanced / liner notes ---------- */
 
 .advanced summary {

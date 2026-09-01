@@ -134,6 +134,16 @@ export function pickRandomTonalCenterFromPairs(pairs) {
   return { rootPc, type };
 }
 
+// "Ordered" custom-bank mode's counterpart to pickRandomTonalCenterFromPairs: walks a
+// {rootPc, typeKey} list in the order it was written rather than drawing randomly. Wraps
+// via modulo, so it stays correct even if the bank was edited (and thus shorter) since
+// the caller's cursor was last incremented.
+export function tonalCenterAtIndex(pairs, index) {
+  const { rootPc, typeKey } = pairs[((index % pairs.length) + pairs.length) % pairs.length];
+  const type = ALL_TONAL_CENTER_TYPES.find((t) => t.key === typeKey);
+  return { rootPc, type };
+}
+
 export function pickRandomDuration(minBeats, maxBeats) {
   const lo = Math.max(1, Math.min(minBeats, maxBeats));
   const hi = Math.max(minBeats, maxBeats);

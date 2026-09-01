@@ -40,3 +40,20 @@ export function pitchClassAccidentals(pc) {
 export function pitchClassToNoteName(pc, octave) {
   return `${pitchClassToName(pc)}${octave}`;
 }
+
+const NATURAL_PITCH_CLASS = {
+  C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11,
+};
+
+// Reverse of pitchClassToName/pitchClassToDisplayName — for reading a root the *user*
+// typed (the custom chord-bank parser) back into a pitch class. `letter` is a bare A-G
+// (case-insensitive); `accidental` is '#'/'♯' (sharp), 'b'/'♭' (flat), or '' (natural).
+// Returns null for an unrecognized letter rather than throwing, so the parser can turn
+// that into a friendly per-token error instead of a crash.
+export function noteNameToPitchClass(letter, accidental) {
+  const pc = NATURAL_PITCH_CLASS[letter.toUpperCase()];
+  if (pc === undefined) return null;
+  if (accidental === '#' || accidental === '♯') return (pc + 1 + 12) % 12;
+  if (accidental === 'b' || accidental === '♭') return (pc - 1 + 12) % 12;
+  return pc;
+}

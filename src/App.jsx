@@ -6,7 +6,17 @@ import './App.css';
 
 export default function App() {
   const {
-    settings, updateSettings, toggleType, setModeEnabled, toggleRoot, setAllRootsEnabled, applyPreset,
+    settings,
+    updateSettings,
+    toggleType,
+    setModeEnabled,
+    toggleRoot,
+    setAllRootsEnabled,
+    applyPreset,
+    setCustomBankText,
+    commitCustomBank,
+    setCustomBankMode,
+    setCustomBankEnabled,
   } = useSettings();
   const {
     isRunning, current, next, beatIndex, totalBeats, isGap, start, stop,
@@ -42,6 +52,10 @@ export default function App() {
         toggleRoot={toggleRoot}
         setAllRootsEnabled={setAllRootsEnabled}
         applyPreset={applyPreset}
+        setCustomBankText={setCustomBankText}
+        commitCustomBank={commitCustomBank}
+        setCustomBankMode={setCustomBankMode}
+        setCustomBankEnabled={setCustomBankEnabled}
         isRunning={isRunning}
         onStart={start}
         onStop={stop}

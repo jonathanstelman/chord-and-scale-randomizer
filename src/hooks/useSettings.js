@@ -21,6 +21,10 @@ const DEFAULT_SETTINGS = {
   // manual type/root edit, so "customize from here" falls back to whatever
   // enabledTypes/enabledRoots held before the preset was applied.
   enabledPairs: null,
+  customBankText: '', // raw textarea contents, persisted so a reload keeps what was typed
+  customBankEntries: [], // last successfully-parsed [{rootPc, typeKey}] — what playback reads
+  customBankMode: 'random', // 'random' | 'ordered'
+  customBankEnabled: false,
 };
 
 function loadSettings() {
@@ -45,9 +49,9 @@ export function useSettings() {
   // because App re-rendered for an unrelated reason (the beat counter, the turntable).
   const updateSettings = useCallback((patch) => setSettings((prev) => ({ ...prev, ...patch })), []);
 
-  // Manually editing types/roots always exits Guitar-style "explicit pairs" mode (see
-  // enabledPairs above) — the checkboxes only mean something when the pool is being
-  // built from enabledTypes/enabledRoots, not from a fixed pair list.
+  // Manually editing types/roots always exits Guitar-style "explicit pairs" mode and
+  // custom-bank mode — the checkboxes only mean something when the pool is being built
+  // from enabledTypes/enabledRoots, not from a fixed pair list.
   const toggleType = useCallback((key) => {
     setSettings((prev) => ({
       ...prev,
@@ -55,6 +59,7 @@ export function useSettings() {
         ? prev.enabledTypes.filter((k) => k !== key)
         : [...prev.enabledTypes, key],
       enabledPairs: null,
+      customBankEnabled: false,
     }));
   }, []);
 
@@ -66,7 +71,9 @@ export function useSettings() {
       const enabledTypes = enabled
         ? Array.from(new Set([...prev.enabledTypes, ...keys]))
         : prev.enabledTypes.filter((k) => !keys.includes(k));
-      return { ...prev, enabledTypes, enabledPairs: null };
+      return {
+        ...prev, enabledTypes, enabledPairs: null, customBankEnabled: false,
+      };
     });
   }, []);
 
@@ -77,6 +84,7 @@ export function useSettings() {
         ? prev.enabledRoots.filter((r) => r !== pc)
         : [...prev.enabledRoots, pc],
       enabledPairs: null,
+      customBankEnabled: false,
     }));
   }, []);
 
@@ -85,6 +93,7 @@ export function useSettings() {
       ...prev,
       enabledRoots: enabled ? [...ALL_ROOTS] : [],
       enabledPairs: null,
+      customBankEnabled: false,
     }));
   }, []);
 
@@ -92,17 +101,60 @@ export function useSettings() {
   // enabled), a preset replaces enabledTypes outright — picking one is a clean reset to
   // exactly its categories, not a merge. Guitar is the exception: it sets `pairs`
   // instead, and deliberately leaves enabledTypes/enabledRoots untouched (see PRESETS in
-  // pool.js) so any other preset, or a manual edit, cleanly supersedes it.
+  // pool.js) so any other preset, or a manual edit, cleanly supersedes it. Any preset
+  // (Guitar included) turns off custom-bank mode, same as a manual checkbox edit would.
   const applyPreset = useCallback((preset) => {
     setSettings((prev) => ({
       ...prev,
       ...(preset.categories ? { enabledTypes: typeKeysInCategories(preset.categories) } : {}),
       enabledPairs: preset.pairs ?? null,
+      customBankEnabled: false,
       ...(preset.bpm !== undefined ? { bpm: preset.bpm } : {}),
     }));
   }, []);
 
+  // Just the raw textarea contents — parsing (and committing a new customBankEntries)
+  // happens separately, on blur, in Controls.jsx.
+  const setCustomBankText = useCallback((text) => {
+    setSettings((prev) => ({ ...prev, customBankText: text }));
+  }, []);
+
+  const commitCustomBank = useCallback((entries) => {
+    setSettings((prev) => ({
+      ...prev,
+      customBankEntries: entries,
+      // An empty bank can't be "in use" — avoid leaving a checked-but-disabled checkbox
+      // behind if the user clears their typed text back out.
+      customBankEnabled: entries.length > 0 ? prev.customBankEnabled : false,
+    }));
+  }, []);
+
+  const setCustomBankMode = useCallback((mode) => {
+    setSettings((prev) => ({ ...prev, customBankMode: mode }));
+  }, []);
+
+  // Turning custom-bank mode on exits Guitar-style "explicit pairs" mode, the same way
+  // Guitar exits custom-bank mode above — only one special source governs playback at a
+  // time; the general enabledTypes/enabledRoots filters are untouched either way.
+  const setCustomBankEnabled = useCallback((enabled) => {
+    setSettings((prev) => ({
+      ...prev,
+      customBankEnabled: enabled,
+      enabledPairs: enabled ? null : prev.enabledPairs,
+    }));
+  }, []);
+
   return {
-    settings, updateSettings, toggleType, setModeEnabled, toggleRoot, setAllRootsEnabled, applyPreset,
+    settings,
+    updateSettings,
+    toggleType,
+    setModeEnabled,
+    toggleRoot,
+    setAllRootsEnabled,
+    applyPreset,
+    setCustomBankText,
+    commitCustomBank,
+    setCustomBankMode,
+    setCustomBankEnabled,
   };
 }

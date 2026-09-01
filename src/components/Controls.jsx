@@ -3,6 +3,11 @@ import {
   ALL_ROOTS, ALL_TONAL_CENTER_TYPES, CORE_MODES, PRESETS, modeCheckState, rootsCheckState,
 } from '../music/pool';
 import { pitchClassToDisplayName } from '../music/notes';
+import { parseCustomBank } from '../music/chordParser';
+
+function typeLabelForKey(key) {
+  return ALL_TONAL_CENTER_TYPES.find((t) => t.key === key)?.label ?? key;
+}
 
 function groupByCategory(types) {
   const groups = {};
@@ -41,6 +46,7 @@ function TriStateCheckbox({ label, state, onChange, className }) {
 // main-thread time for no reason.
 function Controls({
   settings, updateSettings, toggleType, setModeEnabled, toggleRoot, setAllRootsEnabled, applyPreset,
+  setCustomBankText, commitCustomBank, setCustomBankMode, setCustomBankEnabled,
   isRunning, onStart, onStop,
 }) {
   // "Randomize beats" / "add a pause" only decide which fields are *visible* — the
@@ -49,6 +55,20 @@ function Controls({
   // session reopens expanded) rather than tracking their own separate stored flag.
   const [rangeExpanded, setRangeExpanded] = useState(() => settings.minBeats !== settings.maxBeats);
   const [gapExpanded, setGapExpanded] = useState(() => settings.gapBeats > 0);
+  // Transient — cleared on every successful parse, never persisted. A parse failure
+  // keeps whatever customBankEntries was last committed (see commitCustomBank), so a
+  // typo mid-edit doesn't blow away a bank that's actively playing.
+  const [bankError, setBankError] = useState(null);
+
+  const parseBankOnBlur = () => {
+    const { entries, errors } = parseCustomBank(settings.customBankText);
+    if (errors.length > 0) {
+      setBankError(errors.map((raw) => `"${raw}"`).join(', '));
+      return;
+    }
+    setBankError(null);
+    commitCustomBank(entries);
+  };
 
   return (
     <div className="controls">
@@ -251,6 +271,71 @@ function Controls({
           );
         })}
       </div>
+
+      <div className="custom-bank">
+        <div className="custom-bank-head">
+          <span className="session-data-group-label">Custom bank</span>
+          <div className="custom-bank-mode">
+            <label className="checkbox-label">
+              <input
+                type="radio"
+                name="customBankMode"
+                checked={settings.customBankMode === 'random'}
+                onChange={() => setCustomBankMode('random')}
+              />
+              Random
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="radio"
+                name="customBankMode"
+                checked={settings.customBankMode === 'ordered'}
+                onChange={() => setCustomBankMode('ordered')}
+              />
+              In order
+            </label>
+          </div>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={settings.customBankEnabled}
+              disabled={settings.customBankEntries.length === 0}
+              onChange={(e) => setCustomBankEnabled(e.target.checked)}
+            />
+            Use custom bank
+          </label>
+        </div>
+        <textarea
+          className="custom-bank-input"
+          rows={2}
+          placeholder="C, Am, F, G7"
+          value={settings.customBankText}
+          onChange={(e) => setCustomBankText(e.target.value)}
+          onBlur={parseBankOnBlur}
+        />
+        {bankError ? (
+          <p className="custom-bank-error">⚠ Couldn&rsquo;t parse: {bankError}</p>
+        ) : settings.customBankEntries.length > 0 && (
+          <p className="custom-bank-parsed">
+            Parsed {settings.customBankEntries.length}
+            {' '}
+            chord
+            {settings.customBankEntries.length === 1 ? '' : 's'}
+            :
+            {' '}
+            {settings.customBankEntries
+              .map((e) => `${pitchClassToDisplayName(e.rootPc)} ${typeLabelForKey(e.typeKey)}`)
+              .join(', ')}
+          </p>
+        )}
+      </div>
+      {settings.customBankEnabled && (
+        <p className="preset-note">
+          Custom bank is active ({settings.customBankMode === 'ordered' ? 'in order' : 'random'}),
+          drawing only from the chords above. Any change to the mode/type/root checkboxes
+          below returns to normal filtering.
+        </p>
+      )}
 
       <details className="advanced">
         <summary>▸ Advanced settings</summary>

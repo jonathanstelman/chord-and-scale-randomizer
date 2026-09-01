@@ -2,34 +2,56 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { TonalCenterPlayer } from '../audio/engine';
 import {
-  pickRandomTonalCenter, pickRandomTonalCenterFromPairs, pickRandomDuration, coreModeKeyForCategory,
+  pickRandomTonalCenter, pickRandomTonalCenterFromPairs, tonalCenterAtIndex, pickRandomDuration,
+  coreModeKeyForCategory,
 } from '../music/pool';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
 
 const MAX_REPEAT_AVOIDANCE_ATTEMPTS = 20;
 
+function buildSegment(rootPc, type, s) {
+  return {
+    rootPc,
+    type,
+    duration: pickRandomDuration(s.minBeats, s.maxBeats),
+    rootName: pitchClassToDisplayName(rootPc),
+    typeLabel: type.label,
+    modeKey: coreModeKeyForCategory(type.category),
+  };
+}
+
 // `avoid` is the segment that's about to stop playing — re-rolls (root, type) pairs that
 // would repeat it exactly. Duration doesn't factor into "the same tonal center"; only
 // root + type identity does. The retry cap is just a safety valve against an infinite
 // loop in some degenerate future config — with 12 roots always in play, a fresh pick
 // almost always succeeds on the first try.
-function makeSegment(s, avoid) {
+//
+// `orderedBankIndexRef` is only read/advanced for custom-bank "ordered" mode: walking a
+// user-written progression in order is a different shape entirely from the other three
+// sources (general pool, Guitar's pairs, custom-bank "random") — those all draw randomly
+// and skip an exact repeat of `avoid`, but a repeated chord in a typed-out progression
+// (e.g. "C, C, F, G") is intentional, so ordered mode returns straight away instead of
+// looping.
+function makeSegment(s, avoid, orderedBankIndexRef) {
+  const usingCustomBank = s.customBankEnabled && s.customBankEntries.length > 0;
+
+  if (usingCustomBank && s.customBankMode === 'ordered') {
+    const index = orderedBankIndexRef.current;
+    orderedBankIndexRef.current += 1;
+    const { rootPc, type } = tonalCenterAtIndex(s.customBankEntries, index);
+    return buildSegment(rootPc, type, s);
+  }
+
   let seg;
   let attempts = 0;
   do {
-    const { rootPc, type } = s.enabledPairs
-      ? pickRandomTonalCenterFromPairs(s.enabledPairs)
-      : pickRandomTonalCenter(s.enabledTypes, s.enabledRoots);
-    const duration = pickRandomDuration(s.minBeats, s.maxBeats);
-    seg = {
-      rootPc,
-      type,
-      duration,
-      rootName: pitchClassToDisplayName(rootPc),
-      typeLabel: type.label,
-      modeKey: coreModeKeyForCategory(type.category),
-    };
+    const { rootPc, type } = usingCustomBank
+      ? pickRandomTonalCenterFromPairs(s.customBankEntries)
+      : s.enabledPairs
+        ? pickRandomTonalCenterFromPairs(s.enabledPairs)
+        : pickRandomTonalCenter(s.enabledTypes, s.enabledRoots);
+    seg = buildSegment(rootPc, type, s);
     attempts += 1;
   } while (
     avoid && seg.rootPc === avoid.rootPc && seg.type.key === avoid.type.key
@@ -62,6 +84,7 @@ export function useRandomizer(settings) {
   const stepIndexRef = useRef(0); // 32nd-note steps since this session's Transport.start()
   const segmentRef = useRef(null);
   const nextSegmentRef = useRef(null);
+  const orderedBankIndexRef = useRef(0); // custom-bank "ordered" mode's position in the list
   const settingsRef = useRef(settings);
   useEffect(() => {
     settingsRef.current = settings;
@@ -83,9 +106,10 @@ export function useRandomizer(settings) {
   }, []);
 
   const advanceToNext = useCallback((time) => {
-    const seg = nextSegmentRef.current ?? makeSegment(settingsRef.current, segmentRef.current);
+    const seg = nextSegmentRef.current
+      ?? makeSegment(settingsRef.current, segmentRef.current, orderedBankIndexRef);
     segmentRef.current = seg;
-    nextSegmentRef.current = makeSegment(settingsRef.current, seg);
+    nextSegmentRef.current = makeSegment(settingsRef.current, seg, orderedBankIndexRef);
     phaseRef.current = 'playing';
     phaseTotalRef.current = seg.duration;
     beatsRemainingRef.current = seg.duration;
@@ -134,6 +158,7 @@ export function useRandomizer(settings) {
     phaseRef.current = null; // no gap before the very first tonal center
     beatsRemainingRef.current = 0;
     stepIndexRef.current = 0;
+    orderedBankIndexRef.current = 0; // every session starts a custom bank from its top
 
     // A single clock at 32nd-note granularity — not two separate scheduleRepeats (one at
     // '4n' for beats, one at '32n' for arpeggio steps). Running them as two independent
