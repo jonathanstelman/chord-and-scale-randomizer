@@ -1,5 +1,46 @@
 import * as Tone from 'tone';
 
+// iOS/iPadOS Safari (and every other browser there — Apple requires them all to embed
+// WebKit) puts a page's raw Web Audio API output in the "Ambient" audio session category
+// by default, which respects the hardware/software mute switch — unlike native <audio>/
+// <video> elements, which get "MediaPlayback" and ignore it. That's the actual cause of
+// "no sound on iPad": Tone.js's .toDestination() goes straight to the AudioContext's
+// destination, so it's always "Ambient" there, while apps built on <audio>/<video>
+// elements (YouTube, Spotify web, ...) aren't. unlockIOSMediaPlayback() below plays
+// Tone.js's output through a hidden <audio> element (via a MediaStreamAudioDestinationNode)
+// to bump the page into that same "MediaPlayback" category instead, at the cost of a
+// small amount of extra output latency from the added MediaStream hop — acceptable here
+// given useRandomizer's existing 200ms scheduling lookahead, but real enough that this
+// stays iOS-only rather than applying to every platform.
+export const IS_IOS = typeof navigator !== 'undefined' && (
+  /iPad|iPhone|iPod/.test(navigator.userAgent)
+  // iPadOS 13+ masquerades as "MacIntel" in the UA string under its default desktop-site
+  // request — but a real Mac has no touch points, so this still isolates real iPads.
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+);
+
+let iosMediaStreamDestination = null;
+
+// Must be called synchronously from within the same user-gesture handler that calls
+// Tone.start() (see useRandomizer.js's start()) — <audio>.play() is itself subject to the
+// same autoplay-gesture requirement as AudioContext.resume(), so this can't be deferred
+// into, say, TonalCenterPlayer's constructor alone if that ends up running too late.
+// Idempotent: the same hidden element and stream are reused for the rest of the page's
+// life once created, across every subsequent start()/stop() cycle.
+export function unlockIOSMediaPlayback() {
+  if (!IS_IOS || iosMediaStreamDestination) return iosMediaStreamDestination;
+  iosMediaStreamDestination = Tone.getContext().rawContext.createMediaStreamDestination();
+  const audioEl = new Audio();
+  audioEl.srcObject = iosMediaStreamDestination.stream;
+  audioEl.style.display = 'none';
+  document.body.appendChild(audioEl);
+  // Ignore rejection: IS_IOS already gates this to the one platform it's needed on, and
+  // this is only ever called from a real tap, so a rejection here would mean the browser
+  // changed its autoplay rules, not a bug to recover from at runtime.
+  audioEl.play().catch(() => {});
+  return iosMediaStreamDestination;
+}
+
 // Owns the actual synths and whatever is currently sounding (held chord/pad notes, or a
 // running arpeggio sequence), plus a separate click synth for the metronome. One instance
 // lives for the life of a randomizer session. All playback methods take an optional Tone
@@ -11,7 +52,12 @@ export class TonalCenterPlayer {
     // past 0dBFS and hard-clip — that's the "heavily distorted" sound. Everything routes
     // through here instead of straight to the speakers, and each synth also gets its own
     // volume trim below so the limiter is a backstop, not doing the work on every note.
-    this.limiter = new Tone.Limiter(-1).toDestination();
+    this.limiter = new Tone.Limiter(-1);
+    if (IS_IOS) {
+      this.limiter.connect(unlockIOSMediaPlayback());
+    } else {
+      this.limiter.toDestination();
+    }
 
     // Reference volume each synth is tuned at 4 simultaneous notes — playSegment() scales
     // this by how many notes actually stack (see #scaledVolume), because a 7-note chord
