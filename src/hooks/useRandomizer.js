@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { TonalCenterPlayer } from '../audio/engine';
-import { pickRandomTonalCenter, pickRandomDuration, coreModeKeyForCategory } from '../music/pool';
+import {
+  pickRandomTonalCenter, pickRandomTonalCenterFromPairs, pickRandomDuration, coreModeKeyForCategory,
+} from '../music/pool';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
 
@@ -16,7 +18,9 @@ function makeSegment(s, avoid) {
   let seg;
   let attempts = 0;
   do {
-    const { rootPc, type } = pickRandomTonalCenter(s.enabledTypes);
+    const { rootPc, type } = s.enabledPairs
+      ? pickRandomTonalCenterFromPairs(s.enabledPairs)
+      : pickRandomTonalCenter(s.enabledTypes, s.enabledRoots);
     const duration = pickRandomDuration(s.minBeats, s.maxBeats);
     seg = {
       rootPc,

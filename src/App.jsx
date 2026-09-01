@@ -5,7 +5,9 @@ import Display from './components/Display';
 import './App.css';
 
 export default function App() {
-  const { settings, updateSettings, toggleType, setModeEnabled } = useSettings();
+  const {
+    settings, updateSettings, toggleType, setModeEnabled, toggleRoot, setAllRootsEnabled, applyPreset,
+  } = useSettings();
   const {
     isRunning, current, next, beatIndex, totalBeats, isGap, start, stop,
   } = useRandomizer(settings);
@@ -37,6 +39,9 @@ export default function App() {
         updateSettings={updateSettings}
         toggleType={toggleType}
         setModeEnabled={setModeEnabled}
+        toggleRoot={toggleRoot}
+        setAllRootsEnabled={setAllRootsEnabled}
+        applyPreset={applyPreset}
         isRunning={isRunning}
         onStart={start}
         onStop={stop}
