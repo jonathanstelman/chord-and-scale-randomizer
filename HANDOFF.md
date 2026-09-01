@@ -105,20 +105,31 @@ this app didn't have: restricting which *roots* are in play, not just which chor
   "these qualities" filter can't express. Mutually exclusive with the general filters and
   the custom bank (#4): any manual checkbox edit, or another preset, exits it.
 
-## 7. iPad/Safari: sound doesn't play
+## 7. iPad/Safari: sound doesn't play — done, unverified on real hardware
 
 Reported 2026-08-31 against the live Vercel deploy: the sound generator didn't produce
-audio on an iPad, per limited testing. Not yet reproduced or diagnosed — `useRandomizer.js`'s
-`start()` calls `Tone.start()` as the first statement of the "Start Session" click handler
-(the standard pattern for unlocking a WebAudio `AudioContext` under Safari's autoplay
-policy), and `audio/engine.js` uses only plain oscillator synths (no `Tone.Buffer`/sample
-loading, so it's not a CORS/format problem) — nothing jumps out from a code read alone.
-Before changing anything, narrow down:
-- Does the session actually *run* (turntable animates, beat counter advances, button
-  flips to "Stop Session") with just no sound, or does nothing happen at all?
-- Does that iPad have a physical side switch, and is it set to silent? (Mobile Safari has
-  a long-documented WebKit behavior where the hardware mute switch silences WebAudio
-  output entirely, unlike most native apps — this wouldn't be fixable from app code.)
-- Any errors in Safari's remote Web Inspector (Mac Safari → Develop → [iPad name])?
-- Does audio work in *any* other web page's Web Audio/WebKit-based synth on that same
-  iPad, to isolate "this app" vs. "that device/browser configuration"?
+audio on an iPad, per limited testing. Diagnosed same-day: it's the iOS mute switch
+(hardware or the Control Center software toggle) — confirmed by the same behavior on the
+reporter's iPhone. This is a documented WebKit behavior, not a bug in the audio math:
+iOS puts a page's raw Web Audio API output in the "Ambient" session category by default,
+which respects the mute switch, while native `<audio>`/`<video>` elements get
+"MediaPlayback" and ignore it — which is exactly why most other browser-based synth/audio
+apps don't seem to obey the switch, and this one did.
+
+Shipped in `audio/engine.js`: `unlockIOSMediaPlayback()` routes the limiter's output
+through a hidden `<audio>` element (via a `MediaStreamAudioDestinationNode`) instead of
+straight to `AudioContext.destination`, bumping the page into "MediaPlayback" so the mute
+switch stops applying — matching how the apps that already worked correctly behave.
+Gated to iOS specifically (`IS_IOS`, UA sniffing + a touch-points check for iPadOS 13+'s
+default "MacIntel" UA masquerade) so desktop keeps the original direct, lower-latency
+`.toDestination()` path; called synchronously as the first line of `useRandomizer.js`'s
+`start()`, since `<audio>.play()` needs the same live user gesture `Tone.start()` does.
+
+Verified: lint clean, and via Playwright with a spoofed iPad UA — `IS_IOS` correctly
+true/false across a real iPad UA, an iPadOS-as-"MacIntel" UA, and a real Mac (excluded);
+the hidden `<audio>` element gets created and is actively playing a live MediaStream when
+a session starts; desktop path untouched (no `<audio>` element, same `.toDestination()`
+call). **Not yet confirmed against real iPadOS/Safari** — Playwright's engine is
+Chromium, not WebKit, so it can't verify the actual mute-switch-bypass behavior itself,
+only that the audio graph is wired up correctly and nothing throws. Needs a real-device
+check on the next deploy.

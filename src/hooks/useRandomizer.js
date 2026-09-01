@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
-import { TonalCenterPlayer } from '../audio/engine';
+import { TonalCenterPlayer, unlockIOSMediaPlayback } from '../audio/engine';
 import {
   pickRandomTonalCenter, pickRandomTonalCenterFromPairs, tonalCenterAtIndex, pickRandomDuration,
   coreModeKeyForCategory,
@@ -142,6 +142,10 @@ export function useRandomizer(settings) {
   }, []);
 
   const start = useCallback(async () => {
+    // Synchronous, before the first await: <audio>.play() needs the same live user
+    // gesture Tone.start() below does (see unlockIOSMediaPlayback in audio/engine.js), so
+    // it can't wait until TonalCenterPlayer gets constructed a few lines down.
+    unlockIOSMediaPlayback();
     await Tone.start();
     // A bit more scheduling headroom than Tone's 0.1s default: audio events are queued
     // this far ahead of when they actually play, so a slow React render or GC pause on
