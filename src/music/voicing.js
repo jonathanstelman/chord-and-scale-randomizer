@@ -26,10 +26,9 @@ export function voiceChord(rootPc, intervals, options = {}) {
   return notes;
 }
 
-// Simple, beat-friendly arpeggio-pattern lengths: each one divides evenly into 8 (32nd
-// notes per beat), so a fixed 32nd-note arpeggiator always re-locks to the downbeat
-// every 1, 2, 4, or 8 notes — a 3-note triad instead drifts a third of a beat out of
-// phase with the click on every cycle (a "triplet over 4" feel).
+// Beat-friendly lengths: each divides evenly into the beat's 8 32nd-notes, so the
+// arpeggiator never drifts out of phase — see docs/architecture/music-theory.md for why.
+// Don't change these without re-verifying that property.
 const SIMPLE_ARPEGGIO_LENGTHS = [1, 2, 4, 8];
 
 // Pads a voiced chord up to the next simple length by octave-doubling notes from the

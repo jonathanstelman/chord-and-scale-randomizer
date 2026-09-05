@@ -36,11 +36,8 @@ export const CORE_MODES = [
   },
 ];
 
-// The standard beginner "open chord" set on guitar: these five roots (C G D E A) all get
-// open-position majors, but only three of them (A D E) also get an open-position minor —
-// Cm/Gm are barre shapes, not open ones, so they're deliberately left out even though
-// their majors are in the list. That asymmetry can't be expressed as "these roots" ×
-// "these qualities" (see pickRandomTonalCenter), so it's its own explicit pair list
+// The standard beginner "open chord" set on guitar — see
+// docs/architecture/settings-and-presets.md for why this is its own explicit pair list
 // rather than an enabledTypes/enabledRoots combination.
 export const GUITAR_OPEN_CHORD_PAIRS = [
   { rootPc: 0, typeKey: 'maj' }, // C
@@ -53,15 +50,8 @@ export const GUITAR_OPEN_CHORD_PAIRS = [
   { rootPc: 4, typeKey: 'min' }, // Em
 ];
 
-// One-click starting points layered on top of CORE_MODES: each sets enabledTypes to
-// *exactly* its categories (not merged with whatever's already on), so picking one is a
-// clean reset. The manual mode/advanced checkboxes remain the "customize from here" path
-// afterward. Only Beginner also touches bpm — the rest are pure type selections. Guitar
-// is the odd one out: it sets `pairs` instead of `categories`, drawing from
-// GUITAR_OPEN_CHORD_PAIRS directly rather than the enabledTypes/enabledRoots filters (see
-// applyPreset in useSettings.js) — and, unlike the others, it deliberately leaves
-// enabledTypes/enabledRoots untouched so "customize from here" (any manual checkbox edit)
-// falls back to whatever general filter was set before Guitar was picked.
+// One-click starting points layered on top of CORE_MODES — replace-vs-merge semantics
+// and Guitar's special case are in docs/architecture/settings-and-presets.md.
 export const PRESETS = [
   { key: 'beginner', label: 'Beginner', categories: ['Triads'], bpm: 50 },
   { key: 'chords', label: 'Chords Only', categories: ['Triads', 'Seventh Chords'] },
@@ -112,10 +102,8 @@ export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
   // type — there's no more "simplest" type (root note) to single out now that it's gone.
   const types = pool.length > 0 ? pool : ALL_TONAL_CENTER_TYPES;
   const type = types[Math.floor(Math.random() * types.length)];
-  // Root/triad/modal types imply an actual key — keep those to key signatures with
-  // fewer than 7 sharps/flats (spelled correctly via notes.js, e.g. Bb rather than A#).
-  // Symmetric scales and non-key chords (dim, aug, sevenths) aren't "in a key" at all,
-  // so any of the 12 roots is fair game.
+  // hasKeySignature types get key-signature-valid roots, everything else can use any of
+  // the 12 — see docs/architecture/music-theory.md.
   const validRoots = type.hasKeySignature ? SIMPLE_KEY_ROOTS : ALL_ROOTS;
   // Same "don't silently produce nothing" rule as the enabledKeys fallback above: if the
   // user's root selection doesn't intersect this type's valid roots at all (e.g. every

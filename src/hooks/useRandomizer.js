@@ -60,14 +60,8 @@ function makeSegment(s, avoid, orderedBankIndexRef) {
   return seg;
 }
 
-// Drives the "slot machine": a Transport-synced 32nd-note clock (see the scheduleRepeat
-// below for why it isn't simpler) counts down the current phase's remaining beats every
-// 8th tick. A phase is either a tonal center *playing* (random
-// root, random enabled type, random duration between minBeats/maxBeats — never an exact
-// repeat of the one that just played) or, if gapBeats > 0, a silent *gap* right after it
-// ends, giving the user a moment to prepare before the next one starts. The metronome
-// clicks straight through both. The *next* segment is always pre-generated one phase
-// ahead, so it can stay visible in the UI as a preview even while a gap is playing.
+// Drives the "slot machine" — a phase is either a tonal center playing or a silent gap;
+// see docs/architecture/randomizer.md for the phase/pregeneration model.
 export function useRandomizer(settings) {
   const [isRunning, setIsRunning] = useState(false);
   const [current, setCurrent] = useState(null);
@@ -164,16 +158,9 @@ export function useRandomizer(settings) {
     stepIndexRef.current = 0;
     orderedBankIndexRef.current = 0; // every session starts a custom bank from its top
 
-    // A single clock at 32nd-note granularity — not two separate scheduleRepeats (one at
-    // '4n' for beats, one at '32n' for arpeggio steps). Running them as two independent
-    // Transport registrations left their relative firing order for a coincident tick
-    // effectively unspecified, which is exactly how a chord change could update the
-    // arpeggiator's notes *after* that beat's own arp step had already read the old ones
-    // — a race, not a fixed delay, but one that reliably manifested as "late by one
-    // 32nd note" because it was the arp step scheduled first. Deriving beat boundaries
-    // from a step counter (every 8th 32nd note) inside one callback makes the order
-    // exact: beat-logic (which may hand the player new arp notes) always runs before
-    // tickArpeggio() reads them, every time, on the same tick.
+    // One clock, not two — see docs/architecture/randomizer.md for why splitting beat and
+    // arpeggio timing into separate scheduleRepeats caused the arp to occasionally lag a
+    // 32nd note behind a fresh chord.
     repeatIdRef.current = Tone.Transport.scheduleRepeat((time) => {
       const stepIndex = stepIndexRef.current;
       stepIndexRef.current += 1;
