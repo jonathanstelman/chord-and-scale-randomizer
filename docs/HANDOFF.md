@@ -247,3 +247,14 @@ Bluetooth output bypasses) reacting badly to sustained multi-voice sine tones. F
 diagnostic trail and next steps are on the GitHub issue rather than duplicated here —
 deprioritized rather than continuing to guess through real-device redeploy/retest
 round trips.
+
+## 13. Scaffold Vitest for `src/music/`
+
+Not built yet — came out of setting up `docs/guidelines.md`, which documents the
+decision (pure functions with no DOM/audio dependency are the highest-value place to
+start, if this project has any automated tests at all) without yet acting on it. Needs:
+`vitest` as a dev dependency, a `test` script in `package.json`, and a first pass of
+tests against `src/music/pool.js`/`chordParser.js`/`voicing.js` — the three with the most
+non-obvious logic (key-signature filtering, chord-symbol parsing, arpeggio-length
+padding). Everything outside `src/music/` stays on lint/build/manual verification per
+`docs/guidelines.md`.
