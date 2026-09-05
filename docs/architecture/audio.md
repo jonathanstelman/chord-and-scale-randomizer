@@ -6,7 +6,14 @@
 - **Gain staging**: `PolySynth` doesn't reduce per-voice volume as more notes stack, so
   dense chords will clip without help. Volume is scaled per note-count
   (`-10*log10(n/4)`, a power-sum estimate) on top of a limiter used as a backstop, not
-  the primary defense.
+  the primary defense. The chord synth's release is deliberately short despite its slow
+  attack: `playSegment()` sets the shared Volume node for whatever the *new* chord needs,
+  but that same node also governs whatever's still ringing out from the *previous*
+  chord — a long release would let real leftover energy from the old chord overlap a
+  volume setting sized for the new one, and clip anyway. The extra headroom in the
+  baseline (-14dB, not the more typical -12dB) covers the one deliberate exception: the
+  0.5s attack is comparable to the 0.35s release, so some outgoing/incoming overlap is
+  inherent to how the sound is supposed to work, not just a timing edge case.
 - **The arpeggiator is not a `Tone.Sequence`.** Constructing and starting a
   `Tone.Sequence`/`Part` from inside an already-running `Transport.scheduleRepeat`
   callback mis-schedules it in this Tone.js version (silently drops its first note, or
