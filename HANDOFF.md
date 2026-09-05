@@ -133,3 +133,94 @@ call). **Not yet confirmed against real iPadOS/Safari** — Playwright's engine 
 Chromium, not WebKit, so it can't verify the actual mute-switch-bypass behavior itself,
 only that the audio graph is wired up correctly and nothing throws. Needs a real-device
 check on the next deploy.
+
+## 8. Sound cleanup + drop Root Notes from the randomizer — done
+
+Not originally on this list — came up as three related complaints: Chord and Pad sounded
+redundant (Pad was the more pleasant of the two), the arpeggio sounded harsh and
+staccato, and Root Notes mode wasn't earning its place in a beginner's ear-training
+practice. Shipped in `audio/engine.js`/`music/pool.js`/`music/chordQualities.js`:
+- **Chord/Pad merge**: the old fast-attack chord synth is gone; the pad's sine-based
+  synth is now what plays for `soundType: 'chord'`. The sound select is now
+  `'chord' | 'arpeggio' | 'none'`.
+- **Harp-style arpeggio**: sine oscillator, slower attack (0.03s vs. the old 0.005s), and
+  longer decay/release (0.35s/0.4s vs. 0.12s/0.12s) so notes ring into each other instead
+  of cutting off hard, plus an actual up/down bounce through the chord tones
+  (`0..n-1..0`, period `2*(n-1)`) rather than an ascending-only cycle that snapped
+  straight back to the bottom on every lap.
+- **Root Notes removed from the randomizer's mode row** (`CORE_MODES` is now three
+  tiers: Triads, Sevenths, Extended) — but see #9-#11 below: it wasn't retired as a
+  skill, just relocated. The reasoning, worth preserving since it drove the redesign:
+  `CHORD_QUALITIES`'s old `{ key: 'root', intervals: [0] }` entry modeled "no harmonic
+  content" as a degenerate point on the *same axis* as "increasingly rich harmonic
+  content" (reusing `hasKeySignature`, the mode-row ladder, the "F# Root Note" answer
+  format), but a bare pitch has no *type* to identify — it's a different skill
+  (instrument-geography / pitch-finding) that this app's "spot what changed" format was
+  never built to score. The old Beginner preset (Root + Triads together) was quietly
+  conflating the two; Beginner is now Triads-only.
+
+## 9. Multi-mode navigation: separate practice tabs (prerequisite for #10, #11)
+
+Right now `App.jsx` renders exactly one screen — the chord/scale randomizer. #10 and #11
+below are deliberately *not* new modes bolted onto that randomizer (see #8's reasoning on
+why Root Notes doesn't belong there); they're separate exercises with their own settings
+and interaction model, aimed at making this one app useful to music students at very
+different stages rather than just this one randomizer's target level. This item is the
+shared prerequisite: some way to move between practice modes as actual tabs, not more
+checkboxes in one settings panel.
+
+Open questions to resolve before building:
+- **Navigation mechanism**: plain in-app tab state (an `activeTab` piece of state in
+  `App.jsx`, no URL change — simplest, matches this app's current no-router, no-backend,
+  single-`index.html` shape) vs. real routes (e.g. `/`, `/pitch`, `/reference-tone`) via a
+  client-side router (React Router or similar), which would let each mode be
+  bookmarked/shared directly but adds its own history/back-button behavior to reason
+  about. Given the zero-backend static Vercel deploy, routing is easy to add but isn't
+  free — worth deciding how much "shareable per-mode URL" is actually worth against the
+  complexity of introducing routing to a codebase that's never needed it.
+- **Shared vs. independent settings**: `useSettings.js` currently persists one flat
+  object to `localStorage` for the one existing mode. Do the new tabs share anything with
+  it (tempo, metronome volume/on-off, roots filter) or does each own its settings
+  independently under its own storage key? A shared "global" subset plus per-mode
+  overrides is probably the right shape, but it's a real design decision —
+  `loadSettings()`/`DEFAULT_SETTINGS` would need restructuring either way.
+- The existing chord/scale randomizer becomes one tab among several (presumably the
+  default/first one) — otherwise unchanged.
+
+## 10. "Pure Tone" practice tab — revived Root Notes, isolated
+
+The single-pitch practice that used to live inside the randomizer (see #8), rebuilt as
+its own tab rather than a mode/preset: play one random pitch on a timer, no chord/scale
+context, and the "answer" is just the pitch's name — closer to a note-finding/
+instrument-geography drill than harmonic ear training.
+- Likely doesn't need a new state machine: `useRandomizer.js`'s beat/gap/duration/sound
+  scheduling is already generic (the custom-bank work in #4 proved out swapping the
+  "what's next" source without touching the clock), so this could plug in a source that
+  always returns a single root pitch class from `ALL_ROOTS`/`notes.js` — no
+  `CHORD_QUALITIES`/`SCALE_TYPES` involved at all, since there's no "type."
+- The settings surface should shrink accordingly: tempo/duration/gap/roots-filter still
+  apply, but no sound-type select (always just a note — no chord/arpeggio choice to
+  make), no density field (always 1 note), no mode/type checkboxes (there's no type to
+  enable/disable).
+
+## 11. "Reference Tone" practice tab — functional ear training
+
+A materially bigger, separately-designed feature — flagged in the same conversation as
+#10 but not the same shape of work, so scoping it in detail is its own future session's
+job. The idea: establish a tonic/drone, then play a second note as a scale degree
+relative to it, and ask the student to identify the *scale degree* (e.g. "5", "♭3" —
+solfège vs. scale-degree numbers is a user-facing decision, TBD) rather than an absolute
+pitch name. Closer to how apps like Functional Ear Trainer work, and arguably the more
+legitimate version of "beginner ear training" than either the old Root Notes mode or
+#10's pitch-finding drill, since it trains hearing relative to a key rather than naming
+an isolated absolute pitch.
+- Needs a sustained/looped drone tone running underneath a second, foreground note — a
+  new audio-engine capability (`engine.js` currently only ever plays one thing at a time,
+  held or arpeggiated; nothing loops in the background while another sound plays over
+  it).
+- Needs a scale-degree-to-name mapping and a decision about which scale/mode the degrees
+  are drawn from (a fixed major scale to start? tie it to the existing `SCALE_TYPES` so
+  minor/modal variants are selectable later?).
+- Whether it shares any code with #10 (both are "play something, ask what it was" against
+  a beat clock) or is different enough to be its own thing end-to-end is itself an open
+  question once scoping starts.

@@ -14,7 +14,7 @@ export default function Turntable({
     <div className="turntable">
       <div className="reading-row">
         <div className="reading reading--current">
-          <RecordBadge modeKey={current?.modeKey ?? 'root'} spinning={isRunning && !!current} />
+          <RecordBadge modeKey={current?.modeKey ?? 'none'} spinning={isRunning && !!current} />
           <span className={`chord-name${isGap ? ' chord-name--gap' : ''}`}>
             {isGap ? 'Get ready…' : current ? `${current.rootName} ${current.typeLabel}` : '—'}
           </span>

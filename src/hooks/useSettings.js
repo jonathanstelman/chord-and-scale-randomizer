@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS = {
   minBeats: 4,
   maxBeats: 4, // equal by default: a single "Duration", not a range, until the user opts in
   gapBeats: 0, // silent beats inserted between tonal centers, 0 = no gap
-  soundType: 'chord', // 'chord' | 'arpeggio' | 'pad' | 'none'
+  soundType: 'chord', // 'chord' | 'arpeggio' | 'none'
   maxChordNotes: 5,
   showCurrent: true,
   showNext: false,
@@ -31,7 +31,13 @@ function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_SETTINGS;
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    const loaded = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    // 'pad' was retired as its own sound (its synth is now just what 'chord' plays) —
+    // remap a persisted 'pad' choice so the sound select shows a valid option instead of
+    // going blank. The engine would already play it correctly either way (anything that
+    // isn't 'arpeggio'/'none' hits the same code path), this is purely a UI nicety.
+    if (loaded.soundType === 'pad') loaded.soundType = 'chord';
+    return loaded;
   } catch {
     return DEFAULT_SETTINGS;
   }

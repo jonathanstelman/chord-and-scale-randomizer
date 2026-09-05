@@ -3,8 +3,6 @@
 // like diminished/augmented, which don't sit "in a key") — used to keep random roots to
 // key signatures with fewer than 7 sharps/flats (see music/notes.js).
 export const CHORD_QUALITIES = [
-  { key: 'root', label: 'Root note only', category: 'Root', intervals: [0], hasKeySignature: true },
-
   { key: 'maj', label: 'Major', category: 'Triads', intervals: [0, 4, 7], hasKeySignature: true },
   { key: 'min', label: 'Minor', category: 'Triads', intervals: [0, 3, 7], hasKeySignature: true },
   { key: 'dim', label: 'Diminished', category: 'Triads', intervals: [0, 3, 6] },
