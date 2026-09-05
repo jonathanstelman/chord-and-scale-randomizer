@@ -138,10 +138,11 @@ littering desktop with an unused decoy element; `start()`'s call site is unchang
 Verified: lint clean, and via Playwright with a spoofed iPad UA — the decoy `<audio>`
 element is created with a `blob:` (not `srcObject`) src, `loop: true`, and an advancing
 `currentTime`, confirming it plays independently of the synth graph; no console errors
-over several seconds of playback. **The mute-switch bypass itself (first attempt) was
-since confirmed fixed on a real iPhone/iPad** — that's what surfaced the distortion in
-the first place. The distortion fix above has not yet had its own real-device pass; next
-deploy needs a listening check specifically for it.
+over several seconds of playback. **The mute-switch bypass itself was confirmed fixed on
+a real iPhone/iPad.** Real-device re-test after this fix found the distortion essentially
+unchanged, though — this specific `MediaStreamAudioDestinationNode` bug was real (and
+worth having fixed on its own terms) but turned out not to be the dominant cause of the
+distortion. See #12 below for where that investigation landed.
 
 ## 8. Sound cleanup + drop Root Notes from the randomizer — done
 
@@ -233,3 +234,16 @@ an isolated absolute pitch.
 - Whether it shares any code with #10 (both are "play something, ask what it was" against
   a beat clock) or is different enough to be its own thing end-to-end is itself an open
   question once scoping starts.
+
+## 12. iPhone built-in speaker: chords distort with 2+ notes — tracked as [#4](https://github.com/jonathanstelman/chord-and-scale-randomizer/issues/4)
+
+Found while re-testing #7's fix: the mute-switch bypass itself is confirmed working, but
+the reported distortion turned out to be a separate issue, not fixed by that PR. Isolated
+to: not the metronome/click, not the `MediaStreamAudioDestinationNode` signal path (the
+same audio is clean over AirPods on the same phone), and specifically tied to note
+count — 1 simultaneous note is clean, 2+ is distorted. Leading hypothesis is iOS's
+built-in-speaker protection circuitry (thermal/excursion limiting, which headphone/
+Bluetooth output bypasses) reacting badly to sustained multi-voice sine tones. Full
+diagnostic trail and next steps are on the GitHub issue rather than duplicated here —
+deprioritized rather than continuing to guess through real-device redeploy/retest
+round trips.
