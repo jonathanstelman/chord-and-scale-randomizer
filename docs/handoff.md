@@ -1,4 +1,4 @@
-# HANDOFF.md
+# handoff.md
 
 Notes and to-dos for whoever (human or Claude) picks this up next. See `README.md` for
 what the app does today and `CLAUDE.md` for architecture/gotchas — this file is just the

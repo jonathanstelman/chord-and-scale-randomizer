@@ -9,7 +9,7 @@ it on their instrument. No accounts, no backend — a single static page; all st
 in the browser (`localStorage`).
 
 Today it's one practice mode built around chord/scale identification.
-[`docs/HANDOFF.md`](./HANDOFF.md) #9-#11 scope splitting this into separate practice-mode
+[`docs/handoff.md`](./handoff.md) #9-#11 scope splitting this into separate practice-mode
 tabs (a pitch-finding drill, a functional-ear-training drone mode) aimed at a wider range
 of skill levels than the current mode alone serves — see "Who it's for" below for why
 that split matters.
@@ -44,7 +44,7 @@ ruled in or out — it just hasn't been decided. Ask rather than assume.
 ## Where the roadmap lives
 
 This file is about *why*; it doesn't track *what's next*. Near-term work lives in
-[`docs/HANDOFF.md`](./HANDOFF.md); specific bugs/investigations live in GitHub Issues.
+[`docs/handoff.md`](./handoff.md); specific bugs/investigations live in GitHub Issues.
 
 ---
 *Living document — update this when a decision changes product direction, not just when

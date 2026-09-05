@@ -45,19 +45,19 @@ each). This file is the shorter, skimmable version: stack, conventions, and how 
 - `src/music/` (`pool.js`, `chordQualities.js`, `voicing.js`, `notes.js`,
   `chordParser.js`, `scaleFamilies.js`) is pure functions with no DOM/audio dependency —
   this is where automated tests belong, via Vitest. Not yet scaffolded as of this
-  writing; see `docs/HANDOFF.md` once it is.
+  writing; see `docs/handoff.md` once it is.
 - Everything else (the audio graph, hooks, components) stays covered by `npm run lint` +
   `npm run build` + manual or Playwright smoke checks for behavior changes. That's a
   deliberate choice, not a gap to backfill — the audio graph's actual correctness is live
   timing and real-device behavior that neither unit tests nor Playwright can fully
-  exercise anyway (see `docs/HANDOFF.md` #7/#12 for real examples of bugs only a real
+  exercise anyway (see `docs/handoff.md` #7/#12 for real examples of bugs only a real
   device surfaced).
 
 ## Before a non-trivial change
 
 - Check `docs/product.md` if it's not obviously in scope, or it's unclear which user/flow
   a feature is really for.
-- Check `docs/HANDOFF.md` for related open items or prior decisions before re-deriving
+- Check `docs/handoff.md` for related open items or prior decisions before re-deriving
   something already scoped or already tried.
 
 ---
