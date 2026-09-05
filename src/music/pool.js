@@ -21,11 +21,10 @@ export const ALL_TONAL_CENTER_TYPES = [
   )),
 ];
 
-// Four broad difficulty tiers, each bundling one or more of the categories above. The
+// Three broad difficulty tiers, each bundling one or more of the categories above. The
 // settings UI shows just these by default; toggling one on/off enables/disables every
 // type it covers, while the "Advanced" panel exposes the underlying types individually.
 export const CORE_MODES = [
-  { key: 'root', label: 'Root Notes', categories: ['Root'] },
   { key: 'triads', label: 'Triads', categories: ['Triads'] },
   { key: 'sevenths', label: 'Seventh Chords', categories: ['Seventh Chords'] },
   {
@@ -64,7 +63,7 @@ export const GUITAR_OPEN_CHORD_PAIRS = [
 // enabledTypes/enabledRoots untouched so "customize from here" (any manual checkbox edit)
 // falls back to whatever general filter was set before Guitar was picked.
 export const PRESETS = [
-  { key: 'beginner', label: 'Beginner', categories: ['Root', 'Triads'], bpm: 50 },
+  { key: 'beginner', label: 'Beginner', categories: ['Triads'], bpm: 50 },
   { key: 'chords', label: 'Chords Only', categories: ['Triads', 'Seventh Chords'] },
   {
     key: 'scales',
@@ -89,7 +88,7 @@ export function modeCheckState(mode, enabledTypes) {
   return 'some';
 }
 
-export const DEFAULT_ENABLED_TYPES = typeKeysInCategories(['Root', 'Triads']);
+export const DEFAULT_ENABLED_TYPES = typeKeysInCategories(['Triads']);
 
 // Same 'all' | 'some' | 'none' idea as modeCheckState, for the Roots section's own
 // "select all" tri-state checkbox.
@@ -99,16 +98,19 @@ export function rootsCheckState(enabledRoots) {
   return 'some';
 }
 
-// Which of the four core-mode blocks a given category belongs to — used to color the
-// turntable label by difficulty tier (outline → cobalt → brass → flame as chords grow
-// more complex).
+// Which of the three core-mode blocks a given category belongs to — used to color the
+// turntable label by difficulty tier (cobalt → brass → flame as chords grow more
+// complex).
 export function coreModeKeyForCategory(category) {
-  return CORE_MODES.find((m) => m.categories.includes(category))?.key ?? 'root';
+  return CORE_MODES.find((m) => m.categories.includes(category))?.key ?? 'triads';
 }
 
 export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
   const pool = ALL_TONAL_CENTER_TYPES.filter((t) => enabledKeys.includes(t.key));
-  const types = pool.length > 0 ? pool : ALL_TONAL_CENTER_TYPES.filter((t) => t.key === 'root');
+  // Same "don't silently produce nothing" rule as the enabledRoots fallback below: if
+  // nothing's enabled at all, fall back to the full vocabulary rather than one specific
+  // type — there's no more "simplest" type (root note) to single out now that it's gone.
+  const types = pool.length > 0 ? pool : ALL_TONAL_CENTER_TYPES;
   const type = types[Math.floor(Math.random() * types.length)];
   // Root/triad/modal types imply an actual key — keep those to key signatures with
   // fewer than 7 sharps/flats (spelled correctly via notes.js, e.g. Bb rather than A#).

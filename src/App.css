@@ -482,11 +482,6 @@
   accent-color: currentColor;
 }
 
-.mode-block--root.is-on {
-  border-color: var(--paper);
-  color: var(--paper);
-}
-
 .mode-block--triads.is-on {
   background: var(--cobalt);
   border-color: var(--cobalt);

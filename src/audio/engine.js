@@ -41,7 +41,7 @@ export function unlockIOSMediaPlayback() {
   return iosMediaStreamDestination;
 }
 
-// Owns the actual synths and whatever is currently sounding (held chord/pad notes, or a
+// Owns the actual synths and whatever is currently sounding (held chord notes, or a
 // running arpeggio sequence), plus a separate click synth for the metronome. One instance
 // lives for the life of a randomizer session. All playback methods take an optional Tone
 // transport `time` so callers can schedule sample-accurately instead of firing "now".
@@ -59,44 +59,42 @@ export class TonalCenterPlayer {
       this.limiter.toDestination();
     }
 
-    // Reference volume each synth is tuned at 4 simultaneous notes — playSegment() scales
+    // Reference volume the synth is tuned at 4 simultaneous notes — playSegment() scales
     // this by how many notes actually stack (see #scaledVolume), because a 7-note chord
     // sums to measurably more energy than a 4-note one and would otherwise still push
     // past the limiter's reaction time. -10*log10(n/4) is a power-sum estimate (~-3dB per
     // doubling of voices), calibrated against measured peaks, not the far more punishing
     // full-linear-sum worst case.
-    // Pad carries extra headroom on top of the shorter envelope above: its slower attack
-    // (0.5s) is comparable to its own release (0.35s), so a genuine crossfade — both the
-    // outgoing and incoming chord audibly overlapping — is inherent to how a pad is
-    // supposed to sound, not just a timing edge case. Chord's fast attack/short release
-    // only needs a smaller margin for the rare tight-tempo overlap.
-    this.chordBaseVolume = -12;
-    this.padBaseVolume = -14;
-
-    // A raw, unfiltered triangle oscillator carries a fair amount of high-harmonic edge
-    // that reads as "buzzy" or "harsh" well before anything is technically clipping —
-    // gentle lowpass shaping softens that without dulling the chord's identity.
-    this.chordFilter = new Tone.Filter(3200, 'lowpass').connect(this.limiter);
-    this.chordSynth = new Tone.PolySynth(Tone.Synth, {
-      envelope: { attack: 0.02, decay: 0.1, sustain: 0.65, release: 0.25 },
-    }).connect(this.chordFilter);
-
-    // Release is deliberately short despite the "pad" name: playSegment() sets this
-    // synth's volume for whatever the *new* chord's note count needs, but that same
-    // Volume node also governs whatever's still ringing out from the *previous* chord —
-    // a long release meant the old notes hadn't decayed by the time the new ones
+    // Release is deliberately short despite the "pad"-like envelope below: playSegment()
+    // sets this synth's volume for whatever the *new* chord's note count needs, but that
+    // same Volume node also governs whatever's still ringing out from the *previous*
+    // chord — a long release meant the old notes hadn't decayed by the time the new ones
     // attacked, so a "4-note" volume setting could momentarily be carrying 8+ notes of
-    // real energy and clip anyway. Keeping the tail short closes that window.
-    this.padSynth = new Tone.PolySynth(Tone.Synth, {
+    // real energy and clip anyway. Keeping the tail short closes that window. The extra
+    // headroom below (vs. an arbitrary -12dB) covers the one deliberate exception: the
+    // slow 0.5s attack is comparable to the 0.35s release, so a genuine crossfade — both
+    // the outgoing and incoming chord audibly overlapping — is inherent to how this is
+    // supposed to sound, not just a timing edge case.
+    this.chordBaseVolume = -14;
+
+    // There used to be a second, faster-attack "chord" synth alongside this one — this
+    // sine-based sound (originally "pad") was the more pleasant of the two, so it's now
+    // the only one; sine is already harmonic-free, so no filter is needed to soften it.
+    this.chordSynth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: 'sine' },
       envelope: { attack: 0.5, decay: 0.2, sustain: 0.7, release: 0.35 },
-    }).connect(this.limiter); // sine is already harmonic-free; no filter needed
+    }).connect(this.limiter);
 
-    this.arpFilter = new Tone.Filter(4500, 'lowpass').connect(this.limiter);
+    // Harp-like: a sine oscillator (no filter needed, same reasoning as chordSynth above)
+    // with a soft attack and a long decay/release so each plucked note rings well past
+    // the next 32nd-note step instead of cutting off hard — that overlap, plus the
+    // up/down bounce in tickArpeggio(), is what reads as a "sweep" rather than a
+    // staccato, video-game-arpeggio stepping through notes.
     this.arpSynth = new Tone.PolySynth(Tone.Synth, {
-      volume: -6,
-      envelope: { attack: 0.005, decay: 0.12, sustain: 0.15, release: 0.12 },
-    }).connect(this.arpFilter);
+      oscillator: { type: 'sine' },
+      volume: -8,
+      envelope: { attack: 0.03, decay: 0.35, sustain: 0.15, release: 0.4 },
+    }).connect(this.limiter);
 
     // The arpeggiator is driven by an explicit tickArpeggio(time) call from
     // useRandomizer's single unified 32nd-note clock (see there for why) rather than a
@@ -137,21 +135,21 @@ export class TonalCenterPlayer {
       return;
     }
     if (soundType === 'arpeggio') {
-      // Deliberately *not* resetting arpStepIndex: every pattern length from
-      // padToSimpleArpeggioLength (1/2/4/8) divides the 8 32nd-notes in a beat evenly, so
-      // however many steps have elapsed since the session started, the index is already
-      // guaranteed to land on 0 the moment tickArpeggio() is next called for this beat —
-      // no explicit resync needed, and one less thing that could itself be off by a step.
+      // Reset so every new chord's sweep starts from its root (index 0) rather than
+      // wherever the previous chord's pattern happened to leave off. (An earlier
+      // ascending-only cycle could skip this reset: every pattern length from
+      // padToSimpleArpeggioLength — 1/2/4/8 — divides the beat's 8 32nd-notes evenly, so
+      // the index landed on 0 at the next beat regardless. The up/down bounce below has a
+      // period of 2*(n-1), which doesn't share that property, so the reset is explicit.)
       this.arpNotes = noteNames;
       this.arpMuted = false;
+      this.arpStepIndex = 0;
       return;
     }
-    const isPad = soundType === 'pad';
-    const synth = isPad ? this.padSynth : this.chordSynth;
-    const baseVolume = isPad ? this.padBaseVolume : this.chordBaseVolume;
-    synth.volume.value = baseVolume - 10 * Math.log10(Math.max(1, noteNames.length) / 4);
-    synth.triggerAttack(noteNames, time);
-    this.heldSynth = synth;
+    this.chordSynth.volume.value =
+      this.chordBaseVolume - 10 * Math.log10(Math.max(1, noteNames.length) / 4);
+    this.chordSynth.triggerAttack(noteNames, time);
+    this.heldSynth = this.chordSynth;
     this.heldNotes = noteNames;
   }
 
@@ -163,11 +161,20 @@ export class TonalCenterPlayer {
 
   // Called once per 32nd note by useRandomizer's clock, in arpeggio mode or not — it's a
   // no-op unless arpMuted is false, so callers don't need to branch on soundType.
+  //
+  // Walks the notes in an up/down bounce (0,1,...,n-1,n-2,...,1, then repeat) rather than
+  // snapping straight back to the bottom after the top note — a harp sweep goes both
+  // ways. The bounce has period 2*(n-1) (n=1 has no direction to bounce in, so it's
+  // pinned at index 0); '8n' note duration lets each ringing note overlap the next
+  // instead of cutting off at the next 32nd-note step.
   tickArpeggio(time) {
     if (this.arpMuted || this.arpNotes.length === 0) return;
-    const note = this.arpNotes[this.arpStepIndex % this.arpNotes.length];
+    const n = this.arpNotes.length;
+    const period = n > 1 ? 2 * (n - 1) : 1;
+    const pos = this.arpStepIndex % period;
+    const index = pos < n ? pos : period - pos;
     this.arpStepIndex += 1;
-    this.arpSynth.triggerAttackRelease(note, '64n', time);
+    this.arpSynth.triggerAttackRelease(this.arpNotes[index], '8n', time);
   }
 
   // `percent` is 0-100 (the UI's slider units) mapped onto a -40dB..0dB range — 0 isn't
@@ -181,10 +188,7 @@ export class TonalCenterPlayer {
   dispose() {
     this.stopCurrent();
     this.chordSynth.dispose();
-    this.chordFilter.dispose();
-    this.padSynth.dispose();
     this.arpSynth.dispose();
-    this.arpFilter.dispose();
     this.clickSynth.dispose();
     this.limiter.dispose();
   }

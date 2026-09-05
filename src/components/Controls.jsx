@@ -179,7 +179,6 @@ function Controls({
               >
                 <option value="chord">Chord</option>
                 <option value="arpeggio">Arpeggio</option>
-                <option value="pad">Pad</option>
                 <option value="none">No Sound</option>
               </select>
             </label>
