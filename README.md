@@ -1,5 +1,7 @@
 # Chord and Scale Randomizer
 
+**[Try it live](https://chord-and-scale-randomizer.vercel.app)**
+
 A browser-based ear-training tool that plays a randomized sequence of tonal centers —
 triads, seventh chords, or chords implied by diatonic/modal/nondiatonic scales — at a
 configurable tempo, so you can practice identifying (or playing along with) whatever
