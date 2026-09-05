@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project docs
+
+- `docs/product.md` — vision, audience, core user flows, explicit out-of-scope
+- `docs/guidelines.md` — conventions, testing approach
+- [GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1) — active
+  and planned work (backlog lives here, not in a markdown file)
+- This file — architecture and gotchas (below)
+
 ## Commands
 
 - `npm run dev` — start the Vite dev server
@@ -45,6 +53,19 @@ incidental:
   one step later. Instead, `tickArpeggio(time)` is called explicitly once per 32nd note
   from `useRandomizer`'s own clock and reads a plain note-array + step-counter — fully
   deterministic, no hidden rescheduling. Don't "simplify" this back to a Sequence.
+- The arpeggio walks notes in an up/down bounce (`0..n-1..0`, period `2*(n-1)`), not a
+  plain ascending cycle — a harp sweep goes both ways. Unlike the old ascending-only
+  cycle (whose length always divided evenly into the beat's 8 32nd-notes), this period
+  doesn't, so `playSegment()` resets `arpStepIndex` to 0 explicitly on every new chord
+  instead of relying on step-count arithmetic to land back on the root at the next beat.
+- iOS/iPadOS Safari puts a page's raw Web Audio output in the "Ambient" audio-session
+  category by default, which respects the hardware mute switch — native `<audio>`/
+  `<video>` elements get "MediaPlayback" and ignore it. `unlockIOSMediaPlayback()`
+  bumps the page into that category by playing a silent, looping, throwaway `<audio>`
+  element; the actual synth signal still goes straight to `AudioContext.destination` on
+  every platform. Don't route real audio through a `MediaStreamAudioDestinationNode`
+  into a media element to achieve this instead — tried that first, and it's a real,
+  documented WebKit distortion source, independent of volume/gain staging.
 
 **Randomizer state machine** (`src/hooks/useRandomizer.js`): a single
 `Transport.scheduleRepeat` at **32nd-note** granularity (not quarter-note) derives beat
@@ -60,6 +81,25 @@ A "phase" is either a tonal center **playing** or, if `gapBeats > 0`, a silent *
 right after it ends. The *next* segment is always pre-generated one phase ahead (so it
 can be previewed in the UI), and `makeSegment` re-rolls if it would exactly repeat the
 segment that's about to stop.
+
+`makeSegment`'s source for "what's next" is pluggable: `pickRandomTonalCenter` (the
+general random pool), `pickRandomTonalCenterFromPairs` (Guitar mode / custom bank
+random), and `tonalCenterAtIndex` (custom bank ordered mode) are three interchangeable
+sources behind the same clock — none of them touch beat/gap/duration/sound scheduling.
+A future practice mode that just needs a different "next chord" rule plugs in here
+rather than forking the clock.
+
+**Settings & presets** (`src/hooks/useSettings.js`, `src/music/pool.js`):
+- `applyPreset` replaces `enabledTypes` outright — a clean reset to exactly a preset's
+  categories, not a merge with whatever's already enabled.
+- Guitar is the odd preset out: it sets an explicit `{rootPc, typeKey}` pair list
+  (`GUITAR_OPEN_CHORD_PAIRS`) instead of composing `enabledTypes`/`enabledRoots`. The
+  real open-chord set is asymmetric (no Cm/Gm — not open-position shapes), which a
+  uniform "these roots" × "these qualities" filter can't express.
+- `enabledRoots` (the general root filter) is intersected with each type's
+  `hasKeySignature`-valid roots inside `pickRandomTonalCenter`, not applied on its own —
+  a root selection that doesn't intersect a type's valid roots at all falls back to the
+  type's full valid set rather than picking from an empty pool.
 
 **Components**: `App` → `Display` (renders `Turntable`, the spinning-record/beat-panel
 visualization) + `Controls` (all the settings UI). `Controls` is wrapped in `memo` with
