@@ -28,8 +28,8 @@ behind a specific subsystem's design, see [`docs/architecture/`](./architecture/
   constants, PascalCase for components and classes.
 - **Comments explain *why*, not *what***. A non-obvious decision earns a comment
   explaining the reasoning; a self-explanatory line doesn't need one. See
-  [`style-guide.md`](./style-guide.md) for where a comment has grown too big for the
-  code and belongs in `docs/architecture/` instead.
+  [`comment-conventions.md`](./comment-conventions.md) for where a comment has grown too
+  big for the code and belongs in `docs/architecture/` instead.
 - **Error handling**: fail silently to a sane default rather than surfacing an error UI —
   e.g. a corrupt `localStorage` blob falls back to `DEFAULT_SETTINGS`; an iOS
   autoplay-gesture rejection is swallowed (`.catch(() => {})`). This is a practice tool

@@ -1,8 +1,10 @@
-# Style Guide
+# Comment Conventions
 
-Code-level preferences the linter doesn't (and mostly shouldn't) enforce — things you'd
-only catch by eye, in review. Short and growing as new ones get noticed, not an
-exhaustive spec.
+One specific thing the linter can't catch: when an in-code comment has grown past
+explaining *this line* and started reconstructing a design decision that belongs in
+[`docs/architecture/`](./architecture/README.md) instead. Not a general style guide —
+if an unrelated code-style preference comes up later (quote style, import order,
+whatever), it earns its own doc rather than getting folded in here.
 
 ## Comment scope: local fact vs. architecture entry
 
