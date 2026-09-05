@@ -45,7 +45,7 @@ ruled in or out — it just hasn't been decided. Ask rather than assume.
 
 This file is about *why*; it doesn't track *what's next*. Active and planned work lives
 on the [GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1) as
-issues; architecture decisions live in [`CLAUDE.md`](../CLAUDE.md).
+issues; architecture decisions live in [`docs/architecture/`](./architecture/README.md).
 
 ---
 *Living document — update this when a decision changes product direction, not just when
