@@ -11,7 +11,10 @@ Read the one relevant to what you're doing, not all of them — that's the point
 - `docs/architecture/` — the "why" behind each subsystem's design, one file per topic (see
   its own index) — go here when a change touches non-obvious existing behavior
 - [GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1) — active
-  and planned work (backlog lives here, not in a markdown file)
+  and planned work (backlog lives here, not in a markdown file). `gh issue list` alone
+  won't show it — Priority/Size/Status live on the Project, not the issue: use
+  `gh project item-list 3 --owner jonathanstelman` (or the web view) when deciding
+  what's actually next, not just what's open.
 
 ## Commands
 
