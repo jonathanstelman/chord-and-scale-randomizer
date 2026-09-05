@@ -105,7 +105,7 @@ this app didn't have: restricting which *roots* are in play, not just which chor
   "these qualities" filter can't express. Mutually exclusive with the general filters and
   the custom bank (#4): any manual checkbox edit, or another preset, exits it.
 
-## 7. iPad/Safari: sound doesn't play — done, unverified on real hardware
+## 7. iPad/Safari: sound doesn't play — done, confirmed on real hardware
 
 Reported 2026-08-31 against the live Vercel deploy: the sound generator didn't produce
 audio on an iPad, per limited testing. Diagnosed same-day: it's the iOS mute switch
@@ -116,23 +116,32 @@ which respects the mute switch, while native `<audio>`/`<video>` elements get
 "MediaPlayback" and ignore it — which is exactly why most other browser-based synth/audio
 apps don't seem to obey the switch, and this one did.
 
-Shipped in `audio/engine.js`: `unlockIOSMediaPlayback()` routes the limiter's output
-through a hidden `<audio>` element (via a `MediaStreamAudioDestinationNode`) instead of
-straight to `AudioContext.destination`, bumping the page into "MediaPlayback" so the mute
-switch stops applying — matching how the apps that already worked correctly behave.
-Gated to iOS specifically (`IS_IOS`, UA sniffing + a touch-points check for iPadOS 13+'s
-default "MacIntel" UA masquerade) so desktop keeps the original direct, lower-latency
-`.toDestination()` path; called synchronously as the first line of `useRandomizer.js`'s
-`start()`, since `<audio>.play()` needs the same live user gesture `Tone.start()` does.
+First attempt (2026-08-31) routed the limiter's actual output through a hidden `<audio>`
+element via a `MediaStreamAudioDestinationNode`, borrowing its "MediaPlayback" category.
+Fixed the silence, but real-device testing (2026-09-05) found it audibly distorted the
+signal — independent of volume, so not gain-staging/clipping. That pointed at the extra
+hop itself: piping live Web Audio through a `MediaStreamAudioDestinationNode` into an
+`<audio>`/`<video>` element is a documented source of crackle/distortion in WebKit
+specifically (e.g. webkit.org bugs 215314, 221334), unrelated to loudness.
 
-Verified: lint clean, and via Playwright with a spoofed iPad UA — `IS_IOS` correctly
-true/false across a real iPad UA, an iPadOS-as-"MacIntel" UA, and a real Mac (excluded);
-the hidden `<audio>` element gets created and is actively playing a live MediaStream when
-a session starts; desktop path untouched (no `<audio>` element, same `.toDestination()`
-call). **Not yet confirmed against real iPadOS/Safari** — Playwright's engine is
-Chromium, not WebKit, so it can't verify the actual mute-switch-bypass behavior itself,
-only that the audio graph is wired up correctly and nothing throws. Needs a real-device
-check on the next deploy.
+Reshipped in `audio/engine.js`: iOS ties the "MediaPlayback" unlock to the page's shared
+audio session, not to whatever's flowing through any one element, so the real signal
+doesn't need to touch a media element at all. `unlockIOSMediaPlayback()` now just plays a
+silent, looping, throwaway `<audio>` element (a runtime-built WAV, not a checked-in
+base64 blob) purely to flip the page into "MediaPlayback"; `TonalCenterPlayer`'s actual
+output goes straight to `AudioContext.destination` via `.toDestination()` on every
+platform now, identically to desktop — no more iOS-specific signal path to distort. Same
+technique as e.g. https://github.com/swevans/unmute and
+https://github.com/feross/unmute-ios-audio. Still gated to iOS (`IS_IOS`) purely to avoid
+littering desktop with an unused decoy element; `start()`'s call site is unchanged.
+
+Verified: lint clean, and via Playwright with a spoofed iPad UA — the decoy `<audio>`
+element is created with a `blob:` (not `srcObject`) src, `loop: true`, and an advancing
+`currentTime`, confirming it plays independently of the synth graph; no console errors
+over several seconds of playback. **The mute-switch bypass itself (first attempt) was
+since confirmed fixed on a real iPhone/iPad** — that's what surfaced the distortion in
+the first place. The distortion fix above has not yet had its own real-device pass; next
+deploy needs a listening check specifically for it.
 
 ## 8. Sound cleanup + drop Root Notes from the randomizer — done
 

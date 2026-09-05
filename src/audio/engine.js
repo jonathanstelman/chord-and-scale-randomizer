@@ -6,12 +6,24 @@ import * as Tone from 'tone';
 // <video> elements, which get "MediaPlayback" and ignore it. That's the actual cause of
 // "no sound on iPad": Tone.js's .toDestination() goes straight to the AudioContext's
 // destination, so it's always "Ambient" there, while apps built on <audio>/<video>
-// elements (YouTube, Spotify web, ...) aren't. unlockIOSMediaPlayback() below plays
-// Tone.js's output through a hidden <audio> element (via a MediaStreamAudioDestinationNode)
-// to bump the page into that same "MediaPlayback" category instead, at the cost of a
-// small amount of extra output latency from the added MediaStream hop — acceptable here
-// given useRandomizer's existing 200ms scheduling lookahead, but real enough that this
-// stays iOS-only rather than applying to every platform.
+// elements (YouTube, Spotify web, ...) aren't.
+//
+// An earlier version of unlockIOSMediaPlayback() below routed the *actual* synth output
+// through a hidden <audio> element (via a MediaStreamAudioDestinationNode) to borrow its
+// "MediaPlayback" category. That worked (silence fixed), but real-device testing found
+// it audibly distorted the signal — expected in hindsight: piping live Web Audio through
+// a MediaStreamAudioDestinationNode into an <audio>/<video> element is a documented
+// source of crackle/distortion in WebKit specifically (e.g. webkit.org bugs 215314,
+// 221334), unrelated to gain staging, which is why it didn't scale with volume.
+//
+// iOS ties the "MediaPlayback" unlock to the *page's shared audio session*, not to
+// whatever's flowing through any one element — so the fix doesn't need the real signal
+// to touch a media element at all. Playing a silent, looping, throwaway <audio> element
+// is enough to flip the whole page into "MediaPlayback"; Tone.js's output then keeps
+// going straight to AudioContext.destination via .toDestination(), identically to
+// desktop, completely untouched by whatever the decoy element is doing. This is the same
+// technique used by e.g. https://github.com/swevans/unmute and
+// https://github.com/feross/unmute-ios-audio.
 export const IS_IOS = typeof navigator !== 'undefined' && (
   /iPad|iPhone|iPod/.test(navigator.userAgent)
   // iPadOS 13+ masquerades as "MacIntel" in the UA string under its default desktop-site
@@ -19,26 +31,54 @@ export const IS_IOS = typeof navigator !== 'undefined' && (
   || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 );
 
-let iosMediaStreamDestination = null;
+// A vanishingly short, completely silent WAV, built at runtime rather than checked in as
+// an opaque base64 blob so the "why" stays legible: 8-bit PCM's silent value is 128 (the
+// unsigned midpoint), not 0, and everything else here is bog-standard RIFF/WAVE header
+// bookkeeping. Loops seamlessly since every sample is identical — no discontinuity at
+// the wrap point to click on, even though it's inaudible either way.
+function buildSilentWavUrl(durationSeconds = 0.5, sampleRate = 8000) {
+  const dataSize = Math.round(durationSeconds * sampleRate); // 8-bit mono: 1 byte/sample
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  const writeString = (offset, str) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true); // fmt chunk size
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate, true); // byte rate = sampleRate * channels * bytes/sample
+  view.setUint16(32, 1, true); // block align
+  view.setUint16(34, 8, true); // bits per sample
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+  for (let i = 0; i < dataSize; i++) view.setUint8(44 + i, 128);
+  return URL.createObjectURL(new Blob([buffer], { type: 'audio/wav' }));
+}
+
+let iosUnlocked = false;
 
 // Must be called synchronously from within the same user-gesture handler that calls
 // Tone.start() (see useRandomizer.js's start()) — <audio>.play() is itself subject to the
 // same autoplay-gesture requirement as AudioContext.resume(), so this can't be deferred
 // into, say, TonalCenterPlayer's constructor alone if that ends up running too late.
-// Idempotent: the same hidden element and stream are reused for the rest of the page's
-// life once created, across every subsequent start()/stop() cycle.
+// Idempotent: the same hidden element keeps looping for the rest of the page's life once
+// created, across every subsequent start()/stop() cycle — no need to touch it again.
 export function unlockIOSMediaPlayback() {
-  if (!IS_IOS || iosMediaStreamDestination) return iosMediaStreamDestination;
-  iosMediaStreamDestination = Tone.getContext().rawContext.createMediaStreamDestination();
-  const audioEl = new Audio();
-  audioEl.srcObject = iosMediaStreamDestination.stream;
+  if (!IS_IOS || iosUnlocked) return;
+  iosUnlocked = true;
+  const audioEl = new Audio(buildSilentWavUrl());
+  audioEl.loop = true;
   audioEl.style.display = 'none';
   document.body.appendChild(audioEl);
   // Ignore rejection: IS_IOS already gates this to the one platform it's needed on, and
   // this is only ever called from a real tap, so a rejection here would mean the browser
   // changed its autoplay rules, not a bug to recover from at runtime.
   audioEl.play().catch(() => {});
-  return iosMediaStreamDestination;
 }
 
 // Owns the actual synths and whatever is currently sounding (held chord notes, or a
@@ -53,11 +93,9 @@ export class TonalCenterPlayer {
     // through here instead of straight to the speakers, and each synth also gets its own
     // volume trim below so the limiter is a backstop, not doing the work on every note.
     this.limiter = new Tone.Limiter(-1);
-    if (IS_IOS) {
-      this.limiter.connect(unlockIOSMediaPlayback());
-    } else {
-      this.limiter.toDestination();
-    }
+    // Same destination on every platform now — see unlockIOSMediaPlayback above for why
+    // iOS no longer needs (or wants) a different signal path here.
+    this.limiter.toDestination();
 
     // Reference volume the synth is tuned at 4 simultaneous notes — playSegment() scales
     // this by how many notes actually stack (see #scaledVolume), because a 7-note chord
