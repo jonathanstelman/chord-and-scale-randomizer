@@ -12,11 +12,52 @@
   border-bottom: 2px solid var(--cobalt);
 }
 
+.masthead-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
 .masthead h1 {
   font-size: clamp(2.25rem, 7vw, 3.5rem);
   letter-spacing: 0.01em;
   text-transform: uppercase;
   line-height: 0.95;
+}
+
+.theme-toggle {
+  display: flex;
+  gap: 0.3rem;
+  /* Nudges the pills down off the huge display-face cap-height so they read as sitting
+     beside the wordmark, not awkwardly flush with its very top edge. */
+  margin-top: 0.6rem;
+}
+
+.theme-toggle-button {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  background: transparent;
+  border: 1px solid var(--paper-faint);
+  border-radius: 1rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
+}
+
+.theme-toggle-button:hover {
+  border-color: var(--cobalt);
+  color: var(--paper);
+}
+
+.theme-toggle-button.is-active {
+  background: var(--paper-faint);
+  border-color: var(--paper-dim);
+  color: var(--paper);
 }
 
 .masthead-subtitle {
@@ -74,7 +115,7 @@
   justify-content: center;
   gap: 0.75rem;
   background: var(--panel);
-  border: 1px solid rgba(244, 238, 221, 0.08);
+  border: 1px solid var(--paper-faint);
   border-radius: 0.5rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
   margin-bottom: 2rem;
@@ -261,7 +302,7 @@
 }
 
 .beat-block--past {
-  background: rgba(244, 238, 221, 0.3);
+  background: var(--paper-medium);
   border-color: transparent;
 }
 
@@ -531,7 +572,13 @@
   transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 
-.mode-block input {
+/* [type='checkbox'] isn't for specificity over .mode-block input alone — it's needed to
+   match (and, being later in the file, beat) .checkbox-label input[type='checkbox']'s
+   accent-color: var(--brass), which every mode-row checkbox also picks up via its
+   shared .checkbox-label class. Without it, that rule's higher specificity wins and
+   every mode block's checkbox renders brass regardless of which block it's in —
+   including the brass block itself, where a brass-on-brass checkbox nearly disappears. */
+.mode-block input[type='checkbox'] {
   accent-color: currentColor;
 }
 
@@ -551,6 +598,25 @@
   background: var(--flame);
   border-color: var(--flame);
   color: var(--paper);
+}
+
+/* Light mode only: cobalt/flame stay the same medium-dark hue in both themes, so text
+   on them wants to stay light — but --paper (triads/extended's text color above) flips
+   to a dark value in light mode, since it means "foreground text" generally, not
+   "light color" specifically. --cream is fixed regardless of theme, so it's the right
+   token here. Dark mode is untouched and keeps its original mixed light/dark text per
+   block (deliberate: brass is a bright gold there, needing dark text for contrast —
+   see docs/architecture/theming.md). Higher specificity than the rules above already
+   gives this the win when it applies; :not([data-theme="dark"])/[data-theme="light"]
+   make sure it only applies in light mode. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .mode-block.is-on {
+    color: var(--cream);
+  }
+}
+
+:root[data-theme="light"] .mode-block.is-on {
+  color: var(--cream);
 }
 
 .mode-block.is-partial {

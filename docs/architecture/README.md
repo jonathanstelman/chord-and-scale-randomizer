@@ -13,6 +13,8 @@ and [`../product.md`](../product.md) for vision.
   components: the beat clock, phase pregeneration, pluggable chord sources
 - [`settings-and-presets.md`](./settings-and-presets.md) — `src/hooks/useSettings.js` +
   `src/music/pool.js`: presets, Guitar mode, the roots filter
+- [`theming.md`](./theming.md) — `src/index.css` + `src/hooks/useSettings.js`: the
+  light/dark token setup, why dark is the CSS baseline instead of the usual light-default
 
 Adding a new non-obvious decision? Put it in the topic file it belongs to, inline,
 matching the style already there (state the gotcha, state why, state what not to do

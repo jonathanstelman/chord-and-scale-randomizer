@@ -1,15 +1,25 @@
 :root {
-  /* Palette — a record sleeve at rest on a dark table. */
+  /* Palette — a record sleeve at rest on a dark table. Dark is the baseline here (not
+     the usual light-default token setup) since that's this app's established look;
+     light mode is layered on below via prefers-color-scheme + an explicit override —
+     see docs/architecture/theming.md for the full three-state pattern and why light
+     reuses these same two colors with roles swapped rather than a new palette. */
   --ink: #12202e;      /* page background */
   --panel: #17293b;    /* sleeve/card surface, a shade lighter than ink */
-  --paper: #f4eedd;    /* cream ink for type and outlines */
+  --paper: #f4eedd;    /* cream foreground for type and outlines */
   --cobalt: #2b6e96;   /* Triads block + structural lines */
   --brass: #ce9b2e;    /* Sevenths block + "next" sticker */
   --flame: #d8481f;    /* Extended block + primary action + downbeat accent */
-  --vinyl: #121011;    /* the record disc itself */
+  --vinyl: #121011;    /* the record disc itself — stays dark in both themes */
+  /* A fixed light neutral, never redefined by either theme — cobalt/flame/vinyl stay
+     dark enough in both themes that text sitting on them wants this same light color
+     regardless of theme, unlike --paper (see mode-block.is-on's light-mode override in
+     App.css, and docs/architecture/theming.md). */
+  --cream: #f4eedd;
 
   --paper-dim: rgba(244, 238, 221, 0.62);
   --paper-faint: rgba(244, 238, 221, 0.14);
+  --paper-medium: rgba(244, 238, 221, 0.3);
 
   --font-display: 'Anton', 'Arial Narrow', sans-serif;
   --font-body: 'Work Sans', system-ui, sans-serif;
@@ -23,6 +33,35 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* :not([data-theme="dark"]) guards this so an explicit dark choice always beats a
+   light-OS preference; :root[data-theme="light"] below forces light regardless of OS. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --ink: #f4eedd;
+    --panel: #ffffff;
+    --paper: #12202e;
+    /* Brass at its dark-mode value reads as washed-out gold on a light ground, small
+       uppercase labels especially — darkened here only; every other token keeps its
+       dark-mode value since cobalt/flame hold up fine at normal text sizes. */
+    --brass: #8a6412;
+    --paper-dim: rgba(18, 32, 46, 0.62);
+    --paper-faint: rgba(18, 32, 46, 0.14);
+    --paper-medium: rgba(18, 32, 46, 0.3);
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="light"] {
+  --ink: #f4eedd;
+  --panel: #ffffff;
+  --paper: #12202e;
+  --brass: #8a6412;
+  --paper-dim: rgba(18, 32, 46, 0.62);
+  --paper-faint: rgba(18, 32, 46, 0.14);
+  --paper-medium: rgba(18, 32, 46, 0.3);
+  color-scheme: light;
 }
 
 * {
