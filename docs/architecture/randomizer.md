@@ -53,7 +53,7 @@ the custom-bank/pairs fields at all rather than special-casing around them.
 A single random pitch, no chord/scale quality — `pickNextForPureTone` pairs whatever
 pitch class it picks with `PURE_TONE_TYPE` (`pool.js`): `intervals: [0]` so
 `voiceChord`/`padToSimpleArpeggioLength` degenerate to "one note" automatically without
-any Pure-Tone-specific branching in the playback path, and `label: ''` so `Turntable`
+any Pure-Tone-specific branching in the playback path, and `label: ''` so `NowPlaying`
 shows just the root name instead of "C ".
 
 Which pitch class it picks depends on `settings.pureToneMode`, a two-preset toggle in
@@ -82,7 +82,7 @@ redefined per tab.
 
 ## Components
 
-`App` → `TabNav` (practice-tab switcher) + `Display` (renders `Turntable`, the
+`App` → `TabNav` (practice-tab switcher) + `Display` (renders `NowPlaying`, the
 current/next reading + beat-panel visualization) + `Controls` or `PureToneControls` (the
 settings UI for whichever tab is active). Both settings components share `TimingSection`
 (tempo/duration/pause + metronome, boxed as one settings cluster — the metronome lives

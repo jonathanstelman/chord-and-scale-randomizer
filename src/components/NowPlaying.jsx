@@ -4,11 +4,11 @@ function tonalCenterPhrase({ rootName, typeLabel }) {
   return typeLabel ? `${rootName} ${typeLabel}` : rootName;
 }
 
-export default function Turntable({
+export default function NowPlaying({
   current, next, showNext, beatIndex, totalBeats, isGap,
 }) {
   return (
-    <div className="turntable">
+    <div className="now-playing">
       <div className="reading-row">
         <div className="reading reading--current">
           <span className={`chord-name${isGap ? ' chord-name--gap' : ''}`}>

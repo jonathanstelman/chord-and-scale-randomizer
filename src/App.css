@@ -167,9 +167,9 @@
   margin: 0;
 }
 
-/* ---------- Turntable (signature element) ---------- */
+/* ---------- Now Playing (current/next reading + beat progress) ---------- */
 
-.turntable {
+.now-playing {
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -80,7 +80,7 @@ export function useSettings() {
 
   // Stable identities (useCallback) so Controls — a memoized component with a lot of
   // checkboxes — doesn't see "new" callback props and re-render on every beat tick just
-  // because App re-rendered for an unrelated reason (the beat counter, the turntable).
+  // because App re-rendered for an unrelated reason (the beat counter, NowPlaying).
   const updateSettings = useCallback((patch) => setSettings((prev) => ({ ...prev, ...patch })), []);
 
   // Manually editing types/roots always exits Guitar-style "explicit pairs" mode and
