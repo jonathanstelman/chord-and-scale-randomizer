@@ -15,6 +15,9 @@ Read the one relevant to what you're doing, not all of them — that's the point
   not) rather than leaving a pointer to nothing.
 - `docs/architecture/` — the "why" behind each subsystem's design, one file per topic (see
   its own index) — go here when a change touches non-obvious existing behavior
+- `docs/ui-ux-overhaul.md` — build order/dependency chain for the practice-mode UI/UX
+  overhaul (issues #21–#31); the Project's Priority/Size fields don't capture this on
+  their own, so check here before picking up the next piece of that initiative
 - [GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1) — active
   and planned work (backlog lives here, not in a markdown file). `gh issue list` alone
   won't show it — Priority/Size/Status live on the Project, not the issue: use
