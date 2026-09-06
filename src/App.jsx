@@ -1,8 +1,27 @@
 import { useSettings } from './hooks/useSettings';
-import { useRandomizer } from './hooks/useRandomizer';
+import { useRandomizer, pickNextForPureTone } from './hooks/useRandomizer';
+import TabNav from './components/TabNav';
 import Controls from './components/Controls';
+import PureToneControls from './components/PureToneControls';
 import Display from './components/Display';
 import './App.css';
+
+// See docs/architecture/randomizer.md's "Tab copy" section for why these are
+// comparable in shape rather than each written independently.
+const TAB_DESCRIPTIONS = {
+  randomizer: (
+    <>
+      Random triads, seventh chords, and scale-tone chords — identify what&rsquo;s
+      playing, or play along, before the next one comes.
+    </>
+  ),
+  pureTone: (
+    <>
+      A single random pitch, no chord or scale context — name it, or find it on your
+      instrument, before the next one comes.
+    </>
+  ),
+};
 
 export default function App() {
   const {
@@ -17,20 +36,35 @@ export default function App() {
     commitCustomBank,
     setCustomBankMode,
     setCustomBankEnabled,
+    setActiveTab,
   } = useSettings();
+
+  // One shared clock across tabs — see docs/architecture/randomizer.md's "Practice tabs"
+  // section.
+  const isPureTone = settings.activeTab === 'pureTone';
   const {
     isRunning, current, next, beatIndex, totalBeats, isGap, start, stop,
-  } = useRandomizer(settings);
+  } = useRandomizer(settings, isPureTone
+    ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
+    : {});
+
+  // See docs/architecture/randomizer.md's "Practice tabs" section for why switching
+  // stops a running session first.
+  const handleSelectTab = (tab) => {
+    if (isRunning) stop();
+    setActiveTab(tab);
+  };
 
   return (
     <div className="app">
       <header className="masthead">
-        <h1>Chord and Scale Randomizer</h1>
+        <h1>Musical Chairs</h1>
         <p className="masthead-subtitle">
-          A <strong>tonal center</strong> is the root note, chord, or scale your ear is
-          currently focused on. This tool switches to a new one at random, on a timer, so
-          you can practice hearing and responding to changes.
+          Each mode below sets a new <strong>tonal center</strong> — a root note, chord,
+          or scale — at random, on a timer, so you can practice reacting when it changes.
         </p>
+        <TabNav activeTab={settings.activeTab} onSelect={handleSelectTab} />
+        <p className="masthead-subtitle">{TAB_DESCRIPTIONS[settings.activeTab]}</p>
       </header>
 
       <Display
@@ -44,22 +78,34 @@ export default function App() {
         isGap={isGap}
       />
 
-      <Controls
-        settings={settings}
-        updateSettings={updateSettings}
-        toggleType={toggleType}
-        setModeEnabled={setModeEnabled}
-        toggleRoot={toggleRoot}
-        setAllRootsEnabled={setAllRootsEnabled}
-        applyPreset={applyPreset}
-        setCustomBankText={setCustomBankText}
-        commitCustomBank={commitCustomBank}
-        setCustomBankMode={setCustomBankMode}
-        setCustomBankEnabled={setCustomBankEnabled}
-        isRunning={isRunning}
-        onStart={start}
-        onStop={stop}
-      />
+      {isPureTone ? (
+        <PureToneControls
+          settings={settings}
+          updateSettings={updateSettings}
+          toggleRoot={toggleRoot}
+          setAllRootsEnabled={setAllRootsEnabled}
+          isRunning={isRunning}
+          onStart={start}
+          onStop={stop}
+        />
+      ) : (
+        <Controls
+          settings={settings}
+          updateSettings={updateSettings}
+          toggleType={toggleType}
+          setModeEnabled={setModeEnabled}
+          toggleRoot={toggleRoot}
+          setAllRootsEnabled={setAllRootsEnabled}
+          applyPreset={applyPreset}
+          setCustomBankText={setCustomBankText}
+          commitCustomBank={commitCustomBank}
+          setCustomBankMode={setCustomBankMode}
+          setCustomBankEnabled={setCustomBankEnabled}
+          isRunning={isRunning}
+          onStart={start}
+          onStop={stop}
+        />
+      )}
     </div>
   );
 }

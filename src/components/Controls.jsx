@@ -1,9 +1,13 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useState } from 'react';
 import {
-  ALL_ROOTS, ALL_TONAL_CENTER_TYPES, CORE_MODES, PRESETS, modeCheckState, rootsCheckState,
+  ALL_TONAL_CENTER_TYPES, CORE_MODES, PRESETS, modeCheckState,
 } from '../music/pool';
 import { pitchClassToDisplayName } from '../music/notes';
 import { parseCustomBank } from '../music/chordParser';
+import TriStateCheckbox from './TriStateCheckbox';
+import RootsPicker from './RootsPicker';
+import TimingSection from './TimingSection';
+import ShowToggles from './ShowToggles';
 
 function typeLabelForKey(key) {
   return ALL_TONAL_CENTER_TYPES.find((t) => t.key === key)?.label ?? key;
@@ -19,27 +23,6 @@ function groupByCategory(types) {
 
 const CATEGORY_GROUPS = groupByCategory(ALL_TONAL_CENTER_TYPES);
 
-// A checkbox that can render as "indeterminate" (dash) when only some of the types it
-// covers are enabled — used both for the top-level mode row and each advanced section's
-// own "select all" control.
-function TriStateCheckbox({ label, state, onChange, className }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (ref.current) ref.current.indeterminate = state === 'some';
-  }, [state]);
-  return (
-    <label className={`checkbox-label${className ? ` ${className}` : ''}`}>
-      <input
-        ref={ref}
-        type="checkbox"
-        checked={state === 'all'}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      {label}
-    </label>
-  );
-}
-
 // Memoized: this renders a lot of checkboxes (more once the Advanced panel is open), and
 // none of it depends on the beat clock — without this it would re-render on every single
 // beat tick (via App -> beatIndex), competing with Tone.js's live audio scheduling for
@@ -49,12 +32,6 @@ function Controls({
   setCustomBankText, commitCustomBank, setCustomBankMode, setCustomBankEnabled,
   isRunning, onStart, onStop,
 }) {
-  // "Randomize beats" / "add a pause" only decide which fields are *visible* — the
-  // underlying minBeats/maxBeats/gapBeats settings are the source of truth, so these
-  // start from whatever was already persisted (a range or a nonzero gap from an earlier
-  // session reopens expanded) rather than tracking their own separate stored flag.
-  const [rangeExpanded, setRangeExpanded] = useState(() => settings.minBeats !== settings.maxBeats);
-  const [gapExpanded, setGapExpanded] = useState(() => settings.gapBeats > 0);
   // Transient — cleared on every successful parse, never persisted. A parse failure
   // keeps whatever customBankEntries was last committed (see commitCustomBank), so a
   // typo mid-edit doesn't blow away a bank that's actively playing.
@@ -78,98 +55,9 @@ function Controls({
         {isRunning ? '■ Stop Session' : '▶ Start Session'}
       </button>
 
-      <div className="session-data">
-        <div className="session-data-group">
-          <span className="session-data-group-label">Timing</span>
-          <div className="session-data-fields">
-            <label className="data-field">
-              <span>Tempo</span>
-              <input
-                type="number" min="30" max="300"
-                value={settings.bpm}
-                onChange={(e) => updateSettings({ bpm: Number(e.target.value) })}
-              />
-              <span className="data-unit">bpm</span>
-            </label>
-            {rangeExpanded ? (
-              <>
-                <label className="data-field">
-                  <span>Min</span>
-                  <input
-                    type="number" min="1" max="64"
-                    value={settings.minBeats}
-                    onChange={(e) => updateSettings({ minBeats: Number(e.target.value) })}
-                  />
-                  <span className="data-unit">beats</span>
-                </label>
-                <label className="data-field">
-                  <span>Max</span>
-                  <input
-                    type="number" min="1" max="64"
-                    value={settings.maxBeats}
-                    onChange={(e) => updateSettings({ maxBeats: Number(e.target.value) })}
-                  />
-                  <span className="data-unit">beats</span>
-                </label>
-              </>
-            ) : (
-              <label className="data-field">
-                <span>Duration</span>
-                <input
-                  type="number" min="1" max="64"
-                  value={settings.minBeats}
-                  onChange={(e) => {
-                    const beats = Number(e.target.value);
-                    updateSettings({ minBeats: beats, maxBeats: beats });
-                  }}
-                />
-                <span className="data-unit">beats</span>
-              </label>
-            )}
-            <label className="checkbox-label data-toggle">
-              <input
-                type="checkbox"
-                checked={rangeExpanded}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setRangeExpanded(checked);
-                  // Collapsing back to a single field means one duration, not a stale
-                  // range still being picked from behind the scenes.
-                  if (!checked) updateSettings({ maxBeats: settings.minBeats });
-                }}
-              />
-              Randomize beats
-            </label>
-            {gapExpanded && (
-              <label className="data-field">
-                <span>Gap</span>
-                <input
-                  type="number" min="0" max="16"
-                  value={settings.gapBeats}
-                  onChange={(e) => updateSettings({ gapBeats: Number(e.target.value) })}
-                />
-                <span className="data-unit">beats</span>
-              </label>
-            )}
-            <label className="checkbox-label data-toggle">
-              <input
-                type="checkbox"
-                checked={gapExpanded}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setGapExpanded(checked);
-                  if (checked) {
-                    // Revealing a 0 would look like nothing happened; give it a beat.
-                    if (settings.gapBeats === 0) updateSettings({ gapBeats: 1 });
-                  } else {
-                    updateSettings({ gapBeats: 0 });
-                  }
-                }}
-              />
-              Add a pause between chords
-            </label>
-          </div>
-        </div>
+      <TimingSection settings={settings} updateSettings={updateSettings} />
+
+      <div className="settings-section">
         <div className="session-data-group">
           <span className="session-data-group-label">Sound</span>
           <div className="session-data-fields">
@@ -183,6 +71,10 @@ function Controls({
                 <option value="arpeggio">Arpeggio</option>
                 <option value="none">No Sound</option>
               </select>
+              {/* Reserves the same third line Density's "notes" unit takes, so the two
+                  fields' captions/controls line up instead of Density's extra line
+                  pulling it up relative to Sound under the shared flex-end alignment. */}
+              <span className="data-unit" aria-hidden="true">&nbsp;</span>
             </label>
             <label className="data-field">
               <span>Density</span>
@@ -197,44 +89,7 @@ function Controls({
         </div>
       </div>
 
-      <div className="toggle-row">
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={settings.showCurrent}
-            onChange={(e) => updateSettings({ showCurrent: e.target.checked })}
-          />
-          Show current
-        </label>
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={settings.showNext}
-            onChange={(e) => updateSettings({ showNext: e.target.checked })}
-          />
-          Show next
-        </label>
-      </div>
-
-      <div className="metronome-control">
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={settings.metronomeAudio}
-            onChange={(e) => updateSettings({ metronomeAudio: e.target.checked })}
-          />
-          Metronome
-        </label>
-        <label className="metronome-volume">
-          <span>Volume</span>
-          <input
-            type="range" min="0" max="100"
-            value={settings.metronomeVolume}
-            onChange={(e) => updateSettings({ metronomeVolume: Number(e.target.value) })}
-            disabled={!settings.metronomeAudio}
-          />
-        </label>
-      </div>
+      <ShowToggles settings={settings} updateSettings={updateSettings} />
 
       <div className="preset-row">
         <span className="session-data-group-label">Presets</span>
@@ -342,29 +197,11 @@ function Controls({
 
       <details className="advanced">
         <summary>▸ Advanced settings</summary>
-        <fieldset className="roots-fieldset">
-          <div className="fieldset-head">
-            <legend>Roots</legend>
-            <TriStateCheckbox
-              className="category-select-all"
-              label="select all"
-              state={rootsCheckState(settings.enabledRoots)}
-              onChange={setAllRootsEnabled}
-            />
-          </div>
-          <div className="roots-grid">
-            {ALL_ROOTS.map((pc) => (
-              <label key={pc} className="checkbox-label track-row">
-                <input
-                  type="checkbox"
-                  checked={settings.enabledRoots.includes(pc)}
-                  onChange={() => toggleRoot(pc)}
-                />
-                {pitchClassToDisplayName(pc)}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <RootsPicker
+          enabledRoots={settings.enabledRoots}
+          toggleRoot={toggleRoot}
+          setAllRootsEnabled={setAllRootsEnabled}
+        />
         <div className="type-groups">
           {Object.entries(CATEGORY_GROUPS).map(([category, types]) => {
             const categoryMode = { categories: [category] };

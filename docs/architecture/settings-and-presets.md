@@ -17,3 +17,7 @@
   `hasKeySignature`-valid roots inside `pickRandomTonalCenter`, not applied on its own —
   a root selection that doesn't intersect a type's valid roots at all falls back to the
   type's full valid set rather than picking from an empty pool.
+- `activePresetKey` tracks which `PRESETS` entry was last applied, so its `description`
+  can stay shown below the preset row in `Controls.jsx`. Cleared by the same manual edits
+  that clear `enabledPairs` (toggling a type/root, enabling custom bank), since
+  "customize from here" means the preset no longer describes what's actually selected.

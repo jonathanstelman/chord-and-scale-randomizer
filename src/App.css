@@ -21,7 +21,7 @@
 
 .masthead-subtitle {
   margin: 0.85rem 0 0;
-  max-width: 38rem;
+  max-width: 52rem;
   font-size: 0.95rem;
   line-height: 1.5;
   color: var(--paper-dim);
@@ -30,6 +30,37 @@
 .masthead-subtitle strong {
   color: var(--paper);
   font-weight: 600;
+}
+
+/* ---------- Tab nav ---------- */
+
+.tab-nav {
+  display: flex;
+  gap: 1.75rem;
+  margin: 0.85rem 0 0;
+}
+
+.tab-button {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.4rem 0.1rem;
+  cursor: pointer;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.tab-button:hover {
+  color: var(--paper);
+}
+
+.tab-button.is-active {
+  color: var(--paper);
+  border-bottom-color: var(--flame);
 }
 
 /* ---------- Sleeve / Display ---------- */
@@ -381,14 +412,23 @@
   height: 1rem;
 }
 
+/* A single boxed settings cluster — Timing (+ Metronome) and Sound each get their own,
+   rather than the old shared-hairline-rule look, so each reads as one self-contained
+   unit you can take in at a glance. */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--paper-faint);
+  border-radius: 0.4rem;
+}
+
 .metronome-control {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1.25rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--paper-faint);
-  border-radius: 0.4rem;
 }
 
 .metronome-volume {
@@ -474,6 +514,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* The label text is a flex item too: space-between only positions its box, so a label
+     short enough to stay on one line (e.g. "Triads") shrinks to fit and sits flush right,
+     while a longer one that wraps (e.g. "Seventh Chords") grows to fill the row and
+     left-aligns by default within it — text-align keeps every label flush right either
+     way. */
+  text-align: right;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.85rem;

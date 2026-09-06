@@ -9,7 +9,10 @@ Read the one relevant to what you're doing, not all of them — that's the point
 - `docs/product.md` — vision, audience, core user flows, explicit out-of-scope
 - `docs/guidelines.md` — stack, conventions, testing approach; short enough to read in full
 - `docs/comment-conventions.md` — when a comment has outgrown the code and belongs in
-  `docs/architecture/` instead
+  `docs/architecture/` instead. Check new/edited comments against this before finishing
+  a change, not only once one visibly balloons — and if a comment points at a doc
+  section, confirm that section actually contains what it claims (add it there first if
+  not) rather than leaving a pointer to nothing.
 - `docs/architecture/` — the "why" behind each subsystem's design, one file per topic (see
   its own index) — go here when a change touches non-obvious existing behavior
 - [GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1) — active

@@ -36,12 +36,9 @@ export const CORE_MODES = [
   },
 ];
 
-// Beginner's actual scope: major and minor triads on natural roots only (no
-// sharps/flats) — narrower than the 'Triads' category (which is all 4 qualities on all
-// 12 roots). This "specific types on specific roots" combination doesn't fit the
-// categories-only preset schema, so — like GUITAR_OPEN_CHORD_PAIRS below — it's modeled
-// as an explicit pairs list rather than adding a types+roots field to that schema. See
-// docs/architecture/settings-and-presets.md.
+// Beginner's actual scope: major and minor triads on natural roots only — see
+// docs/architecture/settings-and-presets.md for why this is a pairs list like
+// GUITAR_OPEN_CHORD_PAIRS below, rather than a categories/types+roots combination.
 const NATURAL_ROOT_PCS = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
 export const BEGINNER_TRIAD_PAIRS = NATURAL_ROOT_PCS.flatMap((rootPc) => (
   [{ rootPc, typeKey: 'maj' }, { rootPc, typeKey: 'min' }]
@@ -149,6 +146,36 @@ export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
   const roots = filteredRoots.length > 0 ? filteredRoots : validRoots;
   const rootPc = roots[Math.floor(Math.random() * roots.length)];
   return { rootPc, type };
+}
+
+// Pure Tone tab's "type": a single pitch, no chord/scale quality at all — see
+// docs/architecture/randomizer.md's Pure Tone section for why each field is shaped this
+// way.
+export const PURE_TONE_TYPE = {
+  key: 'pitch', label: '', intervals: [0], modeKey: 'none',
+};
+
+// Pure Tone tab's counterpart to pickRandomTonalCenter: draws a root pitch class from
+// the shared roots filter with no type/quality involved. Same "don't silently produce
+// nothing" fallback as pickRandomTonalCenter's root selection.
+export function pickRandomRootPc(enabledRoots = ALL_ROOTS) {
+  const roots = enabledRoots.length > 0 ? enabledRoots : ALL_ROOTS;
+  return roots[Math.floor(Math.random() * roots.length)];
+}
+
+// Every pitch class belonging to a chosen scale, built on a chosen root — all of
+// SCALE_TYPES' `degrees` (every scale tone), not the `chordIntervals` subset used to
+// voice a chord. Falls back to just the root if scaleKey doesn't match anything, same
+// "don't silently produce nothing" spirit as this file's other fallbacks.
+export function scalePitchClasses(rootPc, scaleKey) {
+  const scale = SCALE_TYPES.find((t) => t.key === scaleKey);
+  const degrees = scale ? scale.degrees : [0];
+  return degrees.map((d) => ((rootPc + d) % 12 + 12) % 12);
+}
+
+export function pickRandomScalePc(rootPc, scaleKey) {
+  const pcs = scalePitchClasses(rootPc, scaleKey);
+  return pcs[Math.floor(Math.random() * pcs.length)];
 }
 
 // Guitar mode's alternative to pickRandomTonalCenter: draws uniformly from an explicit

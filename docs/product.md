@@ -8,11 +8,13 @@ practice reacting to change: naming what just came up, playing along with it, or
 it on their instrument. No accounts, no backend — a single static page; all state lives
 in the browser (`localStorage`).
 
-Today it's one practice mode built around chord/scale identification. [Issues #6-#8 on
-the GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1) scope
-splitting this into separate practice-mode tabs (a pitch-finding drill, a
-functional-ear-training drone mode) aimed at a wider range of skill levels than the
-current mode alone serves — see "Who it's for" below for why that split matters.
+It's split into practice-mode tabs (issue #6), aimed at a wider range of skill levels
+than any one mode alone serves — see "Who it's for" below for why that split matters.
+Today: **Chords & Scales**, the original chord/scale identification mode, and **Pure
+Tone** (issue #7), a single-pitch note-finding drill with no chord/scale context. A
+functional-ear-training drone mode (issue #8 on the
+[GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1)) is
+planned as a third tab.
 
 ## Who it's for
 
