@@ -43,8 +43,9 @@ behind a specific subsystem's design, see [`docs/architecture/`](./architecture/
 
 - `src/music/` (`pool.js`, `chordQualities.js`, `voicing.js`, `notes.js`,
   `chordParser.js`, `scaleFamilies.js`) is pure functions with no DOM/audio dependency —
-  this is where automated tests belong, via Vitest. Not yet scaffolded as of this
-  writing — tracked as [issue #9](https://github.com/jonathanstelman/chord-and-scale-randomizer/issues/9).
+  this is where automated tests belong, via Vitest (`npm test`). Scaffolded with a first
+  pass covering `pool.js`, `chordParser.js`, and `voicing.js`; `chordQualities.js`,
+  `notes.js`, and `scaleFamilies.js` are mostly data and covered indirectly through those.
 - Everything else (the audio graph, hooks, components) stays covered by `npm run lint` +
   `npm run build` + manual or Playwright smoke checks for behavior changes. That's a
   deliberate choice, not a gap to backfill — the audio graph's actual correctness is live
