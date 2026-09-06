@@ -1,4 +1,4 @@
-# Chord and Scale Randomizer
+# Musical Chairs
 
 **[Try it live](https://chord-and-scale-randomizer.vercel.app)**
 

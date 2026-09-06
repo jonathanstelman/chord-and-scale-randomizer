@@ -6,24 +6,25 @@ import PureToneControls from './components/PureToneControls';
 import Display from './components/Display';
 import './App.css';
 
-const TAB_HEADINGS = {
-  randomizer: {
-    subtitle: (
-      <>
-        A <strong>tonal center</strong> is the root note, chord, or scale your ear is
-        currently focused on. This tool switches to a new one at random, on a timer, so
-        you can practice hearing and responding to changes.
-      </>
-    ),
-  },
-  pureTone: {
-    subtitle: (
-      <>
-        A single random pitch, no chord or scale context — practice naming it or finding
-        it on your instrument as fast as you can.
-      </>
-    ),
-  },
+// Comparable in shape on purpose (see docs/architecture/randomizer.md): each names what
+// randomizes in this tab, then what you do about it, ending on the same "before the next
+// one comes" beat — so switching tabs reads as switching *content*, not switching how
+// the app talks to you. The shared "tonal center" concept (root note, chord, or scale)
+// lives once, in the app-purpose blurb above the tabs, rather than repeated/redefined
+// per tab.
+const TAB_DESCRIPTIONS = {
+  randomizer: (
+    <>
+      Random triads, seventh chords, and scale-tone chords — identify what&rsquo;s
+      playing, or play along, before the next one comes.
+    </>
+  ),
+  pureTone: (
+    <>
+      A single random pitch, no chord or scale context — name it, or find it on your
+      instrument, before the next one comes.
+    </>
+  ),
 };
 
 export default function App() {
@@ -60,14 +61,16 @@ export default function App() {
     setActiveTab(tab);
   };
 
-  const heading = TAB_HEADINGS[settings.activeTab];
-
   return (
     <div className="app">
       <header className="masthead">
-        <h1>Chord and Scale Randomizer</h1>
+        <h1>Musical Chairs</h1>
+        <p className="masthead-subtitle">
+          Each mode below sets a new <strong>tonal center</strong> — a root note, chord,
+          or scale — at random, on a timer, so you can practice reacting when it changes.
+        </p>
         <TabNav activeTab={settings.activeTab} onSelect={handleSelectTab} />
-        <p className="masthead-subtitle">{heading.subtitle}</p>
+        <p className="masthead-subtitle">{TAB_DESCRIPTIONS[settings.activeTab]}</p>
       </header>
 
       <Display
