@@ -243,7 +243,7 @@ function Controls({
             <button
               key={preset.key}
               type="button"
-              className={`preset-button${preset.pairs && settings.enabledPairs === preset.pairs ? ' is-active' : ''}`}
+              className={`preset-button${preset.key === settings.activePresetKey ? ' is-active' : ''}`}
               onClick={() => applyPreset(preset)}
             >
               {preset.label}
