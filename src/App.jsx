@@ -6,12 +6,8 @@ import PureToneControls from './components/PureToneControls';
 import Display from './components/Display';
 import './App.css';
 
-// Comparable in shape on purpose (see docs/architecture/randomizer.md): each names what
-// randomizes in this tab, then what you do about it, ending on the same "before the next
-// one comes" beat — so switching tabs reads as switching *content*, not switching how
-// the app talks to you. The shared "tonal center" concept (root note, chord, or scale)
-// lives once, in the app-purpose blurb above the tabs, rather than repeated/redefined
-// per tab.
+// See docs/architecture/randomizer.md's "Tab copy" section for why these are
+// comparable in shape rather than each written independently.
 const TAB_DESCRIPTIONS = {
   randomizer: (
     <>
@@ -43,9 +39,8 @@ export default function App() {
     setActiveTab,
   } = useSettings();
 
-  // One shared clock (see docs/architecture/randomizer.md's Pure Tone section) — only
-  // the "what's next" source and whether soundType is overridden change per tab; start/
-  // stop, beat scheduling, and the Display below are identical either way.
+  // One shared clock across tabs — see docs/architecture/randomizer.md's "Practice tabs"
+  // section.
   const isPureTone = settings.activeTab === 'pureTone';
   const {
     isRunning, current, next, beatIndex, totalBeats, isGap, start, stop,
@@ -53,9 +48,8 @@ export default function App() {
     ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
     : {});
 
-  // Switching tabs mid-session would otherwise leave the old tab's segment showing until
-  // the next beat boundary, then silently start drawing from the new tab's source —
-  // simpler and less surprising to just end the session first.
+  // See docs/architecture/randomizer.md's "Practice tabs" section for why switching
+  // stops a running session first.
   const handleSelectTab = (tab) => {
     if (isRunning) stop();
     setActiveTab(tab);

@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import MetronomeControl from './MetronomeControl';
 
-// Tempo/duration/gap/metronome, boxed as one unit — shared between the chord/scale
-// randomizer and Pure Tone tabs (both use the same bpm/minBeats/maxBeats/gapBeats/
-// metronomeAudio/metronomeVolume settings; see docs/architecture/randomizer.md's Pure
-// Tone section). The metronome lives here rather than as its own standalone block since
-// it's timing information too — it just keeps the beat rather than setting its length.
+// Tempo/duration/pause/metronome, boxed as one unit and shared between both practice
+// tabs — see docs/architecture/randomizer.md's Components section for why the metronome
+// lives here rather than its own block.
 export default function TimingSection({ settings, updateSettings }) {
   // "Randomize beats" / "add a pause" only decide which fields are *visible* — the
   // underlying minBeats/maxBeats/gapBeats settings are the source of truth, so these
@@ -70,9 +68,19 @@ export default function TimingSection({ settings, updateSettings }) {
               onChange={(e) => {
                 const checked = e.target.checked;
                 setRangeExpanded(checked);
-                // Collapsing back to a single field means one duration, not a stale
-                // range still being picked from behind the scenes.
-                if (!checked) updateSettings({ maxBeats: settings.minBeats });
+                if (checked) {
+                  // Revealing Min/Max still equal to each other (true on a fresh page
+                  // load, and any other time the toggle was off) looks like nothing
+                  // happened — seed a real, non-degenerate range instead of leaving both
+                  // fields at the same number.
+                  if (settings.minBeats === settings.maxBeats) {
+                    updateSettings({ minBeats: 3, maxBeats: 5 });
+                  }
+                } else {
+                  // Collapsing back to a single field means one duration, not a stale
+                  // range still being picked from behind the scenes.
+                  updateSettings({ maxBeats: settings.minBeats });
+                }
               }}
             />
             Randomize beats

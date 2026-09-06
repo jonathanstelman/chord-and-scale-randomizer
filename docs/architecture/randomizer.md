@@ -75,11 +75,23 @@ away from" since there's no mode/type checkboxes to conflict with it):
   the general filter" precedent as Guitar/Beginner's pairs (see
   settings-and-presets.md) — so the Roots picker only has an effect in Chromatic mode.
 
+### Tab copy (`App.jsx`)
+
+Each tab's description (below the tab row) is comparable in shape on purpose: it names
+what randomizes in that tab, then what you do about it, ending on the same "before the
+next one comes" beat, so switching tabs reads as switching *content*, not switching how
+the app talks to you. The shared "tonal center" concept (root note, chord, or scale)
+lives once, in the app-purpose blurb above the tabs, rather than being repeated or
+redefined per tab.
+
 ## Components
 
 `App` → `TabNav` (practice-tab switcher) + `Display` (renders `Turntable`, the
 spinning-record/beat-panel visualization) + `Controls` or `PureToneControls` (the
-settings UI for whichever tab is active). Both settings components are wrapped in `memo`
+settings UI for whichever tab is active). Both settings components share `TimingSection`
+(tempo/duration/pause + metronome, boxed as one settings cluster — the metronome lives
+there too since it's timing information, it just keeps the beat rather than setting its
+length) and `RootsPicker`/`ShowToggles`. Both settings components are wrapped in `memo`
 with stable (`useCallback`'d) setters from `useSettings` — without that they'd re-render
 on every single beat tick via `App`'s state, fighting Tone.js's live scheduling for
 main-thread time for no reason.

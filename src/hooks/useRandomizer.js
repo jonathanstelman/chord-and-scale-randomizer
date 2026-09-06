@@ -60,15 +60,9 @@ function pickNextForRandomizer(s, avoid, orderedBankIndexRef) {
   return picked;
 }
 
-// Pure Tone tab's "what's next" source: no type/quality involved, and no custom-bank/
-// Guitar-pairs concept at all — those are Randomizer-tab-only settings that happen to
-// live in the same shared settings object (see docs/architecture/settings-and-presets.md)
-// but must never leak into this tab's playback. Two presets (see PureToneControls.jsx):
-// 'chromatic' draws from the shared roots filter (settings.enabledRoots), same as
-// pickRandomRootPc elsewhere; 'scale' draws from every tone of a chosen scale instead and
-// deliberately ignores the roots filter — same "an alternate source bypasses the general
-// filter" precedent as Guitar/Beginner's pairs (see settings-and-presets.md). Same
-// repeat-avoidance idea as pickNextForRandomizer, simplified to just the root pitch class.
+// Pure Tone tab's "what's next" source — see docs/architecture/randomizer.md's Pure Tone
+// section for the chromatic/scale preset split. Same repeat-avoidance idea as
+// pickNextForRandomizer, simplified to just the root pitch class.
 export function pickNextForPureTone(s, avoid) {
   let rootPc;
   let attempts = 0;
@@ -87,13 +81,8 @@ function makeSegment(s, avoid, orderedBankIndexRef, pickNextTonalCenter) {
 }
 
 // Drives the "slot machine" — a phase is either a tonal center playing or a silent gap;
-// see docs/architecture/randomizer.md for the phase/pregeneration model. One clock
-// shared by every practice tab: `pickNextTonalCenter` swaps the "what's next" source
-// (pickNextForRandomizer by default, pickNextForPureTone for the Pure Tone tab) and
-// `forceSoundType` overrides settings.soundType for tabs (Pure Tone) that don't expose a
-// sound-type choice of their own — always a single simultaneous tone regardless of
-// whatever the Randomizer tab last had soundType set to, since that field is shared
-// storage but not a shared concept across tabs.
+// see docs/architecture/randomizer.md for the phase/pregeneration model, and its
+// "Practice tabs" section for what `pickNextTonalCenter`/`forceSoundType` are for.
 export function useRandomizer(settings, options = {}) {
   const { pickNextTonalCenter = pickNextForRandomizer, forceSoundType } = options;
   const [isRunning, setIsRunning] = useState(false);

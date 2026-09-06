@@ -3,10 +3,8 @@ const TABS = [
   { key: 'pureTone', label: 'Pure Tone' },
 ];
 
-// Switches which practice mode is showing — see issue #6 / docs/architecture/
-// randomizer.md's Pure Tone section: plain in-app tab state, no router, since every
-// mode shares this one static page. Stopping a running session before switching is the
-// caller's job (see App.jsx) — two tabs never share a live session.
+// Switches which practice mode is showing — see docs/architecture/randomizer.md's
+// "Practice tabs" section for why this is plain in-app state rather than routes.
 export default function TabNav({ activeTab, onSelect }) {
   return (
     <div className="tab-nav">

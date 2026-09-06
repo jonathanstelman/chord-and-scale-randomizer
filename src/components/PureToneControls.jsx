@@ -32,17 +32,8 @@ function scaleOptionLabel(type) {
 }
 
 // Pure Tone's settings surface is deliberately smaller than the chord/scale randomizer's
-// — see issue #7 / docs/architecture/randomizer.md's Pure Tone section: tempo/duration/
-// gap/metronome still apply (shared settings, same TimingSection as Controls), but there's no
-// sound-type select (always a single tone), no density field (always one note), and no
-// mode/type checkboxes or custom bank (there's no chord/scale "type" to pick from, just
-// a root).
-//
-// The one settings surface Pure Tone does have of its own: which notes are in play.
-// 'Chromatic' draws from the shared Roots filter below (any of the 12), same as every
-// other tab; 'Scale' draws from every tone of a chosen scale instead — ideal for
-// solfège-style practice within one key — and ignores the Roots filter entirely while
-// active (see pickNextForPureTone in useRandomizer.js).
+// — see docs/architecture/randomizer.md's Pure Tone section for what it has and lacks,
+// and why.
 function PureToneControls({
   settings, updateSettings, toggleRoot, setAllRootsEnabled, isRunning, onStart, onStop,
 }) {

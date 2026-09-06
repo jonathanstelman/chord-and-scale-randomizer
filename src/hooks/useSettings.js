@@ -25,21 +25,16 @@ const DEFAULT_SETTINGS = {
   // manual type/root edit, so "customize from here" falls back to whatever
   // enabledTypes/enabledRoots held before the preset was applied.
   enabledPairs: null,
-  // Which PRESETS entry (by key) was last applied, so its description can stay shown
-  // below the preset row — cleared by the same manual edits that clear enabledPairs
-  // (see applyPreset in useSettings.js), since "customize from here" means the preset
-  // no longer describes what's actually selected.
+  // See docs/architecture/settings-and-presets.md for what this tracks and when it's
+  // cleared.
   activePresetKey: null,
   customBankText: '', // raw textarea contents, persisted so a reload keeps what was typed
   customBankEntries: [], // last successfully-parsed [{rootPc, typeKey}] — what playback reads
   customBankMode: 'random', // 'random' | 'ordered'
   customBankEnabled: false,
-  // Pure Tone tab's note source (see docs/architecture/randomizer.md's Pure Tone
-  // section): 'chromatic' draws from the shared enabledRoots filter above; 'scale' draws
-  // from every tone of pureToneScaleRootPc/pureToneScaleKey instead, ignoring
-  // enabledRoots — ideal for solfège-style practice within one key. Unlike
-  // activePresetKey, this isn't cleared by any other edit — it's the persisted choice
-  // itself, not a description of one, so there's nothing to "customize away from".
+  // Pure Tone tab's note source — see docs/architecture/randomizer.md's Pure Tone
+  // section. Unlike activePresetKey, never cleared by another edit: it's the persisted
+  // choice itself, not a description of one.
   pureToneMode: 'chromatic', // 'chromatic' | 'scale'
   pureToneScaleRootPc: 0, // C
   pureToneScaleKey: 'diatonic:Ionian', // major scale — the classic solfège "do"
@@ -125,11 +120,10 @@ export function useSettings() {
   }, []);
 
   // Unlike setModeEnabled (which toggles one category on/off against whatever's already
-  // enabled), a preset replaces enabledTypes outright — picking one is a clean reset to
-  // exactly its categories, not a merge. Guitar is the exception: it sets `pairs`
-  // instead, and deliberately leaves enabledTypes/enabledRoots untouched (see PRESETS in
-  // pool.js) so any other preset, or a manual edit, cleanly supersedes it. Any preset
-  // (Guitar included) turns off custom-bank mode, same as a manual checkbox edit would.
+  // enabled), a categories preset replaces enabledTypes outright — a clean reset, not a
+  // merge. Guitar and Beginner are the exception (see docs/architecture/
+  // settings-and-presets.md): they set `pairs` instead and leave enabledTypes/
+  // enabledRoots untouched.
   const applyPreset = useCallback((preset) => {
     setSettings((prev) => ({
       ...prev,
