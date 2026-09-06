@@ -514,6 +514,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* The label text is a flex item too: space-between only positions its box, so a label
+     short enough to stay on one line (e.g. "Triads") shrinks to fit and sits flush right,
+     while a longer one that wraps (e.g. "Seventh Chords") grows to fill the row and
+     left-aligns by default within it — text-align keeps every label flush right either
+     way. */
+  text-align: right;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.85rem;
