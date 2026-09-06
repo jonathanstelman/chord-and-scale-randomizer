@@ -62,17 +62,42 @@ export const GUITAR_OPEN_CHORD_PAIRS = [
 ];
 
 // One-click starting points layered on top of CORE_MODES — replace-vs-merge semantics
-// and Guitar's special case are in docs/architecture/settings-and-presets.md.
+// and Guitar's special case are in docs/architecture/settings-and-presets.md. Each
+// `description` is shown below the preset row while that preset is the last one applied
+// (see activePresetKey in useSettings.js) — keep it a single short clause naming what's
+// selected and the root scope, matching the "Randomly selected X, Y roots" pattern.
 export const PRESETS = [
-  { key: 'beginner', label: 'Beginner', pairs: BEGINNER_TRIAD_PAIRS, bpm: 50 },
-  { key: 'chords', label: 'Chords Only', categories: ['Triads', 'Seventh Chords'] },
+  {
+    key: 'beginner',
+    label: 'Beginner',
+    pairs: BEGINNER_TRIAD_PAIRS,
+    bpm: 50,
+    description: 'Randomly selected major and minor chords, natural roots only',
+  },
+  {
+    key: 'chords',
+    label: 'Chords Only',
+    categories: ['Triads', 'Seventh Chords'],
+    description: 'Randomly selected triads and seventh chords, any root',
+  },
   {
     key: 'scales',
     label: 'Scales Only',
     categories: CORE_MODES.find((m) => m.key === 'extended').categories,
+    description: 'Randomly selected scale-tone chords, any root',
   },
-  { key: 'everything', label: 'Everything', categories: CORE_MODES.flatMap((m) => m.categories) },
-  { key: 'guitar', label: 'Guitar', pairs: GUITAR_OPEN_CHORD_PAIRS },
+  {
+    key: 'everything',
+    label: 'Everything',
+    categories: CORE_MODES.flatMap((m) => m.categories),
+    description: 'Randomly selected chords and scale-tone chords of every type, any root',
+  },
+  {
+    key: 'guitar',
+    label: 'Guitar',
+    pairs: GUITAR_OPEN_CHORD_PAIRS,
+    description: 'Randomly selected standard open-position guitar chords',
+  },
 ];
 
 export function typeKeysInCategories(categories) {

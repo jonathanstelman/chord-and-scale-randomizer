@@ -60,6 +60,8 @@ function Controls({
   // typo mid-edit doesn't blow away a bank that's actively playing.
   const [bankError, setBankError] = useState(null);
 
+  const activePreset = PRESETS.find((p) => p.key === settings.activePresetKey);
+
   const parseBankOnBlur = () => {
     const { entries, errors } = parseCustomBank(settings.customBankText);
     if (errors.length > 0) {
@@ -249,10 +251,14 @@ function Controls({
           ))}
         </div>
       </div>
+      {activePreset && (
+        <p className="preset-description">{activePreset.description}</p>
+      )}
       {settings.enabledPairs && (
         <p className="preset-note">
-          Guitar mode is active, drawing only from the 8 standard open chords. Any change
-          to the mode/type/root checkboxes below returns to normal filtering.
+          {activePreset?.label ?? 'This preset'} is active, drawing only from its fixed
+          chord list. Any change to the mode/type/root checkboxes below returns to
+          normal filtering.
         </p>
       )}
 

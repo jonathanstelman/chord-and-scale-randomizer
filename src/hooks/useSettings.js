@@ -21,6 +21,11 @@ const DEFAULT_SETTINGS = {
   // manual type/root edit, so "customize from here" falls back to whatever
   // enabledTypes/enabledRoots held before the preset was applied.
   enabledPairs: null,
+  // Which PRESETS entry (by key) was last applied, so its description can stay shown
+  // below the preset row — cleared by the same manual edits that clear enabledPairs
+  // (see applyPreset in useSettings.js), since "customize from here" means the preset
+  // no longer describes what's actually selected.
+  activePresetKey: null,
   customBankText: '', // raw textarea contents, persisted so a reload keeps what was typed
   customBankEntries: [], // last successfully-parsed [{rootPc, typeKey}] — what playback reads
   customBankMode: 'random', // 'random' | 'ordered'
@@ -65,6 +70,7 @@ export function useSettings() {
         ? prev.enabledTypes.filter((k) => k !== key)
         : [...prev.enabledTypes, key],
       enabledPairs: null,
+      activePresetKey: null,
       customBankEnabled: false,
     }));
   }, []);
@@ -78,7 +84,7 @@ export function useSettings() {
         ? Array.from(new Set([...prev.enabledTypes, ...keys]))
         : prev.enabledTypes.filter((k) => !keys.includes(k));
       return {
-        ...prev, enabledTypes, enabledPairs: null, customBankEnabled: false,
+        ...prev, enabledTypes, enabledPairs: null, activePresetKey: null, customBankEnabled: false,
       };
     });
   }, []);
@@ -90,6 +96,7 @@ export function useSettings() {
         ? prev.enabledRoots.filter((r) => r !== pc)
         : [...prev.enabledRoots, pc],
       enabledPairs: null,
+      activePresetKey: null,
       customBankEnabled: false,
     }));
   }, []);
@@ -99,6 +106,7 @@ export function useSettings() {
       ...prev,
       enabledRoots: enabled ? [...ALL_ROOTS] : [],
       enabledPairs: null,
+      activePresetKey: null,
       customBankEnabled: false,
     }));
   }, []);
@@ -114,6 +122,7 @@ export function useSettings() {
       ...prev,
       ...(preset.categories ? { enabledTypes: typeKeysInCategories(preset.categories) } : {}),
       enabledPairs: preset.pairs ?? null,
+      activePresetKey: preset.key,
       customBankEnabled: false,
       ...(preset.bpm !== undefined ? { bpm: preset.bpm } : {}),
     }));
@@ -147,6 +156,7 @@ export function useSettings() {
       ...prev,
       customBankEnabled: enabled,
       enabledPairs: enabled ? null : prev.enabledPairs,
+      activePresetKey: enabled ? null : prev.activePresetKey,
     }));
   }, []);
 
