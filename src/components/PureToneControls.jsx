@@ -3,8 +3,7 @@ import { ALL_ROOTS } from '../music/pool';
 import { SCALE_TYPES } from '../music/scaleFamilies';
 import { pitchClassToDisplayName } from '../music/notes';
 import RootsPicker from './RootsPicker';
-import TimingFields from './TimingFields';
-import MetronomeControl from './MetronomeControl';
+import TimingSection from './TimingSection';
 import ShowToggles from './ShowToggles';
 
 function groupScalesByCategory() {
@@ -34,7 +33,7 @@ function scaleOptionLabel(type) {
 
 // Pure Tone's settings surface is deliberately smaller than the chord/scale randomizer's
 // — see issue #7 / docs/architecture/randomizer.md's Pure Tone section: tempo/duration/
-// gap still apply (shared settings, same TimingFields as Controls), but there's no
+// gap/metronome still apply (shared settings, same TimingSection as Controls), but there's no
 // sound-type select (always a single tone), no density field (always one note), and no
 // mode/type checkboxes or custom bank (there's no chord/scale "type" to pick from, just
 // a root).
@@ -55,9 +54,7 @@ function PureToneControls({
         {isRunning ? '■ Stop Session' : '▶ Start Session'}
       </button>
 
-      <div className="session-data">
-        <TimingFields settings={settings} updateSettings={updateSettings} />
-      </div>
+      <TimingSection settings={settings} updateSettings={updateSettings} />
 
       <div className="preset-row">
         <span className="session-data-group-label">Notes</span>
@@ -126,7 +123,6 @@ function PureToneControls({
       )}
 
       <ShowToggles settings={settings} updateSettings={updateSettings} />
-      <MetronomeControl settings={settings} updateSettings={updateSettings} />
 
       <details className="advanced">
         <summary>▸ Advanced settings</summary>

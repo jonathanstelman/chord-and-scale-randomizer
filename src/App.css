@@ -412,14 +412,23 @@
   height: 1rem;
 }
 
+/* A single boxed settings cluster — Timing (+ Metronome) and Sound each get their own,
+   rather than the old shared-hairline-rule look, so each reads as one self-contained
+   unit you can take in at a glance. */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--paper-faint);
+  border-radius: 0.4rem;
+}
+
 .metronome-control {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1.25rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--paper-faint);
-  border-radius: 0.4rem;
 }
 
 .metronome-volume {

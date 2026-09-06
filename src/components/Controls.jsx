@@ -6,8 +6,7 @@ import { pitchClassToDisplayName } from '../music/notes';
 import { parseCustomBank } from '../music/chordParser';
 import TriStateCheckbox from './TriStateCheckbox';
 import RootsPicker from './RootsPicker';
-import TimingFields from './TimingFields';
-import MetronomeControl from './MetronomeControl';
+import TimingSection from './TimingSection';
 import ShowToggles from './ShowToggles';
 
 function typeLabelForKey(key) {
@@ -56,8 +55,9 @@ function Controls({
         {isRunning ? '■ Stop Session' : '▶ Start Session'}
       </button>
 
-      <div className="session-data">
-        <TimingFields settings={settings} updateSettings={updateSettings} />
+      <TimingSection settings={settings} updateSettings={updateSettings} />
+
+      <div className="settings-section">
         <div className="session-data-group">
           <span className="session-data-group-label">Sound</span>
           <div className="session-data-fields">
@@ -90,7 +90,6 @@ function Controls({
       </div>
 
       <ShowToggles settings={settings} updateSettings={updateSettings} />
-      <MetronomeControl settings={settings} updateSettings={updateSettings} />
 
       <div className="preset-row">
         <span className="session-data-group-label">Presets</span>
