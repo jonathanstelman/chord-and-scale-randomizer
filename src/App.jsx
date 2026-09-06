@@ -65,7 +65,7 @@ export default function App() {
         </div>
         <p className="masthead-subtitle">
           Each mode below sets a new <strong>tonal center</strong> — a root note, chord,
-          or scale — at random, on a timer, so you can practice reacting when it changes.
+          or scale — at random, on a metronome, so you can practice reacting when it changes.
         </p>
         <TabNav activeTab={settings.activeTab} onSelect={handleSelectTab} />
         <p className="masthead-subtitle">{TAB_DESCRIPTIONS[settings.activeTab]}</p>
