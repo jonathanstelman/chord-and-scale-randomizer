@@ -8,6 +8,9 @@ const DEFAULT_SETTINGS = {
   // section for why tabs share this one settings object instead of each owning its own
   // storage key. 'randomizer' | 'pureTone'.
   activeTab: 'randomizer',
+  // 'system' follows the OS/browser preference; 'light'/'dark' is an explicit override.
+  // See docs/architecture/theming.md.
+  theme: 'system',
   bpm: 60,
   minBeats: 4,
   maxBeats: 4, // equal by default: a single "Duration", not a range, until the user opts in
@@ -63,9 +66,21 @@ export function useSettings() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
 
+  // Mirrors settings.theme onto the document so index.css's [data-theme="..."] rules
+  // can see it — 'system' removes the attribute entirely rather than setting it to an
+  // empty string, so the CSS falls through to prefers-color-scheme with nothing
+  // overriding it either way. See docs/architecture/theming.md.
+  useEffect(() => {
+    if (settings.theme === 'system') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.dataset.theme = settings.theme;
+    }
+  }, [settings.theme]);
+
   // Stable identities (useCallback) so Controls — a memoized component with a lot of
   // checkboxes — doesn't see "new" callback props and re-render on every beat tick just
-  // because App re-rendered for an unrelated reason (the beat counter, the turntable).
+  // because App re-rendered for an unrelated reason (the beat counter, NowPlaying).
   const updateSettings = useCallback((patch) => setSettings((prev) => ({ ...prev, ...patch })), []);
 
   // Manually editing types/roots always exits Guitar-style "explicit pairs" mode and

@@ -1,6 +1,7 @@
 import { useSettings } from './hooks/useSettings';
 import { useRandomizer, pickNextForPureTone } from './hooks/useRandomizer';
 import TabNav from './components/TabNav';
+import ThemeToggle from './components/ThemeToggle';
 import Controls from './components/Controls';
 import PureToneControls from './components/PureToneControls';
 import Display from './components/Display';
@@ -58,7 +59,10 @@ export default function App() {
   return (
     <div className="app">
       <header className="masthead">
-        <h1>Musical Chairs</h1>
+        <div className="masthead-top">
+          <h1>Musical Chairs</h1>
+          <ThemeToggle theme={settings.theme} onSelect={(theme) => updateSettings({ theme })} />
+        </div>
         <p className="masthead-subtitle">
           Each mode below sets a new <strong>tonal center</strong> — a root note, chord,
           or scale — at random, on a timer, so you can practice reacting when it changes.

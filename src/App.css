@@ -4,6 +4,21 @@
   padding: 2.5rem 1.5rem 3rem;
 }
 
+/* Standard screen-reader-only pattern: present in the accessibility tree, invisible and
+   unable to affect layout. Used where a control's visible content (an icon, a glyph) is
+   too terse on its own to announce what the control does. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- Masthead ---------- */
 
 .masthead {
@@ -12,11 +27,61 @@
   border-bottom: 2px solid var(--cobalt);
 }
 
+.masthead-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
 .masthead h1 {
   font-size: clamp(2.25rem, 7vw, 3.5rem);
   letter-spacing: 0.01em;
   text-transform: uppercase;
   line-height: 0.95;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Fixed width rather than shrink-to-fit: content swaps between a single glyph (☀/☾)
+     and the word AUTO as the theme cycles, and a fixed width keeps the button from
+     jumping around next to the wordmark as that happens. */
+  min-width: 2.75rem;
+  height: 1.9rem;
+  padding: 0 0.5rem;
+  /* Nudges the button down off the huge display-face cap-height so it reads as sitting
+     beside the wordmark, not awkwardly flush with its very top edge. */
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--paper-dim);
+  background: transparent;
+  border: 1px solid var(--paper-faint);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
+}
+
+.theme-toggle:hover {
+  border-color: var(--cobalt);
+  color: var(--paper);
+}
+
+.theme-toggle-text {
+  text-transform: uppercase;
+}
+
+/* ☀/☾ render thin and undersized in Work Sans (the button's inherited font) — sized up
+   and switched to the system sans-serif fallback, which carries a bolder glyph for
+   these two specifically, on their own span so they read as icons, not a faint mark. */
+.theme-toggle-icon {
+  font-family: system-ui, sans-serif;
+  font-size: 1.3rem;
+  line-height: 1;
 }
 
 .masthead-subtitle {
@@ -74,7 +139,7 @@
   justify-content: center;
   gap: 0.75rem;
   background: var(--panel);
-  border: 1px solid rgba(244, 238, 221, 0.08);
+  border: 1px solid var(--paper-faint);
   border-radius: 0.5rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
   margin-bottom: 2rem;
@@ -102,9 +167,9 @@
   margin: 0;
 }
 
-/* ---------- Turntable (signature element) ---------- */
+/* ---------- Now Playing (current/next reading + beat progress) ---------- */
 
-.turntable {
+.now-playing {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -141,56 +206,12 @@
   opacity: 0.85;
 }
 
-.reading-next-line {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .reading-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--brass);
-}
-
-/* A small spinning-disc badge for flavor — the actual answer is the text beside it,
-   read as one phrase, not a second information source to decode separately. */
-.record-badge {
-  flex-shrink: 0;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  background:
-    repeating-radial-gradient(
-      circle at center,
-      var(--vinyl) 0,
-      var(--vinyl) 2px,
-      #201c18 2px,
-      #201c18 3px
-    );
-  border: 2px solid var(--paper);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  animation: spin-disc 4.2s linear infinite;
-  animation-play-state: paused;
-}
-
-.record-badge.is-spinning {
-  animation-play-state: running;
-}
-
-.reading--next .record-badge {
-  width: 2rem;
-  height: 2rem;
-}
-
-.record-badge--triads { border-color: var(--cobalt); }
-.record-badge--sevenths { border-color: var(--brass); }
-.record-badge--extended { border-color: var(--flame); }
-
-@keyframes spin-disc {
-  to { transform: rotate(360deg); }
 }
 
 /* Root + quality read as one phrase ("A Phrygian"), same line, same style — splitting
@@ -261,7 +282,7 @@
 }
 
 .beat-block--past {
-  background: rgba(244, 238, 221, 0.3);
+  background: var(--paper-medium);
   border-color: transparent;
 }
 
@@ -531,7 +552,13 @@
   transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 
-.mode-block input {
+/* [type='checkbox'] isn't for specificity over .mode-block input alone — it's needed to
+   match (and, being later in the file, beat) .checkbox-label input[type='checkbox']'s
+   accent-color: var(--brass), which every mode-row checkbox also picks up via its
+   shared .checkbox-label class. Without it, that rule's higher specificity wins and
+   every mode block's checkbox renders brass regardless of which block it's in —
+   including the brass block itself, where a brass-on-brass checkbox nearly disappears. */
+.mode-block input[type='checkbox'] {
   accent-color: currentColor;
 }
 
@@ -551,6 +578,25 @@
   background: var(--flame);
   border-color: var(--flame);
   color: var(--paper);
+}
+
+/* Light mode only: cobalt/flame stay the same medium-dark hue in both themes, so text
+   on them wants to stay light — but --paper (triads/extended's text color above) flips
+   to a dark value in light mode, since it means "foreground text" generally, not
+   "light color" specifically. --cream is fixed regardless of theme, so it's the right
+   token here. Dark mode is untouched and keeps its original mixed light/dark text per
+   block (deliberate: brass is a bright gold there, needing dark text for contrast —
+   see docs/architecture/theming.md). Higher specificity than the rules above already
+   gives this the win when it applies; :not([data-theme="dark"])/[data-theme="light"]
+   make sure it only applies in light mode. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .mode-block.is-on {
+    color: var(--cream);
+  }
+}
+
+:root[data-theme="light"] .mode-block.is-on {
+  color: var(--cream);
 }
 
 .mode-block.is-partial {

@@ -1,4 +1,4 @@
-import Turntable from './Turntable';
+import NowPlaying from './NowPlaying';
 
 export default function Display({
   current, next, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap,
@@ -13,14 +13,13 @@ export default function Display({
       )}
       {isRunning && (
         <>
-          <Turntable
+          <NowPlaying
             current={showCurrent ? current : null}
             next={next}
             showNext={showNext}
             beatIndex={beatIndex}
             totalBeats={totalBeats}
             isGap={isGap}
-            isRunning={isRunning}
           />
           {!showCurrent && !isGap && <p className="sleeve-hint">Listening mode — tonal center hidden.</p>}
         </>

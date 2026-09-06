@@ -1,26 +1,16 @@
-// A small spinning-disc badge for flavor, color-coded by difficulty tier — but the actual
-// answer is plain text read as one phrase ("A Phrygian"), not split across the badge and
-// a separate caption. Splitting root and quality apart (a giant number in a circle, then
-// a differently-sized label underneath) was cute but cognitively harder to read fast,
-// which defeats the point of a chord/scale-recognition tool.
-function RecordBadge({ modeKey, spinning }) {
-  return <div className={`record-badge record-badge--${modeKey}${spinning ? ' is-spinning' : ''}`} />;
-}
-
 // Root name alone for Pure Tone's typeless segments (typeLabel === '', see
 // PURE_TONE_TYPE in pool.js); "root + type" for everything else.
 function tonalCenterPhrase({ rootName, typeLabel }) {
   return typeLabel ? `${rootName} ${typeLabel}` : rootName;
 }
 
-export default function Turntable({
-  current, next, showNext, beatIndex, totalBeats, isGap, isRunning,
+export default function NowPlaying({
+  current, next, showNext, beatIndex, totalBeats, isGap,
 }) {
   return (
-    <div className="turntable">
+    <div className="now-playing">
       <div className="reading-row">
         <div className="reading reading--current">
-          <RecordBadge modeKey={current?.modeKey ?? 'none'} spinning={isRunning && !!current} />
           <span className={`chord-name${isGap ? ' chord-name--gap' : ''}`}>
             {isGap ? 'Get ready…' : current ? tonalCenterPhrase(current) : '—'}
           </span>
@@ -29,10 +19,7 @@ export default function Turntable({
         {showNext && next && (
           <div className="reading reading--next">
             <span className="reading-eyebrow">Next</span>
-            <div className="reading-next-line">
-              <RecordBadge modeKey={next.modeKey} spinning={false} />
-              <span className="chord-name chord-name--next">{tonalCenterPhrase(next)}</span>
-            </div>
+            <span className="chord-name chord-name--next">{tonalCenterPhrase(next)}</span>
           </div>
         )}
       </div>
