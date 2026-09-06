@@ -5,6 +5,7 @@ import {
   ALL_ROOTS,
   ALL_TONAL_CENTER_TYPES,
   CORE_MODES,
+  BEGINNER_TRIAD_PAIRS,
   typeKeysInCategories,
   modeCheckState,
   rootsCheckState,
@@ -17,6 +18,19 @@ import {
 
 afterEach(() => {
   vi.restoreAllMocks();
+});
+
+describe('BEGINNER_TRIAD_PAIRS', () => {
+  it('covers exactly the 7 natural roots, in major and minor, and nothing else', () => {
+    expect(BEGINNER_TRIAD_PAIRS).toHaveLength(14);
+    const naturalRootPcs = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
+    for (const pc of naturalRootPcs) {
+      expect(BEGINNER_TRIAD_PAIRS).toContainEqual({ rootPc: pc, typeKey: 'maj' });
+      expect(BEGINNER_TRIAD_PAIRS).toContainEqual({ rootPc: pc, typeKey: 'min' });
+    }
+    expect(BEGINNER_TRIAD_PAIRS.every((p) => p.typeKey === 'maj' || p.typeKey === 'min')).toBe(true);
+    expect(BEGINNER_TRIAD_PAIRS.every((p) => naturalRootPcs.includes(p.rootPc))).toBe(true);
+  });
 });
 
 describe('typeKeysInCategories', () => {

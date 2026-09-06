@@ -338,6 +338,29 @@ function Controls({
 
       <details className="advanced">
         <summary>▸ Advanced settings</summary>
+        <fieldset className="roots-fieldset">
+          <div className="fieldset-head">
+            <legend>Roots</legend>
+            <TriStateCheckbox
+              className="category-select-all"
+              label="select all"
+              state={rootsCheckState(settings.enabledRoots)}
+              onChange={setAllRootsEnabled}
+            />
+          </div>
+          <div className="roots-grid">
+            {ALL_ROOTS.map((pc) => (
+              <label key={pc} className="checkbox-label track-row">
+                <input
+                  type="checkbox"
+                  checked={settings.enabledRoots.includes(pc)}
+                  onChange={() => toggleRoot(pc)}
+                />
+                {pitchClassToDisplayName(pc)}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <div className="type-groups">
           {Object.entries(CATEGORY_GROUPS).map(([category, types]) => {
             const categoryMode = { categories: [category] };
@@ -367,29 +390,6 @@ function Controls({
             );
           })}
         </div>
-        <fieldset className="roots-fieldset">
-          <div className="fieldset-head">
-            <legend>Roots</legend>
-            <TriStateCheckbox
-              className="category-select-all"
-              label="select all"
-              state={rootsCheckState(settings.enabledRoots)}
-              onChange={setAllRootsEnabled}
-            />
-          </div>
-          <div className="roots-grid">
-            {ALL_ROOTS.map((pc) => (
-              <label key={pc} className="checkbox-label track-row">
-                <input
-                  type="checkbox"
-                  checked={settings.enabledRoots.includes(pc)}
-                  onChange={() => toggleRoot(pc)}
-                />
-                {pitchClassToDisplayName(pc)}
-              </label>
-            ))}
-          </div>
-        </fieldset>
       </details>
     </div>
   );
