@@ -75,10 +75,13 @@ comment explaining its octave-stacking algorithm, and it stays — deleting it w
 you the ability to safely modify that function, not just some background trivia. The
 tell isn't length, it's whether the content is *about this line* or *about the system*.
 
-## When trimming a comment into a pointer
+## Writing or trimming a pointer comment
 
-Before deleting the long version, check whether every fact in it already exists in the
-target `docs/architecture/*.md` file. If something would be lost (an example: the
-`chordBaseVolume` crossfade-headroom reasoning wasn't yet in `audio.md` when its comment
-got trimmed), add it to the doc *first*, in the same change — don't let a doc-cleanup
-pass quietly delete information.
+Whether you're shortening an existing essay or writing a short pointer fresh, check that
+the target `docs/architecture/*.md` section actually contains what the comment claims
+before you commit it. A pointer to a section that doesn't say what it's cited for is
+worse than the long comment it replaced — it looks authoritative and isn't. If something
+would be missing (an example: the `chordBaseVolume` crossfade-headroom reasoning wasn't
+yet in `audio.md` when its comment got trimmed), add it to the doc *first*, in the same
+change — don't let a doc-cleanup pass quietly delete information, and don't let a fresh
+pointer comment promise something the doc doesn't say yet.
