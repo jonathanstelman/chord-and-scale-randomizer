@@ -4,6 +4,21 @@
   padding: 2.5rem 1.5rem 3rem;
 }
 
+/* Standard screen-reader-only pattern: present in the accessibility tree, invisible and
+   unable to affect layout. Used where a control's visible content (an icon, a glyph) is
+   too terse on its own to announce what the control does. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- Masthead ---------- */
 
 .masthead {
@@ -29,35 +44,44 @@
 
 .theme-toggle {
   display: flex;
-  gap: 0.3rem;
-  /* Nudges the pills down off the huge display-face cap-height so they read as sitting
+  align-items: center;
+  justify-content: center;
+  /* Fixed width rather than shrink-to-fit: content swaps between a single glyph (☀/☾)
+     and the word AUTO as the theme cycles, and a fixed width keeps the button from
+     jumping around next to the wordmark as that happens. */
+  min-width: 2.75rem;
+  height: 1.9rem;
+  padding: 0 0.5rem;
+  /* Nudges the button down off the huge display-face cap-height so it reads as sitting
      beside the wordmark, not awkwardly flush with its very top edge. */
   margin-top: 0.6rem;
-}
-
-.theme-toggle-button {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--paper-dim);
   background: transparent;
   border: 1px solid var(--paper-faint);
   border-radius: 1rem;
-  padding: 0.25rem 0.6rem;
   cursor: pointer;
   transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 
-.theme-toggle-button:hover {
+.theme-toggle:hover {
   border-color: var(--cobalt);
   color: var(--paper);
 }
 
-.theme-toggle-button.is-active {
-  background: var(--paper-faint);
-  border-color: var(--paper-dim);
-  color: var(--paper);
+.theme-toggle-text {
+  text-transform: uppercase;
+}
+
+/* ☀/☾ render thin and undersized in Work Sans (the button's inherited font) — sized up
+   and switched to the system sans-serif fallback, which carries a bolder glyph for
+   these two specifically, on their own span so they read as icons, not a faint mark. */
+.theme-toggle-icon {
+  font-family: system-ui, sans-serif;
+  font-size: 1.3rem;
+  line-height: 1;
 }
 
 .masthead-subtitle {
