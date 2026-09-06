@@ -3,7 +3,7 @@ import * as Tone from 'tone';
 import { TonalCenterPlayer, unlockIOSMediaPlayback } from '../audio/engine';
 import {
   pickRandomTonalCenter, pickRandomTonalCenterFromPairs, tonalCenterAtIndex, pickRandomDuration,
-  coreModeKeyForCategory,
+  pickRandomRootPc, pickRandomScalePc, coreModeKeyForCategory, PURE_TONE_TYPE,
 } from '../music/pool';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
@@ -17,52 +17,85 @@ function buildSegment(rootPc, type, s) {
     duration: pickRandomDuration(s.minBeats, s.maxBeats),
     rootName: pitchClassToDisplayName(rootPc),
     typeLabel: type.label,
-    modeKey: coreModeKeyForCategory(type.category),
+    // A pluggable type can name its own record-badge tier directly (see PURE_TONE_TYPE)
+    // rather than being derived from a CHORD_QUALITIES/SCALE_TYPES category.
+    modeKey: type.modeKey ?? coreModeKeyForCategory(type.category),
   };
 }
 
-// `avoid` is the segment that's about to stop playing — re-rolls (root, type) pairs that
-// would repeat it exactly. Duration doesn't factor into "the same tonal center"; only
-// root + type identity does. The retry cap is just a safety valve against an infinite
-// loop in some degenerate future config — with 12 roots always in play, a fresh pick
-// almost always succeeds on the first try.
+// The chord/scale randomizer tab's "what's next" source: custom bank (ordered or
+// random) takes priority over Guitar-style pairs, which takes priority over the general
+// enabledTypes/enabledRoots pool. `avoid` is the segment that's about to stop playing —
+// every source but ordered custom-bank mode re-rolls a pick that would repeat it exactly
+// (root + type identity; duration doesn't count). Ordered mode is walking a
+// user-written progression in a fixed order — a repeated chord in a typed-out
+// progression (e.g. "C, C, F, G") is intentional, so it returns straight away instead of
+// looping. The retry cap is just a safety valve against an infinite loop in some
+// degenerate future config — with 12 roots always in play, a fresh pick almost always
+// succeeds on the first try.
 //
-// `orderedBankIndexRef` is only read/advanced for custom-bank "ordered" mode: walking a
-// user-written progression in order is a different shape entirely from the other three
-// sources (general pool, Guitar's pairs, custom-bank "random") — those all draw randomly
-// and skip an exact repeat of `avoid`, but a repeated chord in a typed-out progression
-// (e.g. "C, C, F, G") is intentional, so ordered mode returns straight away instead of
-// looping.
-function makeSegment(s, avoid, orderedBankIndexRef) {
+// `orderedBankIndexRef` is only read/advanced for custom-bank "ordered" mode.
+function pickNextForRandomizer(s, avoid, orderedBankIndexRef) {
   const usingCustomBank = s.customBankEnabled && s.customBankEntries.length > 0;
 
   if (usingCustomBank && s.customBankMode === 'ordered') {
     const index = orderedBankIndexRef.current;
     orderedBankIndexRef.current += 1;
-    const { rootPc, type } = tonalCenterAtIndex(s.customBankEntries, index);
-    return buildSegment(rootPc, type, s);
+    return tonalCenterAtIndex(s.customBankEntries, index);
   }
 
-  let seg;
+  let picked;
   let attempts = 0;
   do {
-    const { rootPc, type } = usingCustomBank
+    picked = usingCustomBank
       ? pickRandomTonalCenterFromPairs(s.customBankEntries)
       : s.enabledPairs
         ? pickRandomTonalCenterFromPairs(s.enabledPairs)
         : pickRandomTonalCenter(s.enabledTypes, s.enabledRoots);
-    seg = buildSegment(rootPc, type, s);
     attempts += 1;
   } while (
-    avoid && seg.rootPc === avoid.rootPc && seg.type.key === avoid.type.key
+    avoid && picked.rootPc === avoid.rootPc && picked.type.key === avoid.type.key
     && attempts < MAX_REPEAT_AVOIDANCE_ATTEMPTS
   );
-  return seg;
+  return picked;
+}
+
+// Pure Tone tab's "what's next" source: no type/quality involved, and no custom-bank/
+// Guitar-pairs concept at all — those are Randomizer-tab-only settings that happen to
+// live in the same shared settings object (see docs/architecture/settings-and-presets.md)
+// but must never leak into this tab's playback. Two presets (see PureToneControls.jsx):
+// 'chromatic' draws from the shared roots filter (settings.enabledRoots), same as
+// pickRandomRootPc elsewhere; 'scale' draws from every tone of a chosen scale instead and
+// deliberately ignores the roots filter — same "an alternate source bypasses the general
+// filter" precedent as Guitar/Beginner's pairs (see settings-and-presets.md). Same
+// repeat-avoidance idea as pickNextForRandomizer, simplified to just the root pitch class.
+export function pickNextForPureTone(s, avoid) {
+  let rootPc;
+  let attempts = 0;
+  do {
+    rootPc = s.pureToneMode === 'scale'
+      ? pickRandomScalePc(s.pureToneScaleRootPc, s.pureToneScaleKey)
+      : pickRandomRootPc(s.enabledRoots);
+    attempts += 1;
+  } while (avoid && rootPc === avoid.rootPc && attempts < MAX_REPEAT_AVOIDANCE_ATTEMPTS);
+  return { rootPc, type: PURE_TONE_TYPE };
+}
+
+function makeSegment(s, avoid, orderedBankIndexRef, pickNextTonalCenter) {
+  const { rootPc, type } = pickNextTonalCenter(s, avoid, orderedBankIndexRef);
+  return buildSegment(rootPc, type, s);
 }
 
 // Drives the "slot machine" — a phase is either a tonal center playing or a silent gap;
-// see docs/architecture/randomizer.md for the phase/pregeneration model.
-export function useRandomizer(settings) {
+// see docs/architecture/randomizer.md for the phase/pregeneration model. One clock
+// shared by every practice tab: `pickNextTonalCenter` swaps the "what's next" source
+// (pickNextForRandomizer by default, pickNextForPureTone for the Pure Tone tab) and
+// `forceSoundType` overrides settings.soundType for tabs (Pure Tone) that don't expose a
+// sound-type choice of their own — always a single simultaneous tone regardless of
+// whatever the Randomizer tab last had soundType set to, since that field is shared
+// storage but not a shared concept across tabs.
+export function useRandomizer(settings, options = {}) {
+  const { pickNextTonalCenter = pickNextForRandomizer, forceSoundType } = options;
   const [isRunning, setIsRunning] = useState(false);
   const [current, setCurrent] = useState(null);
   const [next, setNext] = useState(null);
@@ -90,20 +123,21 @@ export function useRandomizer(settings) {
       upperOctave: 4,
       maxNotes: settingsRef.current.maxChordNotes,
     });
+    const soundType = forceSoundType ?? settingsRef.current.soundType;
     // Arpeggio mode needs its pattern length itself to be beat-friendly (see
     // padToSimpleArpeggioLength) — chord/pad just sound every voiced note at once, so
     // pattern length doesn't apply to them.
-    const noteNames = settingsRef.current.soundType === 'arpeggio'
+    const noteNames = soundType === 'arpeggio'
       ? padToSimpleArpeggioLength(voiced)
       : voiced.map((v) => v.noteName);
-    playerRef.current.playSegment(settingsRef.current.soundType, noteNames, time);
-  }, []);
+    playerRef.current.playSegment(soundType, noteNames, time);
+  }, [forceSoundType]);
 
   const advanceToNext = useCallback((time) => {
     const seg = nextSegmentRef.current
-      ?? makeSegment(settingsRef.current, segmentRef.current, orderedBankIndexRef);
+      ?? makeSegment(settingsRef.current, segmentRef.current, orderedBankIndexRef, pickNextTonalCenter);
     segmentRef.current = seg;
-    nextSegmentRef.current = makeSegment(settingsRef.current, seg, orderedBankIndexRef);
+    nextSegmentRef.current = makeSegment(settingsRef.current, seg, orderedBankIndexRef, pickNextTonalCenter);
     phaseRef.current = 'playing';
     phaseTotalRef.current = seg.duration;
     beatsRemainingRef.current = seg.duration;
@@ -119,7 +153,7 @@ export function useRandomizer(settings) {
       setIsGap(false);
       setBeatIndex(1);
     }, time);
-  }, [playSegment]);
+  }, [playSegment, pickNextTonalCenter]);
 
   const beginGap = useCallback((time, gapBeats) => {
     phaseRef.current = 'gap';

@@ -32,6 +32,37 @@
   font-weight: 600;
 }
 
+/* ---------- Tab nav ---------- */
+
+.tab-nav {
+  display: flex;
+  gap: 1.75rem;
+  margin: 0.85rem 0 0;
+}
+
+.tab-button {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.4rem 0.1rem;
+  cursor: pointer;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.tab-button:hover {
+  color: var(--paper);
+}
+
+.tab-button.is-active {
+  color: var(--paper);
+  border-bottom-color: var(--flame);
+}
+
 /* ---------- Sleeve / Display ---------- */
 
 .sleeve {

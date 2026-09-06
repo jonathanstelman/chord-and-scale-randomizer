@@ -4,6 +4,10 @@ import { ALL_ROOTS, DEFAULT_ENABLED_TYPES, typeKeysInCategories } from '../music
 const STORAGE_KEY = 'chord-scale-randomizer-settings';
 
 const DEFAULT_SETTINGS = {
+  // Which practice tab is showing — see docs/architecture/randomizer.md's Pure Tone
+  // section for why tabs share this one settings object instead of each owning its own
+  // storage key. 'randomizer' | 'pureTone'.
+  activeTab: 'randomizer',
   bpm: 60,
   minBeats: 4,
   maxBeats: 4, // equal by default: a single "Duration", not a range, until the user opts in
@@ -30,6 +34,15 @@ const DEFAULT_SETTINGS = {
   customBankEntries: [], // last successfully-parsed [{rootPc, typeKey}] — what playback reads
   customBankMode: 'random', // 'random' | 'ordered'
   customBankEnabled: false,
+  // Pure Tone tab's note source (see docs/architecture/randomizer.md's Pure Tone
+  // section): 'chromatic' draws from the shared enabledRoots filter above; 'scale' draws
+  // from every tone of pureToneScaleRootPc/pureToneScaleKey instead, ignoring
+  // enabledRoots — ideal for solfège-style practice within one key. Unlike
+  // activePresetKey, this isn't cleared by any other edit — it's the persisted choice
+  // itself, not a description of one, so there's nothing to "customize away from".
+  pureToneMode: 'chromatic', // 'chromatic' | 'scale'
+  pureToneScaleRootPc: 0, // C
+  pureToneScaleKey: 'diatonic:Ionian', // major scale — the classic solfège "do"
 };
 
 function loadSettings() {
@@ -160,6 +173,10 @@ export function useSettings() {
     }));
   }, []);
 
+  const setActiveTab = useCallback((tab) => {
+    setSettings((prev) => ({ ...prev, activeTab: tab }));
+  }, []);
+
   return {
     settings,
     updateSettings,
@@ -172,5 +189,6 @@ export function useSettings() {
     commitCustomBank,
     setCustomBankMode,
     setCustomBankEnabled,
+    setActiveTab,
   };
 }

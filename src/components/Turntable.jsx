@@ -7,6 +7,12 @@ function RecordBadge({ modeKey, spinning }) {
   return <div className={`record-badge record-badge--${modeKey}${spinning ? ' is-spinning' : ''}`} />;
 }
 
+// Root name alone for Pure Tone's typeless segments (typeLabel === '', see
+// PURE_TONE_TYPE in pool.js); "root + type" for everything else.
+function tonalCenterPhrase({ rootName, typeLabel }) {
+  return typeLabel ? `${rootName} ${typeLabel}` : rootName;
+}
+
 export default function Turntable({
   current, next, showNext, beatIndex, totalBeats, isGap, isRunning,
 }) {
@@ -16,7 +22,7 @@ export default function Turntable({
         <div className="reading reading--current">
           <RecordBadge modeKey={current?.modeKey ?? 'none'} spinning={isRunning && !!current} />
           <span className={`chord-name${isGap ? ' chord-name--gap' : ''}`}>
-            {isGap ? 'Get ready…' : current ? `${current.rootName} ${current.typeLabel}` : '—'}
+            {isGap ? 'Get ready…' : current ? tonalCenterPhrase(current) : '—'}
           </span>
         </div>
 
@@ -25,7 +31,7 @@ export default function Turntable({
             <span className="reading-eyebrow">Next</span>
             <div className="reading-next-line">
               <RecordBadge modeKey={next.modeKey} spinning={false} />
-              <span className="chord-name chord-name--next">{next.rootName} {next.typeLabel}</span>
+              <span className="chord-name chord-name--next">{tonalCenterPhrase(next)}</span>
             </div>
           </div>
         )}

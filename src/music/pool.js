@@ -151,6 +151,40 @@ export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
   return { rootPc, type };
 }
 
+// Pure Tone tab's "type": a single pitch, no chord/scale quality at all — deliberately
+// outside CHORD_QUALITIES/SCALE_TYPES since there's no "type" to select, just a root
+// (see docs/architecture/randomizer.md's Pure Tone section). `label: ''` keeps the
+// Turntable's "root + type" phrase down to just the root name; `modeKey: 'none'` skips
+// the difficulty-tier record-badge color that only makes sense for chord/scale types.
+export const PURE_TONE_TYPE = {
+  key: 'pitch', label: '', intervals: [0], modeKey: 'none',
+};
+
+// Pure Tone tab's counterpart to pickRandomTonalCenter: draws a root pitch class from
+// the shared roots filter with no type/quality involved. Same "don't silently produce
+// nothing" fallback as pickRandomTonalCenter's root selection.
+export function pickRandomRootPc(enabledRoots = ALL_ROOTS) {
+  const roots = enabledRoots.length > 0 ? enabledRoots : ALL_ROOTS;
+  return roots[Math.floor(Math.random() * roots.length)];
+}
+
+// Pure Tone's "Scale" preset: every pitch class belonging to a chosen scale, built on a
+// chosen root — all of SCALE_TYPES' `degrees` (every scale tone), not the `chordIntervals`
+// subset used to voice a chord. Ideal for solfège-style practice within one key instead
+// of chromatically across all 12. Falls back to just the root (a degenerate 1-note
+// "scale") if scaleKey doesn't match anything, same "don't silently produce nothing"
+// spirit as this file's other fallbacks.
+export function scalePitchClasses(rootPc, scaleKey) {
+  const scale = SCALE_TYPES.find((t) => t.key === scaleKey);
+  const degrees = scale ? scale.degrees : [0];
+  return degrees.map((d) => ((rootPc + d) % 12 + 12) % 12);
+}
+
+export function pickRandomScalePc(rootPc, scaleKey) {
+  const pcs = scalePitchClasses(rootPc, scaleKey);
+  return pcs[Math.floor(Math.random() * pcs.length)];
+}
+
 // Guitar mode's alternative to pickRandomTonalCenter: draws uniformly from an explicit
 // {rootPc, typeKey} list (see GUITAR_OPEN_CHORD_PAIRS) instead of crossing enabledTypes
 // with enabledRoots.

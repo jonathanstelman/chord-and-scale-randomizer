@@ -14,6 +14,10 @@ import {
   pickRandomTonalCenterFromPairs,
   tonalCenterAtIndex,
   pickRandomDuration,
+  pickRandomRootPc,
+  scalePitchClasses,
+  pickRandomScalePc,
+  PURE_TONE_TYPE,
 } from './pool';
 
 afterEach(() => {
@@ -81,6 +85,59 @@ describe('coreModeKeyForCategory', () => {
 
   it('falls back to "triads" for an unrecognized category', () => {
     expect(coreModeKeyForCategory('Not A Real Category')).toBe('triads');
+  });
+});
+
+describe('pickRandomRootPc', () => {
+  it('picks a root from the given list', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    expect(pickRandomRootPc([5, 7, 9])).toBe(5);
+  });
+
+  it('falls back to ALL_ROOTS when the given list is empty', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    expect(pickRandomRootPc([])).toBe(ALL_ROOTS[0]);
+  });
+
+  it('defaults to ALL_ROOTS when called with no argument', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.999999);
+    expect(pickRandomRootPc()).toBe(ALL_ROOTS[ALL_ROOTS.length - 1]);
+  });
+});
+
+describe('PURE_TONE_TYPE', () => {
+  it('has no label or category, a single root interval, and an explicit neutral modeKey', () => {
+    expect(PURE_TONE_TYPE.label).toBe('');
+    expect(PURE_TONE_TYPE.intervals).toEqual([0]);
+    expect(PURE_TONE_TYPE.modeKey).toBe('none');
+  });
+});
+
+describe('scalePitchClasses', () => {
+  it('returns every degree of a diatonic major scale, transposed to the given root', () => {
+    // C Ionian: C D E F G A B
+    expect(scalePitchClasses(0, 'diatonic:Ionian')).toEqual([0, 2, 4, 5, 7, 9, 11]);
+  });
+
+  it('wraps degrees past pitch class 12 back into 0-11', () => {
+    // G Ionian: G A B C D E F#
+    expect(scalePitchClasses(7, 'diatonic:Ionian')).toEqual([7, 9, 11, 0, 2, 4, 6]);
+  });
+
+  it('falls back to just the root for an unrecognized scale key', () => {
+    expect(scalePitchClasses(3, 'not-a-real-scale')).toEqual([3]);
+  });
+});
+
+describe('pickRandomScalePc', () => {
+  it('picks a pitch class belonging to the chosen scale', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    expect(pickRandomScalePc(0, 'diatonic:Ionian')).toBe(0);
+  });
+
+  it('picks the last scale degree when Math.random resolves just under 1', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.999999);
+    expect(pickRandomScalePc(0, 'diatonic:Ionian')).toBe(11); // B, the 7th degree
   });
 });
 
