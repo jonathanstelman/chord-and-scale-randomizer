@@ -252,14 +252,12 @@ function Controls({
         </div>
       </div>
       {activePreset && (
-        <p className="preset-description">{activePreset.description}</p>
-      )}
-      {settings.enabledPairs && (
-        <p className="preset-note">
-          {activePreset?.label ?? 'This preset'} is active, drawing only from its fixed
-          chord list. Any change to the mode/type/root checkboxes below returns to
-          normal filtering.
-        </p>
+        <>
+          <p className="preset-description">{activePreset.description}</p>
+          <p className="preset-note">
+            Any change to the mode/type/root checkboxes below customizes from here.
+          </p>
+        </>
       )}
 
       <div className="mode-row">
