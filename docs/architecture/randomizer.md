@@ -37,9 +37,9 @@ silently start drawing from the new tab's source — two tabs never share a live
 
 Tabs share one flat settings object rather than each owning its own storage key (see
 `docs/architecture/settings-and-presets.md`): tempo, duration/gap, the roots filter,
-metronome, and show-current/next all mean the same thing in every tab, so `TimingFields`,
-`RootsPicker`, `MetronomeControl`, and `ShowToggles` are shared components reading the
-same settings fields Controls.jsx always used. The risk of sharing one object is a
+metronome, and show-current/next all mean the same thing in every tab, so `TimingSection`,
+`RootsPicker`, and `ShowToggles` are shared components reading the same settings fields
+Controls.jsx always used. The risk of sharing one object is a
 Randomizer-only field (`soundType`, `maxChordNotes`, `enabledTypes`, `enabledPairs`,
 `customBankEnabled`/`customBankEntries`) leaking into a tab that has no UI for it and
 shouldn't care what it's set to — `useRandomizer` avoids that two ways: `forceSoundType`
@@ -53,12 +53,8 @@ the custom-bank/pairs fields at all rather than special-casing around them.
 A single random pitch, no chord/scale quality — `pickNextForPureTone` pairs whatever
 pitch class it picks with `PURE_TONE_TYPE` (`pool.js`): `intervals: [0]` so
 `voiceChord`/`padToSimpleArpeggioLength` degenerate to "one note" automatically without
-any Pure-Tone-specific branching in the playback path, `label: ''` so `Turntable` shows
-just the root name instead of "C ", and an explicit `modeKey: 'none'` so the
-record-badge doesn't try to color a pitch by chord/scale difficulty tier (there isn't
-one). `buildSegment` checks `type.modeKey` before falling back to deriving one from
-`type.category` via `coreModeKeyForCategory`, so a pluggable type can name its own tier
-— or lack of one — directly.
+any Pure-Tone-specific branching in the playback path, and `label: ''` so `Turntable`
+shows just the root name instead of "C ".
 
 Which pitch class it picks depends on `settings.pureToneMode`, a two-preset toggle in
 `PureToneControls.jsx` (not routed through `activePresetKey`/`applyPreset` like the
@@ -87,7 +83,7 @@ redefined per tab.
 ## Components
 
 `App` → `TabNav` (practice-tab switcher) + `Display` (renders `Turntable`, the
-spinning-record/beat-panel visualization) + `Controls` or `PureToneControls` (the
+current/next reading + beat-panel visualization) + `Controls` or `PureToneControls` (the
 settings UI for whichever tab is active). Both settings components share `TimingSection`
 (tempo/duration/pause + metronome, boxed as one settings cluster — the metronome lives
 there too since it's timing information, it just keeps the beat rather than setting its

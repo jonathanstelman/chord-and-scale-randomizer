@@ -20,7 +20,6 @@ export default function Display({
             beatIndex={beatIndex}
             totalBeats={totalBeats}
             isGap={isGap}
-            isRunning={isRunning}
           />
           {!showCurrent && !isGap && <p className="sleeve-hint">Listening mode — tonal center hidden.</p>}
         </>

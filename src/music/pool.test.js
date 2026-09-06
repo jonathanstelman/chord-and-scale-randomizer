@@ -9,7 +9,6 @@ import {
   typeKeysInCategories,
   modeCheckState,
   rootsCheckState,
-  coreModeKeyForCategory,
   pickRandomTonalCenter,
   pickRandomTonalCenterFromPairs,
   tonalCenterAtIndex,
@@ -77,17 +76,6 @@ describe('rootsCheckState', () => {
   });
 });
 
-describe('coreModeKeyForCategory', () => {
-  it('maps a category to its owning core mode', () => {
-    expect(coreModeKeyForCategory('Triads')).toBe('triads');
-    expect(coreModeKeyForCategory('Seventh Chords')).toBe('sevenths');
-  });
-
-  it('falls back to "triads" for an unrecognized category', () => {
-    expect(coreModeKeyForCategory('Not A Real Category')).toBe('triads');
-  });
-});
-
 describe('pickRandomRootPc', () => {
   it('picks a root from the given list', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
@@ -106,10 +94,9 @@ describe('pickRandomRootPc', () => {
 });
 
 describe('PURE_TONE_TYPE', () => {
-  it('has no label or category, a single root interval, and an explicit neutral modeKey', () => {
+  it('has no label or category and a single root interval', () => {
     expect(PURE_TONE_TYPE.label).toBe('');
     expect(PURE_TONE_TYPE.intervals).toEqual([0]);
-    expect(PURE_TONE_TYPE.modeKey).toBe('none');
   });
 });
 

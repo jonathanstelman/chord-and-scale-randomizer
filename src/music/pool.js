@@ -121,13 +121,6 @@ export function rootsCheckState(enabledRoots) {
   return 'some';
 }
 
-// Which of the three core-mode blocks a given category belongs to — used to color the
-// turntable label by difficulty tier (cobalt → brass → flame as chords grow more
-// complex).
-export function coreModeKeyForCategory(category) {
-  return CORE_MODES.find((m) => m.categories.includes(category))?.key ?? 'triads';
-}
-
 export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
   const pool = ALL_TONAL_CENTER_TYPES.filter((t) => enabledKeys.includes(t.key));
   // Same "don't silently produce nothing" rule as the enabledRoots fallback below: if
@@ -152,7 +145,7 @@ export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
 // docs/architecture/randomizer.md's Pure Tone section for why each field is shaped this
 // way.
 export const PURE_TONE_TYPE = {
-  key: 'pitch', label: '', intervals: [0], modeKey: 'none',
+  key: 'pitch', label: '', intervals: [0],
 };
 
 // Pure Tone tab's counterpart to pickRandomTonalCenter: draws a root pitch class from

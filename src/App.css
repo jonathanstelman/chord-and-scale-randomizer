@@ -206,56 +206,12 @@
   opacity: 0.85;
 }
 
-.reading-next-line {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .reading-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--brass);
-}
-
-/* A small spinning-disc badge for flavor — the actual answer is the text beside it,
-   read as one phrase, not a second information source to decode separately. */
-.record-badge {
-  flex-shrink: 0;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  background:
-    repeating-radial-gradient(
-      circle at center,
-      var(--vinyl) 0,
-      var(--vinyl) 2px,
-      #201c18 2px,
-      #201c18 3px
-    );
-  border: 2px solid var(--paper);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  animation: spin-disc 4.2s linear infinite;
-  animation-play-state: paused;
-}
-
-.record-badge.is-spinning {
-  animation-play-state: running;
-}
-
-.reading--next .record-badge {
-  width: 2rem;
-  height: 2rem;
-}
-
-.record-badge--triads { border-color: var(--cobalt); }
-.record-badge--sevenths { border-color: var(--brass); }
-.record-badge--extended { border-color: var(--flame); }
-
-@keyframes spin-disc {
-  to { transform: rotate(360deg); }
 }
 
 /* Root + quality read as one phrase ("A Phrygian"), same line, same style — splitting

@@ -3,7 +3,7 @@ import * as Tone from 'tone';
 import { TonalCenterPlayer, unlockIOSMediaPlayback } from '../audio/engine';
 import {
   pickRandomTonalCenter, pickRandomTonalCenterFromPairs, tonalCenterAtIndex, pickRandomDuration,
-  pickRandomRootPc, pickRandomScalePc, coreModeKeyForCategory, PURE_TONE_TYPE,
+  pickRandomRootPc, pickRandomScalePc, PURE_TONE_TYPE,
 } from '../music/pool';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
@@ -17,9 +17,6 @@ function buildSegment(rootPc, type, s) {
     duration: pickRandomDuration(s.minBeats, s.maxBeats),
     rootName: pitchClassToDisplayName(rootPc),
     typeLabel: type.label,
-    // A pluggable type can name its own record-badge tier directly (see PURE_TONE_TYPE)
-    // rather than being derived from a CHORD_QUALITIES/SCALE_TYPES category.
-    modeKey: type.modeKey ?? coreModeKeyForCategory(type.category),
   };
 }
 
@@ -134,10 +131,8 @@ export function useRandomizer(settings, options = {}) {
 
     const upcoming = nextSegmentRef.current;
     Tone.Draw.schedule(() => {
-      setCurrent({
-        rootName: seg.rootName, typeLabel: seg.typeLabel, durationBeats: seg.duration, modeKey: seg.modeKey,
-      });
-      setNext({ rootName: upcoming.rootName, typeLabel: upcoming.typeLabel, modeKey: upcoming.modeKey });
+      setCurrent({ rootName: seg.rootName, typeLabel: seg.typeLabel, durationBeats: seg.duration });
+      setNext({ rootName: upcoming.rootName, typeLabel: upcoming.typeLabel });
       setTotalBeats(seg.duration);
       setIsGap(false);
       setBeatIndex(1);
