@@ -449,6 +449,13 @@
   color: var(--ink);
 }
 
+.preset-description {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--paper-dim);
+  margin: -0.25rem 0 0;
+}
+
 .preset-note {
   font-family: var(--font-body);
   font-size: 0.8rem;

@@ -60,6 +60,8 @@ function Controls({
   // typo mid-edit doesn't blow away a bank that's actively playing.
   const [bankError, setBankError] = useState(null);
 
+  const activePreset = PRESETS.find((p) => p.key === settings.activePresetKey);
+
   const parseBankOnBlur = () => {
     const { entries, errors } = parseCustomBank(settings.customBankText);
     if (errors.length > 0) {
@@ -241,7 +243,7 @@ function Controls({
             <button
               key={preset.key}
               type="button"
-              className={`preset-button${preset.pairs && settings.enabledPairs === preset.pairs ? ' is-active' : ''}`}
+              className={`preset-button${preset.key === settings.activePresetKey ? ' is-active' : ''}`}
               onClick={() => applyPreset(preset)}
             >
               {preset.label}
@@ -249,11 +251,13 @@ function Controls({
           ))}
         </div>
       </div>
-      {settings.enabledPairs && (
-        <p className="preset-note">
-          Guitar mode is active, drawing only from the 8 standard open chords. Any change
-          to the mode/type/root checkboxes below returns to normal filtering.
-        </p>
+      {activePreset && (
+        <>
+          <p className="preset-description">{activePreset.description}</p>
+          <p className="preset-note">
+            Any change to the mode/type/root checkboxes below customizes from here.
+          </p>
+        </>
       )}
 
       <div className="mode-row">
@@ -338,6 +342,29 @@ function Controls({
 
       <details className="advanced">
         <summary>▸ Advanced settings</summary>
+        <fieldset className="roots-fieldset">
+          <div className="fieldset-head">
+            <legend>Roots</legend>
+            <TriStateCheckbox
+              className="category-select-all"
+              label="select all"
+              state={rootsCheckState(settings.enabledRoots)}
+              onChange={setAllRootsEnabled}
+            />
+          </div>
+          <div className="roots-grid">
+            {ALL_ROOTS.map((pc) => (
+              <label key={pc} className="checkbox-label track-row">
+                <input
+                  type="checkbox"
+                  checked={settings.enabledRoots.includes(pc)}
+                  onChange={() => toggleRoot(pc)}
+                />
+                {pitchClassToDisplayName(pc)}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <div className="type-groups">
           {Object.entries(CATEGORY_GROUPS).map(([category, types]) => {
             const categoryMode = { categories: [category] };
@@ -367,29 +394,6 @@ function Controls({
             );
           })}
         </div>
-        <fieldset className="roots-fieldset">
-          <div className="fieldset-head">
-            <legend>Roots</legend>
-            <TriStateCheckbox
-              className="category-select-all"
-              label="select all"
-              state={rootsCheckState(settings.enabledRoots)}
-              onChange={setAllRootsEnabled}
-            />
-          </div>
-          <div className="roots-grid">
-            {ALL_ROOTS.map((pc) => (
-              <label key={pc} className="checkbox-label track-row">
-                <input
-                  type="checkbox"
-                  checked={settings.enabledRoots.includes(pc)}
-                  onChange={() => toggleRoot(pc)}
-                />
-                {pitchClassToDisplayName(pc)}
-              </label>
-            ))}
-          </div>
-        </fieldset>
       </details>
     </div>
   );
