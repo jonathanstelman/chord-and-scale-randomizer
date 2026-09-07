@@ -19,29 +19,38 @@ inconsistencies (border treatments, disclosure arrows, "select all" placement) h
 crept into the settings UI piecemeal. See each linked issue for the full reasoning
 behind it — this doc only tracks sequencing.
 
-## Branching: these PRs stack
+## Status at a glance
 
-Each piece branches from the **previous piece's branch**, not from `main`, and its PR
-targets that branch. So a PR's diff shows only its own work instead of re-showing
-everything ahead of it in the chain — which matters here because several of these touch
-the same markup.
+**Landed:** #21, #22, #23, #25, #26, #28, #31 (subsumed).
+**In review:** #29 ([PR #38](https://github.com/jonathanstelman/chord-and-scale-randomizer/pull/38), targets `main`).
+**Remaining:** #30 (S), #27 (L), #24 (L), #20 (M) — plus #34, which spun out of #23.
 
-Two consequences worth knowing before you start one:
+**Next up:** **#30** is the cheapest remaining and the one that decays if left — see the
+note under it. #27 is now fully unblocked (it needed #26) and is the last of Phase 4.
 
-- **Merge in order, bottom of the stack first.** After a base PR merges, retarget the
-  next PR at `main` (`gh pr edit <n> --base main`) and rebase its branch, or GitHub will
-  show the merged work as part of its diff.
-- **A change to a base branch has to be propagated up the stack** by rebasing each
-  descendant. Keep the chain short, and prefer landing the base quickly over stacking
-  four deep.
+## Branching
 
-| Issue | Branch | Branched from |
-|---|---|---|
-| #21 | `feature/musical-chairs-design-language` | `main` |
-| #22 | `feature/display-prominence-pip` | `feature/musical-chairs-design-language` |
+**Stack only when a piece genuinely builds on unmerged work.** Otherwise branch from
+`main`. Two changes touching the same *file* is not a reason to stack — git merges by
+hunk, and different regions of `App.css` merge cleanly.
 
-Extend the table as you go, so the next session can see the chain without reading
-`git log --graph`.
+Real dependencies look like: #26 needed #25's `<details>` fix to inherit a working
+disclosure arrow; #29 restyles the fieldset markup #28 had just restructured.
+
+When you do stack, its costs are real:
+
+- **Merge bottom-up.** After a base PR merges, delete its branch — GitHub then
+  auto-retargets the child to `main` and the child's diff collapses to just its own
+  work. Or retarget by hand: `gh pr edit <n> --base main`.
+- **Never squash-merge a PR that has children.** Squash puts a *new* commit on `main`
+  that isn't in the children's history, so their diffs re-show the merged work and
+  likely conflict. Merge commits or rebase-merge keep a stack intact.
+- **A change to a base has to be rebased up the whole chain**, so a deep stack makes
+  review feedback expensive.
+
+The first run of this overhaul stacked five deep (#21 → #22 → #23 → #25/#26 → #28) and
+merged cleanly, but the last two links were independent and were stacked out of
+momentum rather than need. Prefer landing the base.
 
 ## Build order
 
@@ -56,37 +65,46 @@ Extend the table as you go, so the next session can see the chain without readin
   replaces it with a real border, which is exactly what that issue asked for.
 
 **Phase 2 — depends on Phase 1**
-- #24 — Idle state redesign (needs #21's motifs/color decisions)
-- #23 — Move Show current/next into the display (not a hard dependency on #22, but
-  touches the same `Display`/`NowPlaying` markup — do it alongside or right after #22
-  rather than in parallel, to avoid rebasing one against the other)
+- ~~#23 — Move Show current/next into the display~~ — **landed**, and it grew in scope:
+  the **Start/Stop transport moved into the display too**, which the issue body never
+  said. The display is now the player — see `randomizer.md`'s "The display is the
+  player". Pause was considered for a fuller cassette deck and split out to **#34**.
+- #24 — Idle state redesign (needs #21's motifs/color decisions). Also owns the idle
+  copy: it currently reads "Press play to begin.", which #23 wrote to match the new
+  ▶ key.
 
-**Phase 3 — independent, but feeds Phase 4**
-- #26 — Collapse Custom bank behind details/summary (cheap, can land anytime, but #27
-  assumes it's already done)
+**Phase 3 — feeds Phase 4**
+- ~~#26 — Collapse Custom bank behind details/summary~~ — **landed**, along with #25.
+  Also renamed to **"Custom chord bank"** (it only parses chords) and given an Apply
+  button plus Enter-to-apply, since committing was previously blur-only.
 
-**Phase 4 — depends on #22, #23, and #26**
+**Phase 4 — depended on #22, #23, #26 — all now landed, so this is unblocked**
 - #27 — Rebalance settings into two columns (player controls vs. tonal center
-  pickers)
+  pickers). Note its plan already assumes the transport lives on the display, which
+  #23 delivered, and assigns metronome volume to the left column — putting volume on
+  the display card was considered during #23 and **rejected**: it changes how the
+  session sounds rather than what you're looking at, and moving it would split the
+  metronome's on/off from its level.
 
 **Phase 5 — sequenced together, touch the same fieldset markup**
-- #28 — Fieldset headers: drop brackets, stack select-all, indent items (do first)
-- #29 — Standardize settings groups on bordered boxes (do second, on top of #28)
+- ~~#28 — Fieldset headers: drop brackets, stack select-all, indent items~~ — **landed.**
+- #29 — Standardize settings groups on bordered boxes — **in review** ([PR #38](https://github.com/jonathanstelman/chord-and-scale-randomizer/pull/38)).
 
 **Independent — land whenever, low coordination cost**
-- #25 — Advanced disclosure arrow fix
-- #30 — Visual transition cue on tonal-center change (touches `NowPlaying.jsx`, the
-  same file as #23/#24 — light coordination, no hard dependency)
-- ~~#31 — Remove the display's drop-shadow (flat UI everywhere)~~ — **subsumed by #22.**
-  Its prominence treatment replaced the shadow with a border, which is what this asked
-  for. Close it rather than working it separately.
+- ~~#25 — Advanced disclosure arrow fix~~ — **landed** (with #26).
+- #30 — Visual transition cue on tonal-center change. **Do this before the structure in
+  `NowPlaying.jsx` goes cold.** #23 built a crossfade on the readings that must *not*
+  fire when the tonal center changes; #30 wants an animation on the same element that
+  *does* fire on every change. Getting one wrong re-triggers the other — see the veil
+  notes in `randomizer.md`. Branches from `main`; it doesn't collide with #29, which
+  only touches `App.css` around the fieldset/box rules.
+- ~~#31 — Remove the display's drop-shadow~~ — **subsumed by #22.**
 
 ## Related but separate
 
 - **#20** (stacked queue of upcoming tonal centers, pre-existing backlog item) has the
-  same "control disconnected from display" problem #23 fixes. Land #23 before or
-  alongside #20 so #20's queue doesn't reintroduce the same proximity issue in a new
-  form.
+  same "control disconnected from display" problem #23 fixed. #23 has landed, so #20 is
+  free to proceed without reintroducing that proximity issue in a new form.
 
 - **#20 also owns how big "next" is.** #22 scaled the current reading up to
   `clamp(2rem, 7vw, 3rem)` and deliberately left `.chord-name--next` at
@@ -100,6 +118,26 @@ Extend the table as you go, so the next session can see the chain without readin
   instead, so the top of the queue reads stronger than the entries behind it while still
   clearly sitting below the current tonal center. The `--paper` / `--paper-dim` /
   `--paper-medium` tiers already exist for exactly this kind of recession.
+
+- **#34** (pause a session) spun out of #23. Pause is not just `Transport.pause()` —
+  `stopCurrent()` mutes the arpeggio with nothing to un-mute it before the next segment,
+  and a held chord sustains through a pause unless released, after which nothing
+  re-attacks it. The issue records that plus the ordered-custom-bank case that makes it
+  worth doing.
+
+## Working notes for whoever picks this up
+
+- **Mock up visual work before building it.** Every piece of this overhaul was settled
+  from a rendered comparison — typefaces, chair motifs, PiP placement, glyph pairs —
+  rather than from a written description. Choosing from prose is guessing.
+- **Verify in the running app, not just the build.** The Vitest suite covers
+  `src/music/` only; there are no component or DOM tests, so anything UI-shaped needs
+  looking at. Several bugs this initiative hit were invisible to lint and build: a
+  console positioned inside a scrolling container, a CSS rule killed by an orphaned
+  comment terminator, a dirty-state check comparing two incomparable representations.
+- **Keep the Project board moving** — *In progress* when you branch, *In review* when
+  the PR opens. It's the answer to "what's active", and it went stale for three PRs
+  during this run.
 
 ---
 *Living document — update this when an item lands, gets re-scoped, or a new one joins
