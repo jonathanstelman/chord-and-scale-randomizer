@@ -693,18 +693,9 @@
   gap: 0.5rem 1rem;
 }
 
-/* Lowercase, unlike the block captions above: "min"/"max" annotate a value rather than
-   heading a block, and uppercasing them made them compete with the caption for the same
-   role. */
-.timing-qualifier {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.06em;
+/* Joins the two ends of a beat range into one reading: "4 – 6 beats". */
+.timing-range-dash {
   color: var(--paper-dim);
-}
-
-.timing-separator {
-  color: var(--paper-faint);
 }
 
 /* A value and everything that annotates it — unit, and min/max where present — wrap as

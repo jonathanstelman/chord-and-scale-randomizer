@@ -51,8 +51,11 @@ export default function TimingSection({ settings, updateSettings }) {
         <div className="timing-block">
           <span className="timing-caption">Duration</span>
           <div className="timing-line">
-            {/* Value, unit and qualifier are one span so they wrap together — loose,
-                they let a narrow viewport strand "max" alone on its own line. */}
+            {/* Reads as one value either way — "4 beats", or "4 – 6 beats" once the
+                range is on. The two numbers share a single unit rather than each
+                carrying its own with a "min"/"max" qualifier attached, which said the
+                same thing at three times the length. One span, so the whole reading
+                wraps as a piece instead of stranding part of itself on a line alone. */}
             <span className="timing-value">
               <input
                 type="number" min="1" max="64"
@@ -63,24 +66,23 @@ export default function TimingSection({ settings, updateSettings }) {
                   // carry max along with it; expanded, it's only the floor.
                   updateSettings(rangeExpanded ? { minBeats: beats } : { minBeats: beats, maxBeats: beats });
                 }}
+                aria-label={rangeExpanded ? 'Minimum beats' : 'Beats'}
               />
-              <span className="data-unit">{beatsUnit(settings.minBeats)}</span>
-              {rangeExpanded && <span className="timing-qualifier">min</span>}
-            </span>
-            {rangeExpanded && (
-              <>
-                <span className="timing-separator" aria-hidden="true">|</span>
-                <span className="timing-value">
+              {rangeExpanded && (
+                <>
+                  <span className="timing-range-dash" aria-hidden="true">–</span>
                   <input
                     type="number" min="1" max="64"
                     value={settings.maxBeats}
                     onChange={(e) => updateSettings({ maxBeats: Number(e.target.value) })}
+                    aria-label="Maximum beats"
                   />
-                  <span className="data-unit">{beatsUnit(settings.maxBeats)}</span>
-                  <span className="timing-qualifier">max</span>
-                </span>
-              </>
-            )}
+                </>
+              )}
+              <span className="data-unit">
+                {beatsUnit(rangeExpanded ? settings.maxBeats : settings.minBeats)}
+              </span>
+            </span>
           </div>
           <label className="checkbox-label">
             <input
