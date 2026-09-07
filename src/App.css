@@ -676,14 +676,45 @@
   gap: 0.6rem 1.5rem;
 }
 
+/* The metronome shares the tempo row (they're the two things that set the pulse), and
+   centres against the tempo field rather than sitting up level with its caption. Safe
+   to centre this one where the toggles above must not be: this control reveals nothing,
+   so its row's height never changes and it has nothing to be displaced by. */
+.timing-row > .metronome-control {
+  align-self: center;
+}
+
 .data-toggle {
   white-space: nowrap;
 }
 
+/* Caption on its own line, then the input and its unit side by side. The unit used to
+   sit on a *third* line below the input, which made every field three lines tall — the
+   single biggest source of dead vertical space in Timing, where each row carries one
+   (issue #40). Inline, the unit reads as part of the value ("50 bpm") instead of a
+   caption of its own. */
 .data-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  display: grid;
+  grid-template-areas:
+    'caption caption'
+    'value   unit';
+  grid-template-columns: auto auto;
+  justify-content: start;
+  align-items: baseline;
+  gap: 0.3rem 0.4rem;
+}
+
+.data-field > span:first-child {
+  grid-area: caption;
+}
+
+.data-field > input,
+.data-field > select {
+  grid-area: value;
+}
+
+.data-field > .data-unit {
+  grid-area: unit;
 }
 
 .data-field span:first-child {

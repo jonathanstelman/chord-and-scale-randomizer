@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import MetronomeControl from './MetronomeControl';
 
-// Tempo/duration/pause/metronome, boxed as one collapsible group and shared between
+// Tempo/duration/rest/metronome, boxed as one collapsible group and shared between
 // both practice tabs — see docs/architecture/randomizer.md's Components section for why
 // the metronome lives here rather than its own block. Starts open: it's the group most
 // sessions actually adjust.
 export default function TimingSection({ settings, updateSettings }) {
-  // "Randomize beats" / "add a pause" only decide which fields are *visible* — the
+  // "Randomize beats" / "rest between tonal centers" only decide which fields are
+  // *visible* — the
   // underlying minBeats/maxBeats/gapBeats settings are the source of truth, so these
   // start from whatever was already persisted (a range or a nonzero gap from an earlier
   // session reopens expanded) rather than tracking their own separate stored flag.
@@ -40,6 +41,7 @@ export default function TimingSection({ settings, updateSettings }) {
               <span className="data-unit">bpm</span>
             </label>
           </div>
+          <MetronomeControl settings={settings} updateSettings={updateSettings} />
         </div>
 
         <div className="timing-row">
@@ -122,12 +124,19 @@ export default function TimingSection({ settings, updateSettings }) {
                 }
               }}
             />
-            Add a pause between chords
+            {/* "Rest", not "pause" — it's the musical term, and these are silent beats
+                in time rather than a transport pause (#34 is the actual pause). "Tonal
+                centers", not "chords": what plays between rests can be a chord, a scale,
+                or a single pitch, and it's the vocabulary the masthead and the Tonal
+                centers group already use. The `gapBeats` setting key keeps its name —
+                it's persisted in localStorage, and renaming it would reset the value for
+                everyone who has set one. */}
+            Rest between tonal centers
           </label>
           {gapExpanded && (
             <div className="session-data-fields">
               <label className="data-field">
-                <span>Pause</span>
+                <span>Rest</span>
                 <input
                   type="number" min="0" max="16"
                   value={settings.gapBeats}
@@ -139,7 +148,6 @@ export default function TimingSection({ settings, updateSettings }) {
           )}
         </div>
 
-        <MetronomeControl settings={settings} updateSettings={updateSettings} />
       </div>
     </details>
   );

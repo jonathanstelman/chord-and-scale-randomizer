@@ -86,10 +86,6 @@ function Controls({
                 <option value="arpeggio">Arpeggio</option>
                 <option value="none">No Sound</option>
               </select>
-              {/* Reserves the same third line Density's "notes" unit takes, so the two
-                  fields' captions/controls line up instead of Density's extra line
-                  pulling it up relative to Sound under the shared flex-end alignment. */}
-              <span className="data-unit" aria-hidden="true">&nbsp;</span>
             </label>
             <label className="data-field">
               <span>Density</span>
