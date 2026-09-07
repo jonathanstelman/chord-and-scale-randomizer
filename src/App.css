@@ -658,6 +658,24 @@
   gap: 1.5rem;
 }
 
+/* One control per row inside Timing: the toggle that governs a set of fields, then the
+   fields. Wrapping happens *within* a row, so a narrow viewport can only ever move a
+   field below its own toggle — never between two unrelated ones, which the old single
+   flat row did at ~700px, where "Randomize beats" landed beside the Pause field and read
+   as its label. See issue #40.
+
+   flex-start, not center: the pause row's height changes when its field is revealed, and
+   centering re-centered the toggle inside the taller row — moving the control 23px down
+   at the moment it was clicked. Top-aligning pins every toggle regardless of what
+   appears beside it, which is the whole point. It also puts the toggle level with the
+   field captions, so it reads as the row's label. */
+.timing-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.6rem 1.5rem;
+}
+
 .data-toggle {
   white-space: nowrap;
 }

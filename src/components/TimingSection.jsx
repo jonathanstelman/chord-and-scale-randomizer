@@ -17,51 +17,32 @@ export default function TimingSection({ settings, updateSettings }) {
     <details className="settings-section" open>
       <summary>Timing</summary>
       <div className="settings-body">
-        <div className="session-data-fields">
-          <label className="data-field">
-            <span>Tempo</span>
-            <input
-              type="number" min="30" max="300"
-              value={settings.bpm}
-              onChange={(e) => updateSettings({ bpm: Number(e.target.value) })}
-            />
-            <span className="data-unit">bpm</span>
-          </label>
-          {rangeExpanded ? (
-            <>
-              <label className="data-field">
-                <span>Min</span>
-                <input
-                  type="number" min="1" max="64"
-                  value={settings.minBeats}
-                  onChange={(e) => updateSettings({ minBeats: Number(e.target.value) })}
-                />
-                <span className="data-unit">beats</span>
-              </label>
-              <label className="data-field">
-                <span>Max</span>
-                <input
-                  type="number" min="1" max="64"
-                  value={settings.maxBeats}
-                  onChange={(e) => updateSettings({ maxBeats: Number(e.target.value) })}
-                />
-                <span className="data-unit">beats</span>
-              </label>
-            </>
-          ) : (
+        {/* One row per control, each pairing a toggle with the fields it governs, and
+            the toggle always first (issue #40). Everything used to be a peer in a single
+            wrapping row, which produced three distinct problems: a toggle rendered after
+            the field it controlled, the wrap point moved that toggle somewhere different
+            at every width, and — worst — checking a box changed the row's item count and
+            so displaced the box out from under the pointer. Putting the toggle ahead of
+            what it reveals fixes all three: anything appearing appears after it, so the
+            control that did the revealing never moves.
+
+            This is also the shape the metronome row below already had, so the group now
+            follows one pattern throughout rather than two. */}
+        <div className="timing-row">
+          <div className="session-data-fields">
             <label className="data-field">
-              <span>Duration</span>
+              <span>Tempo</span>
               <input
-                type="number" min="1" max="64"
-                value={settings.minBeats}
-                onChange={(e) => {
-                  const beats = Number(e.target.value);
-                  updateSettings({ minBeats: beats, maxBeats: beats });
-                }}
+                type="number" min="30" max="300"
+                value={settings.bpm}
+                onChange={(e) => updateSettings({ bpm: Number(e.target.value) })}
               />
-              <span className="data-unit">beats</span>
+              <span className="data-unit">bpm</span>
             </label>
-          )}
+          </div>
+        </div>
+
+        <div className="timing-row">
           <label className="checkbox-label data-toggle">
             <input
               type="checkbox"
@@ -86,17 +67,46 @@ export default function TimingSection({ settings, updateSettings }) {
             />
             Randomize beats
           </label>
-          {gapExpanded && (
-            <label className="data-field">
-              <span>Pause</span>
-              <input
-                type="number" min="0" max="16"
-                value={settings.gapBeats}
-                onChange={(e) => updateSettings({ gapBeats: Number(e.target.value) })}
-              />
-              <span className="data-unit">beats</span>
-            </label>
-          )}
+          <div className="session-data-fields">
+            {rangeExpanded ? (
+              <>
+                <label className="data-field">
+                  <span>Min</span>
+                  <input
+                    type="number" min="1" max="64"
+                    value={settings.minBeats}
+                    onChange={(e) => updateSettings({ minBeats: Number(e.target.value) })}
+                  />
+                  <span className="data-unit">beats</span>
+                </label>
+                <label className="data-field">
+                  <span>Max</span>
+                  <input
+                    type="number" min="1" max="64"
+                    value={settings.maxBeats}
+                    onChange={(e) => updateSettings({ maxBeats: Number(e.target.value) })}
+                  />
+                  <span className="data-unit">beats</span>
+                </label>
+              </>
+            ) : (
+              <label className="data-field">
+                <span>Duration</span>
+                <input
+                  type="number" min="1" max="64"
+                  value={settings.minBeats}
+                  onChange={(e) => {
+                    const beats = Number(e.target.value);
+                    updateSettings({ minBeats: beats, maxBeats: beats });
+                  }}
+                />
+                <span className="data-unit">beats</span>
+              </label>
+            )}
+          </div>
+        </div>
+
+        <div className="timing-row">
           <label className="checkbox-label data-toggle">
             <input
               type="checkbox"
@@ -114,9 +124,24 @@ export default function TimingSection({ settings, updateSettings }) {
             />
             Add a pause between chords
           </label>
+          {gapExpanded && (
+            <div className="session-data-fields">
+              <label className="data-field">
+                <span>Pause</span>
+                <input
+                  type="number" min="0" max="16"
+                  value={settings.gapBeats}
+                  onChange={(e) => updateSettings({ gapBeats: Number(e.target.value) })}
+                />
+                <span className="data-unit">beats</span>
+              </label>
+            </div>
+          )}
         </div>
+
         <MetronomeControl settings={settings} updateSettings={updateSettings} />
       </div>
     </details>
   );
 }
+
