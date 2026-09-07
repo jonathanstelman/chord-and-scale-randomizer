@@ -558,9 +558,38 @@
 /* Top corners of the display, each above the reading it governs — current is the
    left-hand reading, next the right-hand one. Rendered in the system face for the same
    reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
-.tonal-center-veil {
+/* Each toggle pairs a key with a faint word, like the transport. The right-hand group
+   reverses so its word sits inboard — the glyph stays pinned to the card's edge and the
+   label never runs off it. */
+.tonal-center-veil-group {
   position: absolute;
   top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tonal-center-veil-group--current { left: 0.7rem; }
+
+.tonal-center-veil-group--next {
+  right: 0.7rem;
+  flex-direction: row-reverse;
+}
+
+.veil-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-medium);
+  transition: color 0.15s ease-out;
+}
+
+.tonal-center-veil-group:hover .veil-label {
+  color: var(--paper-dim);
+}
+
+.tonal-center-veil {
   padding: 0.35rem;
   font-family: system-ui, sans-serif;
   font-size: 1.25rem;
@@ -573,8 +602,6 @@
   transition: color 0.2s ease-out;
 }
 
-.tonal-center-veil--current { left: 0.7rem; }
-.tonal-center-veil--next { right: 0.7rem; }
 .tonal-center-veil:hover { color: var(--paper-dim); }
 .tonal-center-veil[aria-pressed='true'] { color: var(--brass); }
 
