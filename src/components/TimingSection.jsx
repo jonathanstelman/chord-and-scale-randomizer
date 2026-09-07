@@ -96,17 +96,11 @@ export default function TimingSection({ settings, updateSettings }) {
                 if (checked) {
                   // Revealing a max still equal to min (true on a fresh page load, and
                   // any other time the toggle was off) looks like nothing happened —
-                  // seed a real, non-degenerate range instead. Bounded, because a bare
-                  // `min + 2` pushes straight past the ceiling when min is already at or
-                  // near it; with min at 50 that produced a max of 52, above the cap the
-                  // field itself enforces. When there's no room to widen upward, widen
-                  // downward instead so the range stays a range.
+                  // seed a real, non-degenerate range instead. No bound needed here:
+                  // minBeats caps 2 below maxBeats precisely so this always lands inside
+                  // the range's own ceiling (see NUMERIC_LIMITS).
                   if (settings.minBeats === settings.maxBeats) {
-                    const { min: lo, max: hi } = NUMERIC_LIMITS.maxBeats;
-                    const seeded = Math.min(hi, settings.minBeats + 2);
-                    updateSettings(seeded > settings.minBeats
-                      ? { maxBeats: seeded }
-                      : { minBeats: Math.max(lo, seeded - 2), maxBeats: seeded });
+                    updateSettings({ maxBeats: settings.minBeats + 2 });
                   }
                 } else {
                   // Collapsing back to a single field means one duration, not a stale
