@@ -486,23 +486,27 @@
 
 /* One key, swapped between play and stop — not two with one disabled. There are only
    two states, and a permanently greyed-out twin is noise on a card this prominent. */
+/* Bottom-left corner, mirroring the veil toggles in the top two — the card's controls
+   sit on its edges and leave the middle to the reading. Absolute, so it's out of flow
+   and the reading stays optically centred in the card rather than being pushed up by a
+   control row. */
 .transport-deck {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  position: absolute;
+  left: 0.7rem;
+  bottom: 0.6rem;
 }
 
 .deck-key {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.1rem;
+  height: 2.1rem;
   padding: 0;
   /* Same reasoning as .theme-toggle-icon: ▶ and ■ render thin and undersized in the
      inherited body font, so they take the system face to read as keys, not punctuation. */
   font-family: system-ui, sans-serif;
-  font-size: 1.05rem;
+  font-size: 0.85rem;
   line-height: 1;
   color: var(--paper-dim);
   background: transparent;
@@ -517,16 +521,17 @@
   border-color: var(--paper-medium);
 }
 
+ /* Flame as the mark, not as a fill: a solid orange block competes with the reading
+    for a card whose whole point is that the reading is the focal point. */
 .deck-key--stop {
-  color: var(--cream);
-  background: var(--flame);
+  color: var(--flame);
   border-color: var(--flame);
 }
 
 .deck-key--stop:hover {
-  color: var(--cream);
+  color: var(--flame);
   border-color: var(--flame);
-  filter: brightness(1.08);
+  background: color-mix(in srgb, var(--flame) 12%, transparent);
 }
 
 /* ---------- Tonal center veil toggles ---------- */
