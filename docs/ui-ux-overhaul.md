@@ -38,6 +38,7 @@ Two consequences worth knowing before you start one:
 | Issue | Branch | Branched from |
 |---|---|---|
 | #21 | `feature/musical-chairs-design-language` | `main` |
+| #22 | `feature/display-prominence-pip` | `feature/musical-chairs-design-language` |
 
 Extend the table as you go, so the next session can see the chain without reading
 `git log --graph`.
@@ -50,7 +51,9 @@ Extend the table as you go, so the next session can see the chain without readin
   sketches, comparison sheet) is `docs/design/chair-motif/`. Downstream work should
   apply that language rather than inventing its own — in particular #24's illustration
   and any further masthead treatment.
-- #22 — Display prominence + scroll-triggered PiP mini console
+- ~~#22 — Display prominence + scroll-triggered PiP mini console~~ — **landed.** Also
+  closes **#31**: the chosen prominence treatment removes the display's drop shadow and
+  replaces it with a real border, which is exactly what that issue asked for.
 
 **Phase 2 — depends on Phase 1**
 - #24 — Idle state redesign (needs #21's motifs/color decisions)
@@ -74,9 +77,9 @@ Extend the table as you go, so the next session can see the chain without readin
 - #25 — Advanced disclosure arrow fix
 - #30 — Visual transition cue on tonal-center change (touches `NowPlaying.jsx`, the
   same file as #23/#24 — light coordination, no hard dependency)
-- #31 — Remove the display's drop-shadow (flat UI everywhere) — no hard dependency,
-  but touches the same visual language #22 and #29 are establishing; land alongside
-  or after those so it isn't undone by either
+- ~~#31 — Remove the display's drop-shadow (flat UI everywhere)~~ — **subsumed by #22.**
+  Its prominence treatment replaced the shadow with a border, which is what this asked
+  for. Close it rather than working it separately.
 
 ## Related but separate
 
@@ -84,6 +87,19 @@ Extend the table as you go, so the next session can see the chain without readin
   same "control disconnected from display" problem #23 fixes. Land #23 before or
   alongside #20 so #20's queue doesn't reintroduce the same proximity issue in a new
   form.
+
+- **#20 also owns how big "next" is.** #22 scaled the current reading up to
+  `clamp(2rem, 7vw, 3rem)` and deliberately left `.chord-name--next` at
+  `clamp(1rem, 3vw, 1.25rem)` — so the gap between them widened from ~1.7x to ~2.4x as a
+  side effect. That was left alone on purpose rather than re-tuned, because #20 replaces
+  a single "next" with a stack and has to re-decide it anyway.
+
+  The intended hierarchy when that lands: the queue renders **smaller than the current
+  reading**, and within the queue every entry is the **same size** — size can't encode
+  depth in a stack without becoming a staircase. Depth is carried by **saturation**
+  instead, so the top of the queue reads stronger than the entries behind it while still
+  clearly sitting below the current tonal center. The `--paper` / `--paper-dim` /
+  `--paper-medium` tiers already exist for exactly this kind of recession.
 
 ---
 *Living document — update this when an item lands, gets re-scoped, or a new one joins
