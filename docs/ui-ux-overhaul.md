@@ -21,12 +21,17 @@ behind it — this doc only tracks sequencing.
 
 ## Status at a glance
 
-**Landed:** #21, #22, #23, #25, #26, #28, #31 (subsumed).
-**In review:** #29 ([PR #38](https://github.com/jonathanstelman/chord-and-scale-randomizer/pull/38), targets `main`).
+**Landed:** #21, #22, #23, #25, #26, #28, #29, #31 (subsumed).
 **Remaining:** #30 (S), #27 (L), #24 (L), #20 (M) — plus #34, which spun out of #23.
 
-**Next up:** **#30** is the cheapest remaining and the one that decays if left — see the
-note under it. #27 is now fully unblocked (it needed #26) and is the last of Phase 4.
+**Next up:** **#30** is still the cheapest remaining and the one that decays if left —
+see the note under it. #27 is unblocked and is the last of Phase 4.
+
+**Not part of this initiative, but it landed in the middle of it:** #40 rebuilt the
+Timing group's internals (captioned blocks, toggles that hold position when clicked,
+numeric bounds that actually bind). #27 reflows that group into the left column, so read
+`randomizer.md`'s "Timing group layout" before moving it — the order of a toggle and the
+fields it governs is load-bearing, not cosmetic.
 
 ## Branching
 
@@ -88,7 +93,12 @@ momentum rather than need. Prefer landing the base.
 
 **Phase 5 — sequenced together, touch the same fieldset markup**
 - ~~#28 — Fieldset headers: drop brackets, stack select-all, indent items~~ — **landed.**
-- #29 — Standardize settings groups on bordered boxes — **in review** ([PR #38](https://github.com/jonathanstelman/chord-and-scale-randomizer/pull/38)).
+- ~~#29 — Standardize settings groups on bordered boxes~~ — **landed**, and it grew well
+  past "one border treatment": once the box held its own header there was no reason only
+  two groups collapsed, so **every settings group is now the same collapsible
+  `<details>`**, open or closed by nothing but the `open` attribute. Also named the
+  previously-anonymous mode cards "Tonal centers", and moved Pure Tone's Roots picker
+  into its Notes group (that tab now has no Advanced panel). #27 inherits all of this.
 
 **Independent — land whenever, low coordination cost**
 - ~~#25 — Advanced disclosure arrow fix~~ — **landed** (with #26).
@@ -96,8 +106,8 @@ momentum rather than need. Prefer landing the base.
   `NowPlaying.jsx` goes cold.** #23 built a crossfade on the readings that must *not*
   fire when the tonal center changes; #30 wants an animation on the same element that
   *does* fire on every change. Getting one wrong re-triggers the other — see the veil
-  notes in `randomizer.md`. Branches from `main`; it doesn't collide with #29, which
-  only touches `App.css` around the fieldset/box rules.
+  notes in `randomizer.md`. Branches from `main`; nothing else is in flight to collide
+  with.
 - ~~#31 — Remove the display's drop-shadow~~ — **subsumed by #22.**
 
 ## Related but separate
