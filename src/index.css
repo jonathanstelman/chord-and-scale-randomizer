@@ -1,9 +1,14 @@
 :root {
-  /* Palette — a record sleeve at rest on a dark table. Dark is the baseline here (not
+  /* Palette — a chair drawn in pencil on warm paper. Dark is the baseline here (not
      the usual light-default token setup) since that's this app's established look;
      light mode is layered on below via prefers-color-scheme + an explicit override —
      see docs/architecture/theming.md for the full three-state pattern and why light
-     reuses these same two colors with roles swapped rather than a new palette. */
+     reuses these same two colors with roles swapped rather than a new palette.
+
+     This palette began as "a record sleeve at rest on a dark table"; the app's name
+     and that imagery are both gone now, and the Musical Chairs design language
+     supersedes it (docs/architecture/design-language.md). The hexes are unchanged —
+     only the story about them is. */
   --ink: #12202e;      /* page background */
   --panel: #17293b;    /* sleeve/card surface, a shade lighter than ink */
   --paper: #f4eedd;    /* cream foreground for type and outlines */
@@ -20,9 +25,19 @@
   --paper-faint: rgba(244, 238, 221, 0.14);
   --paper-medium: rgba(244, 238, 221, 0.3);
 
-  --font-display: 'Anton', 'Arial Narrow', sans-serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body: 'Work Sans', system-ui, sans-serif;
   --font-mono: 'Space Mono', ui-monospace, Consolas, monospace;
+
+  /* Fraunces is variable on four axes, and one setting can't serve every place
+     --font-display is used: the wordmark wants weight, the practice readout wants
+     air, and small display type needs a low optical size or its hairlines fall under
+     a device pixel and vanish. Optical size tracks *rendered* size, so these are
+     named per role rather than set once — see docs/architecture/design-language.md. */
+  --fvs-wordmark: 'opsz' 60, 'wght' 500, 'SOFT' 40, 'WONK' 1;
+  --fvs-readout: 'opsz' 90, 'wght' 300, 'SOFT' 70, 'WONK' 1;
+  --fvs-ui: 'opsz' 40, 'wght' 400, 'SOFT' 50, 'WONK' 1;
+  --fvs-tiny: 'opsz' 14, 'wght' 500, 'SOFT' 50, 'WONK' 1;
 
   font: 16px/1.5 var(--font-body);
   color-scheme: dark;

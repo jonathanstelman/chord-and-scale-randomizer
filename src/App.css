@@ -36,10 +36,44 @@
 }
 
 .masthead h1 {
+  font-variation-settings: var(--fvs-wordmark);
   font-size: clamp(2.25rem, 7vw, 3.5rem);
   letter-spacing: 0.01em;
   text-transform: uppercase;
   line-height: 0.95;
+}
+
+/* The wordmark and its three chairs read as one lockup, so they share a baseline and
+   wrap together rather than the chairs stranding on their own line. */
+.masthead-lockup {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.85rem;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.masthead-chairs {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  padding-bottom: 0.35rem;
+}
+
+/* A CSS rotation moves a chair's ink but not its layout box, so both leaning chairs
+   need an optical correction or the row reads unevenly spaced. The tipping chair
+   rotates counter-clockwise, throwing its mass left inside its own box and closing the
+   gap to the chair on its left; the fallen chair needs horizontal room reserved
+   outright or it collides with its neighbour. Note it takes both margins to fix:
+   widening the middle chair's left margin also pushes the third chair right by the
+   same amount, so the right-hand gap has to be re-opened separately. Measured, not
+   eyeballed — gaps are equal to within 0.02px at the shipped size. */
+.masthead-chairs .chair-tipping {
+  margin: 0 0.1rem 0 0.63rem;
+}
+
+.masthead-chairs .chair-fallen {
+  margin: 0 0 0 0.67rem;
 }
 
 .theme-toggle {
@@ -154,10 +188,10 @@
   color: var(--paper-dim);
 }
 
-.sleeve-idle-mark {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  color: var(--flame);
+/* The hero chair — the same drawing as the masthead's upright chair, just larger.
+   Cobalt is baked into its path data; the frame follows the container's color. */
+.sleeve-idle-chair {
+  color: var(--paper);
 }
 
 .sleeve-hint {
@@ -218,7 +252,7 @@
    them apart (a giant number, then a separate caption) was harder to read at speed. */
 .chord-name {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-variation-settings: var(--fvs-readout);
   line-height: 1.1;
   color: var(--paper);
   font-size: clamp(1.5rem, 5vw, 2.1rem);
@@ -254,14 +288,20 @@
 }
 
 .beat-numeral-current {
+  font-variation-settings: var(--fvs-readout);
   font-size: clamp(2rem, 6vw, 2.75rem);
   line-height: 1;
   color: var(--flame);
 }
 
+/* Optical size has to track the size the glyph is actually *rendered* at. Left on the
+   readout's opsz 90 — hairlines drawn for ~90px display type — this 1.1rem numeral
+   dissolved below a device pixel, and --paper-dim finished it off. Low opsz, more
+   weight, full-strength colour. */
 .beat-numeral-total {
+  font-variation-settings: var(--fvs-tiny);
   font-size: 1.1rem;
-  color: var(--paper-dim);
+  color: var(--paper);
 }
 
 .beat-track {
@@ -314,6 +354,7 @@
 .transport-button {
   align-self: flex-start;
   font-family: var(--font-display);
+  font-variation-settings: var(--fvs-ui);
   font-size: 1.1rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;

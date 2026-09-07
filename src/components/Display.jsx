@@ -1,4 +1,5 @@
 import NowPlaying from './NowPlaying';
+import Chair from './Chair';
 
 export default function Display({
   current, next, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap,
@@ -7,7 +8,7 @@ export default function Display({
     <div className="sleeve">
       {!isRunning && (
         <div className="sleeve-idle">
-          <span className="sleeve-idle-mark">▷</span>
+          <Chair pose="upright" size={92} className="sleeve-idle-chair" />
           <p>Press Start Session to begin.</p>
         </div>
       )}

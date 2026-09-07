@@ -23,11 +23,14 @@ export const LOCKED = {
 // The chairs that actually ship, with the seeds they were drawn with. The seed is
 // part of the design: it fixes which random hand drew this particular chair, so a
 // rebuild reproduces the exact artwork rather than a fresh roll.
+// Three chairs, not four: the idle-card hero is the *same* drawing as the masthead's
+// upright chair, just rendered larger. Baking a second E1 at a different seed cost
+// ~7.5KB for artwork nobody could tell apart, and reusing one drawing across both
+// places strengthens the identity rather than diluting it.
 export const SHIPPED = [
   { id: 'upright', variant: 'E1', accent: 'cobalt', seed: 1634, width: 34 },
   { id: 'tipping', variant: 'E2', accent: 'brass',  seed: 2247, width: 34 },
   { id: 'fallen',  variant: 'E6', accent: 'flame',  seed: 2860, width: 40 },
-  { id: 'hero',    variant: 'E1', accent: 'cobalt', seed: 1243, width: 92 },
 ];
 
 // Poses. Rotating past ~80deg squeezes the chair into an unreadable bracket, so

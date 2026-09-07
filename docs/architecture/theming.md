@@ -30,11 +30,9 @@ light one, `--paper` becomes the dark one) rather than inventing a new palette.
 color, for secondary text and hairline borders) get redefined alongside it, rebased on
 whichever hex `--paper` holds in that theme.
 
-`--panel` (card surface) and `--vinyl` (the record disc badge) aren't part of that
-flip: `--panel` gets its own light-mode value (white, rather than "a shade lighter than
-ink" the way dark mode's panel is — plain white read better against a warm cream page
-than a tinted-cream card would), and `--vinyl` never changes at all — the disc itself is
-always black vinyl regardless of what theme is looking at it.
+`--panel` (card surface) isn't part of that flip: it gets its own light-mode value
+(white, rather than "a shade lighter than ink" the way dark mode's panel is — plain
+white read better against a warm cream page than a tinted-cream card would).
 
 `--cobalt`/`--brass`/`--flame` (the three difficulty-tier accents) keep the same hex in
 both themes, with one exception: `--brass` is darkened for light mode

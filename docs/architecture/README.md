@@ -15,6 +15,9 @@ and [`../product.md`](../product.md) for vision.
   `src/music/pool.js`: presets, Guitar mode, the roots filter
 - [`theming.md`](./theming.md) — `src/index.css` + `src/hooks/useSettings.js`: the
   light/dark token setup, why dark is the CSS baseline instead of the usual light-default
+- [`design-language.md`](./design-language.md) — `src/index.css` +
+  `src/components/Chair.jsx`: the chair motif, the Fraunces axis configs and why optical
+  size is set per role, rules for placing a chair
 
 Adding a new non-obvious decision? Put it in the topic file it belongs to, inline,
 matching the style already there (state the gotcha, state why, state what not to do
