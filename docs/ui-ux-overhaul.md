@@ -88,6 +88,19 @@ Extend the table as you go, so the next session can see the chain without readin
   alongside #20 so #20's queue doesn't reintroduce the same proximity issue in a new
   form.
 
+- **#20 also owns how big "next" is.** #22 scaled the current reading up to
+  `clamp(2rem, 7vw, 3rem)` and deliberately left `.chord-name--next` at
+  `clamp(1rem, 3vw, 1.25rem)` — so the gap between them widened from ~1.7x to ~2.4x as a
+  side effect. That was left alone on purpose rather than re-tuned, because #20 replaces
+  a single "next" with a stack and has to re-decide it anyway.
+
+  The intended hierarchy when that lands: the queue renders **smaller than the current
+  reading**, and within the queue every entry is the **same size** — size can't encode
+  depth in a stack without becoming a staircase. Depth is carried by **saturation**
+  instead, so the top of the queue reads stronger than the entries behind it while still
+  clearly sitting below the current tonal center. The `--paper` / `--paper-dim` /
+  `--paper-medium` tiers already exist for exactly this kind of recession.
+
 ---
 *Living document — update this when an item lands, gets re-scoped, or a new one joins
 this initiative. Once everything above ships, this doc has served its purpose and can
