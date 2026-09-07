@@ -22,7 +22,11 @@ behind it — this doc only tracks sequencing.
 ## Build order
 
 **Phase 1 — foundational, no dependencies**
-- #21 — Establish a Musical Chairs design language
+- ~~#21 — Establish a Musical Chairs design language~~ — **landed.** The spec is
+  `docs/architecture/design-language.md`; the working material (generator, reference
+  sketches, comparison sheet) is `docs/design/chair-motif/`. Downstream work should
+  apply that language rather than inventing its own — in particular #24's illustration
+  and any further masthead treatment.
 - #22 — Display prominence + scroll-triggered PiP mini console
 
 **Phase 2 — depends on Phase 1**
