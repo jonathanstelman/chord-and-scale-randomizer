@@ -819,10 +819,9 @@
   border-radius: 0.4rem;
 }
 
-/* The group's name and its disclosure control are the same element. Styled as the brass
-   mono legend the static groups already used (TIMING, SOUND, PRESETS), rather than the
-   dimmer sentence-case treatment Advanced/Custom bank had — that legend was on five of
-   the seven groups and is the established "this is a settings group" marker. */
+/* The group's name and its disclosure control are the same element, styled as the brass
+   mono settings-group legend — see docs/architecture/design-language.md's Typography
+   section. */
 .settings-section > summary {
   cursor: pointer;
   font-family: var(--font-mono);
