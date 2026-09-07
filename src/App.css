@@ -932,6 +932,18 @@
   border-radius: 0.4rem;
 }
 
+/* Collapsed by default (issue #26) — it's the section most sessions never open. The
+   summary carries the "Custom bank" name, so the block inside drops its own heading
+   and the margin-bottom every other .advanced summary uses, which would otherwise
+   leave a gap above a closed box. */
+.custom-bank-details > summary {
+  margin-bottom: 0;
+}
+
+.custom-bank-details[open] > summary {
+  margin-bottom: 0.6rem;
+}
+
 .custom-bank-head {
   display: flex;
   flex-wrap: wrap;
@@ -959,6 +971,58 @@
 .custom-bank-input:focus {
   outline: none;
   border-bottom-color: var(--brass);
+}
+
+/* The commit affordance. Blur alone was invisible — and in a textarea Enter inserts a
+   newline rather than submitting, so there was no keyboard-obvious way to apply. */
+.custom-bank-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.custom-bank-apply {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  color: var(--paper-dim);
+  background: transparent;
+  border: 1px solid var(--paper-faint);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.custom-bank-apply:hover:not(:disabled) {
+  color: var(--paper);
+  border-color: var(--cobalt);
+}
+
+/* Enabled only when the textarea is ahead of what's committed, so the button doubles
+   as the indicator that there are unapplied edits. */
+.custom-bank-apply:not(:disabled) {
+  color: var(--brass);
+  border-color: var(--brass);
+}
+
+.custom-bank-apply:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.custom-bank-hint {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--paper-medium);
+}
+
+.custom-bank-dirty {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--brass);
 }
 
 .custom-bank-parsed {
@@ -989,6 +1053,21 @@
 
 .advanced summary::-webkit-details-marker {
   display: none;
+}
+
+/* The disclosure arrow is generated here rather than typed into the JSX, so it can
+   actually respond to [open]. As a literal glyph in the summary text it always read
+   "collapsed", which made the one affordance whose entire job is signalling state the
+   only thing lying about it. The ::-webkit-details-marker rule above suppresses the
+   *native* marker and is unrelated to this one. */
+.advanced summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 1.1em;
+}
+
+.advanced[open] summary::before {
+  content: '▾';
 }
 
 .advanced summary:hover {
