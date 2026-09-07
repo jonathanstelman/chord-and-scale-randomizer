@@ -658,30 +658,62 @@
   gap: 1.5rem;
 }
 
-/* One control per row inside Timing: the toggle that governs a set of fields, then the
-   fields. Wrapping happens *within* a row, so a narrow viewport can only ever move a
-   field below its own toggle — never between two unrelated ones, which the old single
-   flat row did at ~700px, where "Randomize beats" landed beside the Pause field and read
-   as its label. See issue #40.
+/* Timing is a stack of blocks, each headed by its own caption with the value on the
+   line below and every control that belongs to it inside it (issue #40). Everything used
+   to be a peer in one flat wrapping row, which put toggles after the fields they
+   governed, moved the wrap point unpredictably with viewport width, and — worst —
+   displaced a toggle out from under the pointer when it was clicked, because checking it
+   changed the row's item count.
 
-   flex-start, not center: the pause row's height changes when its field is revealed, and
-   centering re-centered the toggle inside the taller row — moving the control 23px down
-   at the moment it was clicked. Top-aligning pins every toggle regardless of what
-   appears beside it, which is the whole point. It also puts the toggle level with the
-   field captions, so it reads as the row's label. */
-.timing-row {
+   The rule that keeps that fixed: revealed content must never push down on the toggle
+   that revealed it. Randomize sits below its value line and extends that line sideways;
+   Rest sits above the value it reveals. */
+.timing-block {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 0.6rem 1.5rem;
+  gap: 0.35rem;
 }
 
-/* The metronome shares the tempo row (they're the two things that set the pulse), and
-   centres against the tempo field rather than sitting up level with its caption. Safe
-   to centre this one where the toggles above must not be: this control reveals nothing,
-   so its row's height never changes and it has nothing to be displaced by. */
-.timing-row > .metronome-control {
-  align-self: center;
+.timing-caption {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+/* The value, its unit, and anything that belongs beside them. Baseline-aligned so the
+   unit, the min/max qualifiers and the metronome all sit on the value's own line rather
+   than centring against the block as a whole. */
+.timing-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+
+/* Lowercase, unlike the block captions above: "min"/"max" annotate a value rather than
+   heading a block, and uppercasing them made them compete with the caption for the same
+   role. */
+.timing-qualifier {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--paper-dim);
+}
+
+.timing-separator {
+  color: var(--paper-faint);
+}
+
+/* A value and everything that annotates it — unit, and min/max where present — wrap as
+   one piece. Left loose in the line, a narrow viewport strands "max" on a line by
+   itself, away from the number it qualifies. */
+.timing-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
 }
 
 .data-toggle {
@@ -726,7 +758,8 @@
 }
 
 .data-field input,
-.data-field select {
+.data-field select,
+.timing-line input {
   font-family: var(--font-mono);
   font-size: 0.95rem;
   color: var(--paper);
@@ -742,7 +775,8 @@
 }
 
 .data-field input:focus,
-.data-field select:focus {
+.data-field select:focus,
+.timing-line input:focus {
   outline: none;
   border-bottom-color: var(--brass);
 }
