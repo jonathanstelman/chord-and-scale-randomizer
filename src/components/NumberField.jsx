@@ -1,13 +1,8 @@
 import { useState } from 'react';
 
-// A number input that actually enforces its bounds.
-//
-// `min`/`max` on <input type="number"> only constrain the spinner buttons and form
-// validation — a *typed* value passes straight through to onChange. Since every handler
-// here did `Number(e.target.value)` and wrote the result to settings, typing 99999 into
-// Duration put 99999 into `maxBeats`, and both NowPlaying and PipConsole build their beat
-// grid with `Array.from({ length: totalBeats })` — so the display tried to render 99999
-// cells and the app fell over. The bounds have to be applied in JS to mean anything.
+// A number input that actually enforces its bounds — the HTML min/max attributes don't,
+// and `loadSettings` re-applies the same limits on read. Both halves and what went wrong
+// without them are in docs/architecture/settings-and-presets.md.
 //
 // Width comes from the digits `max` needs rather than one size for every field, so a
 // two-digit setting doesn't get a box that comfortably fits five.
@@ -34,12 +29,10 @@ export default function NumberField({ value, min, max, onCommit, ...rest }) {
       onCommit(max);
       return;
     }
-    // Deliberately *not* clamped up to `min` here. Any prefix of a valid number can be
-    // below the minimum — going from 30 to 120 passes through "1" and "12", and going
-    // anywhere passes through "" — so clamping on each keystroke pins the field to its
-    // minimum and makes it impossible to type a new value at all. Below-minimum text is
-    // left in the draft and simply not committed, so the app keeps using the last good
-    // value until blur resolves it.
+    // Deliberately *not* clamped up to `min` here: a prefix of a valid number is often
+    // below it ("1" and "12" on the way to 120), and clamping each keystroke would pin
+    // the field to its minimum and make it impossible to type into. Below-minimum text
+    // stays in the draft uncommitted until blur.
     if (parsed >= min) commit(parsed);
   };
 

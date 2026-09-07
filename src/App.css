@@ -658,16 +658,9 @@
   gap: 1.5rem;
 }
 
-/* Timing is a stack of blocks, each headed by its own caption with the value on the
-   line below and every control that belongs to it inside it (issue #40). Everything used
-   to be a peer in one flat wrapping row, which put toggles after the fields they
-   governed, moved the wrap point unpredictably with viewport width, and — worst —
-   displaced a toggle out from under the pointer when it was clicked, because checking it
-   changed the row's item count.
-
-   The rule that keeps that fixed: revealed content must never push down on the toggle
-   that revealed it. Randomize sits below its value line and extends that line sideways;
-   Rest sits above the value it reveals. */
+/* One block per control, caption then value then whatever belongs to it. The block
+   structure is what keeps a toggle from displacing itself when clicked — see
+   docs/architecture/randomizer.md's "Timing group layout". */
 .timing-block {
   display: flex;
   flex-direction: column;
@@ -683,9 +676,8 @@
   color: var(--paper-dim);
 }
 
-/* The value, its unit, and anything that belongs beside them. Baseline-aligned so the
-   unit, the min/max qualifiers and the metronome all sit on the value's own line rather
-   than centring against the block as a whole. */
+/* Baseline-aligned so a unit and the metronome sit on the value's own line rather than
+   centring against the block as a whole. */
 .timing-line {
   display: flex;
   flex-wrap: wrap;
@@ -698,9 +690,8 @@
   color: var(--paper-dim);
 }
 
-/* A value and everything that annotates it — unit, and min/max where present — wrap as
-   one piece. Left loose in the line, a narrow viewport strands "max" on a line by
-   itself, away from the number it qualifies. */
+/* A value and its unit wrap as one piece; loose, a narrow viewport strands the unit on a
+   line away from the number it belongs to. */
 .timing-value {
   display: flex;
   align-items: baseline;
@@ -758,16 +749,13 @@
   border: none;
   border-bottom: 1px solid var(--cobalt);
   padding: 0.15rem 0.1rem;
-  /* Sized to the digits the field's own max needs (NumberField sets --field-digits from
-     it), rather than one width for every field. A flat 4.5rem comfortably fitted five
-     digits, which made a two-digit setting look like it wanted a much larger number than
-     it accepts. The floor keeps a one-digit field from becoming a sliver. */
+  /* Sized to the digits the field's own max needs — NumberField sets --field-digits from
+     it. The floor keeps a one-digit field from becoming a sliver. */
   width: max(2.25rem, calc(var(--field-digits, 3) * 1ch + 0.9rem));
 }
 
-/* Spinner buttons don't fit beside a field this narrow — they'd sit on top of the value.
-   Their step-by-one affordance is no great loss on settings that are typed far more
-   often than nudged, and the arrow keys still step the value while focused. */
+/* Spinners don't fit beside a field this narrow — they'd sit on top of the value. Arrow
+   keys still step it while focused. */
 .data-field input[type='number'],
 .timing-line input[type='number'] {
   appearance: textfield;

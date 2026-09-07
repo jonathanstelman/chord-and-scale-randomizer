@@ -3,23 +3,9 @@ import { ALL_ROOTS, DEFAULT_ENABLED_TYPES, typeKeysInCategories } from '../music
 
 const STORAGE_KEY = 'chord-scale-randomizer-settings';
 
-// Bounds for the numeric settings, in one place because two things need them: the inputs
-// that edit them (NumberField enforces them — the HTML min/max attributes do not) and
-// loadSettings, which re-applies them on read.
-//
-// Clamping on load matters because these values are persisted. Before NumberField, a
-// typed value bypassed the input's max and was written straight to localStorage, so a
-// duration of 99999 survived a reload and kept the beat grid trying to render 99999
-// cells. Bounding the input alone would leave anyone who already hit that stuck.
-//
-// The two beat caps differ by exactly the 2 that turning on Randomize adds: with min
-// held at or below 30, the seeded `min + 2` always lands inside max's own ceiling, so
-// the seeding needs no special case for running out of room — and so the toggle never
-// has to move a value the user set.
-//
-// 32 is the ceiling. The display draws one cell per beat, and this is also about where
-// the setting stops being musically useful: at 32 beats a single tonal center already
-// holds for eight bars of 4/4, which is long past "react before the next one comes".
+// Bounds for the numeric settings, read by both NumberField (on edit) and loadSettings
+// (on read). Why both, why minBeats caps 2 below maxBeats, and why the lower bound isn't
+// enforced while typing: docs/architecture/settings-and-presets.md.
 export const NUMERIC_LIMITS = {
   bpm: { min: 30, max: 300 },
   minBeats: { min: 1, max: 30 },

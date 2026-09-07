@@ -25,16 +25,9 @@ export default function TimingSection({ settings, updateSettings }) {
     <details className="settings-section" open>
       <summary>Timing</summary>
       <div className="settings-body">
-        {/* Three blocks, each headed by its own caption, with the value on the line
-            below it. Every control that belongs to a block sits inside that block, so a
-            toggle is never adrift from what it governs (issue #40).
-
-            Both toggles still hold position when clicked, which is the property this
-            issue exists to fix — but each gets there differently. Randomize sits *below*
-            its value line and what it reveals extends that line sideways, so the line
-            never grows taller and the toggle beneath it doesn't move. Rest sits *above*
-            its value, which appears below it. Either arrangement works as long as
-            revealed content never pushes down on its own toggle. */}
+        {/* The order of a toggle and the fields it governs is load-bearing here, not
+            cosmetic — revealed content must never push down on the toggle that revealed
+            it. See docs/architecture/randomizer.md's "Timing group layout". */}
         <div className="timing-block">
           <span className="timing-caption">Tempo</span>
           <div className="timing-line">
@@ -54,11 +47,8 @@ export default function TimingSection({ settings, updateSettings }) {
         <div className="timing-block">
           <span className="timing-caption">Duration</span>
           <div className="timing-line">
-            {/* Reads as one value either way — "4 beats", or "4 – 6 beats" once the
-                range is on. The two numbers share a single unit rather than each
-                carrying its own with a "min"/"max" qualifier attached, which said the
-                same thing at three times the length. One span, so the whole reading
-                wraps as a piece instead of stranding part of itself on a line alone. */}
+            {/* One reading — "4 beats", or "4 – 6 beats" with the range on — in one span
+                so it wraps as a piece. */}
             <span className="timing-value">
               <NumberField
                 {...NUMERIC_LIMITS.minBeats}
@@ -96,10 +86,9 @@ export default function TimingSection({ settings, updateSettings }) {
                 if (checked) {
                   // Revealing a max still equal to min (true on a fresh page load, and
                   // any other time the toggle was off) looks like nothing happened —
-                  // seed a real, non-degenerate range instead. No bound needed here:
-                  // minBeats caps 2 below maxBeats precisely so this always lands inside
-                  // the range's own ceiling, which is also why checking this box never
-                  // rewrites minBeats (see NUMERIC_LIMITS).
+                  // seed a real, non-degenerate range instead. Needs no bound of its
+                  // own: minBeats caps 2 below maxBeats precisely so this lands inside
+                  // the ceiling (see settings-and-presets.md).
                   if (settings.minBeats === settings.maxBeats) {
                     updateSettings({ maxBeats: settings.minBeats + 2 });
                   }
@@ -116,11 +105,8 @@ export default function TimingSection({ settings, updateSettings }) {
 
         <div className="timing-block">
           <span className="timing-caption">Rest</span>
-          {/* "Rest", not "pause" — it's the musical term, and "pause" is the transport
-              sense that #34 will actually add. "Tones" rather than "chords" because what
-              plays between rests can be a chord, a scale, or a single pitch. The
-              `gapBeats` setting key keeps its name: it's persisted in localStorage, and
-              renaming it would reset the value for anyone who has set one. */}
+          {/* The `gapBeats` key keeps its old name deliberately: it's persisted in
+              localStorage, so renaming it would reset the value for anyone who set one. */}
           <label className="checkbox-label">
             <input
               type="checkbox"

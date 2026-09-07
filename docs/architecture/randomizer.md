@@ -88,12 +88,61 @@ current/next reading + beat-panel visualization) + `Controls` or `PureToneContro
 settings UI for whichever tab is active). The display also owns the **transport** and the
 **visibility toggles** — see "The display is the player" below; the settings components
 hold neither. Both settings components share `TimingSection`
-(tempo/duration/pause + metronome, boxed as one settings cluster — the metronome lives
+(tempo/duration/rest + metronome, boxed as one settings cluster — the metronome lives
 there too since it's timing information, it just keeps the beat rather than setting its
 length) and `RootsPicker`. Both settings components are wrapped in `memo`
 with stable (`useCallback`'d) setters from `useSettings` — without that they'd re-render
 on every single beat tick via `App`'s state, fighting Tone.js's live scheduling for
 main-thread time for no reason.
+
+### Timing group layout (issue #40)
+
+`TimingSection` renders three blocks — Tempo, Duration, Rest — each headed by its caption
+with the value on the line beneath, and every control that belongs to a block inside it.
+It reads as a plain stack, but the arrangement is load-bearing and three separate bugs
+came out of not having it.
+
+Before this it was one flat `flex-wrap` row with every field and toggle as a peer, which
+produced:
+
+- **Toggles rendered after the fields they governed**, so the consequence read before the
+  cause. The Pause field sat 106px from its own checkbox and nearer to `Randomize beats`
+  than to its toggle, so proximity paired each toggle with the wrong field.
+- **An unpredictable wrap point.** At ~700px `Randomize beats` wrapped between Max and
+  Pause and read as though it labelled Pause; at 480px the Pause field stranded mid-box.
+- **Toggles that displaced themselves when clicked.** Checking a box changed the row's
+  item count, reflowing it and moving the box out from under the pointer — 96px for
+  `Randomize`, 96px across and 46px down for the pause toggle. A hit target that moves in
+  response to being hit.
+
+**The rule that keeps the third one fixed: revealed content must never push down on the
+toggle that revealed it.** The two toggles satisfy it by opposite arrangements, and
+either is fine as long as that holds:
+
+- `Randomize beats` sits **below** its value line, and what it reveals extends that line
+  *sideways* (a second number joins the first), so the line never grows taller.
+- `Rest between tones` sits **above** the value it reveals, which appears beneath it.
+
+Don't "tidy" this by moving a toggle above fields that grow downward, or below fields
+that grow taller — that reintroduces the displacement.
+
+Two more things not to redo:
+
+- **Rows are top-aligned, not centred.** The Rest block's height changes when its field
+  appears, and `align-items: center` re-centres the toggle inside the taller row — a 23px
+  drop at the moment of the click. Smaller than the original bug, same bug. The metronome
+  is the one thing safe to centre, since it reveals nothing.
+- **A grid aligning the value columns across blocks was tried and rejected.** `display:
+  contents` on the rows let each toggle and its fields flow as independent grid items,
+  landing them on separate grid rows and breaking the pairing entirely. Explicit
+  `grid-column` placement would work but hard-codes a column width that a label change
+  breaks silently.
+
+A value and its unit are one `.timing-value` span so they wrap as a piece; loose, a
+narrow viewport strands part of a reading on a line by itself. The beat range renders as
+one value (`4 – 6 beats`) rather than two each carrying its own unit and a min/max
+qualifier — which is also why both inputs carry `aria-label`s, since nothing visible
+distinguishes them under a single Duration caption.
 
 ### The display is the player (issue #23)
 
