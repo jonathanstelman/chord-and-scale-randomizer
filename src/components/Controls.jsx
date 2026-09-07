@@ -37,13 +37,32 @@ function Controls({
 
   const activePreset = PRESETS.find((p) => p.key === settings.activePresetKey);
 
-  const parseBankOnBlur = () => {
+  // The text as of the last successful apply. This can't be re-derived from
+  // customBankEntries: those render back out as full labels ("C Major, G Dominant 7")
+  // while the field holds whatever shorthand was typed ("C, G7"), so comparing the two
+  // reports "unapplied" forever. Seeded from the persisted text, which is applied by
+  // definition — customBankEntries was persisted alongside it.
+  const [appliedBankText, setAppliedBankText] = useState(settings.customBankText);
+  const hasUncommittedBankText = settings.customBankText !== appliedBankText;
+
+  // Enter applies; Shift+Enter still inserts a newline, which matters because
+  // parseCustomBank splits on /[,\n]+/ — a newline is a real separator here, so
+  // one-chord-per-line is a legitimate way to write a bank, not an accident.
+  const handleBankKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      applyBank();
+    }
+  };
+
+  const applyBank = () => {
     const { entries, errors } = parseCustomBank(settings.customBankText);
     if (errors.length > 0) {
       setBankError(errors.map((raw) => `"${raw}"`).join(', '));
       return;
     }
     setBankError(null);
+    setAppliedBankText(settings.customBankText);
     commitCustomBank(entries);
   };
 
@@ -122,73 +141,102 @@ function Controls({
         })}
       </div>
 
-      <div className="custom-bank">
-        <div className="custom-bank-head">
-          <span className="session-data-group-label">Custom bank</span>
-          <div className="custom-bank-mode">
+      {/* Collapsed by default (#26): the one section most sessions never touch, unlike
+          everything else in this flow. The summary carries the name, so the block below
+          drops its own heading. Note the "custom bank is active" note stays *outside*
+          the details — an enabled bank silently overriding the pickers is exactly what
+          you'd miss with this closed. */}
+      <details className="advanced custom-bank-details">
+        <summary>Custom bank</summary>
+        <div className="custom-bank">
+          <div className="custom-bank-head">
             <label className="checkbox-label">
               <input
-                type="radio"
-                name="customBankMode"
-                checked={settings.customBankMode === 'random'}
-                onChange={() => setCustomBankMode('random')}
+                type="checkbox"
+                checked={settings.customBankEnabled}
+                disabled={settings.customBankEntries.length === 0}
+                onChange={(e) => setCustomBankEnabled(e.target.checked)}
               />
-              Random
+              Use custom bank
             </label>
-            <label className="checkbox-label">
-              <input
-                type="radio"
-                name="customBankMode"
-                checked={settings.customBankMode === 'ordered'}
-                onChange={() => setCustomBankMode('ordered')}
-              />
-              In order
-            </label>
+            <div className="custom-bank-mode">
+              <label className="checkbox-label">
+                <input
+                  type="radio"
+                  name="customBankMode"
+                  checked={settings.customBankMode === 'random'}
+                  onChange={() => setCustomBankMode('random')}
+                />
+                Random
+              </label>
+              <label className="checkbox-label">
+                <input
+                  type="radio"
+                  name="customBankMode"
+                  checked={settings.customBankMode === 'ordered'}
+                  onChange={() => setCustomBankMode('ordered')}
+                />
+                In order
+              </label>
+            </div>
           </div>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={settings.customBankEnabled}
-              disabled={settings.customBankEntries.length === 0}
-              onChange={(e) => setCustomBankEnabled(e.target.checked)}
-            />
-            Use custom bank
-          </label>
+          <textarea
+            className="custom-bank-input"
+            rows={2}
+            placeholder="C, Am, F, G7"
+            value={settings.customBankText}
+            onChange={(e) => setCustomBankText(e.target.value)}
+            onBlur={applyBank}
+            onKeyDown={handleBankKeyDown}
+          />
+          {/* Blur still commits, but it used to be the *only* way to — undiscoverable,
+              since a textarea's Enter inserts a newline rather than submitting, leaving
+              Tab or clicking away. Now Enter applies and the button says so out loud;
+              the button disables once the text matches what was last applied, so it
+              doubles as the indicator that there are unapplied edits. */}
+          <div className="custom-bank-actions">
+            <button
+              type="button"
+              className="custom-bank-apply"
+              onClick={applyBank}
+              disabled={!hasUncommittedBankText}
+            >
+              Apply
+            </button>
+            <span className="custom-bank-hint">or press Enter</span>
+            {hasUncommittedBankText && (
+              <span className="custom-bank-dirty">Not applied yet</span>
+            )}
+          </div>
+          {bankError ? (
+            <p className="custom-bank-error">⚠ Couldn&rsquo;t parse: {bankError}</p>
+          ) : settings.customBankEntries.length > 0 && (
+            <p className="custom-bank-parsed">
+              Parsed {settings.customBankEntries.length}
+              {' '}
+              chord
+              {settings.customBankEntries.length === 1 ? '' : 's'}
+              :
+              {' '}
+              {settings.customBankEntries
+                .map((e) => `${pitchClassToDisplayName(e.rootPc)} ${typeLabelForKey(e.typeKey)}`)
+                .join(', ')}
+            </p>
+          )}
         </div>
-        <textarea
-          className="custom-bank-input"
-          rows={2}
-          placeholder="C, Am, F, G7"
-          value={settings.customBankText}
-          onChange={(e) => setCustomBankText(e.target.value)}
-          onBlur={parseBankOnBlur}
-        />
-        {bankError ? (
-          <p className="custom-bank-error">⚠ Couldn&rsquo;t parse: {bankError}</p>
-        ) : settings.customBankEntries.length > 0 && (
-          <p className="custom-bank-parsed">
-            Parsed {settings.customBankEntries.length}
-            {' '}
-            chord
-            {settings.customBankEntries.length === 1 ? '' : 's'}
-            :
-            {' '}
-            {settings.customBankEntries
-              .map((e) => `${pitchClassToDisplayName(e.rootPc)} ${typeLabelForKey(e.typeKey)}`)
-              .join(', ')}
-          </p>
-        )}
-      </div>
+      </details>
       {settings.customBankEnabled && (
         <p className="preset-note">
+          {/* "the chords above" stopped being true once the bank collapsed (#26) — they
+              may well be behind a closed disclosure now. */}
           Custom bank is active ({settings.customBankMode === 'ordered' ? 'in order' : 'random'}),
-          drawing only from the chords above. Any change to the mode/type/root checkboxes
+          drawing only from your custom bank. Any change to the mode/type/root checkboxes
           below returns to normal filtering.
         </p>
       )}
 
       <details className="advanced">
-        <summary>▸ Advanced settings</summary>
+        <summary>Advanced settings</summary>
         <RootsPicker
           enabledRoots={settings.enabledRoots}
           toggleRoot={toggleRoot}

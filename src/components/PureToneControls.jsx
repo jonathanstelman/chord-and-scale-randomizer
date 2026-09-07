@@ -109,7 +109,7 @@ function PureToneControls({
       )}
 
       <details className="advanced">
-        <summary>▸ Advanced settings</summary>
+        <summary>Advanced settings</summary>
         <RootsPicker
           enabledRoots={settings.enabledRoots}
           toggleRoot={toggleRoot}
