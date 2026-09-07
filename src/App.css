@@ -214,10 +214,18 @@
      inset once the viewport is narrower than the column. */
   left: max(0.75rem, calc(50vw - 360px + 1.5rem));
   z-index: 20;
+  /* Fixed width, not shrink-to-fit: sized to the content it has to hold, the box would
+     otherwise resize on every segment as tonal center names change length, which reads
+     as the console twitching in the corner. Height is free to grow instead — the
+     longest name in the vocabulary ("D♭ Half-Diminished (m7♭5)", 25 characters) wraps
+     to a second line here rather than being truncated, since a clipped chord name is
+     worse than a taller card. */
+  width: 15rem;
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.6rem 0.5rem 0.7rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  padding: 0.55rem 0.7rem 0.65rem;
   background: var(--panel);
   border: 1px solid var(--paper-medium);
   border-radius: 0.4rem;
@@ -231,6 +239,13 @@
     opacity: 0;
     transform: translateY(-6px) scale(0.97);
   }
+}
+
+.pip-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .pip-beats {
@@ -264,14 +279,41 @@
   font-family: var(--font-display);
   font-variation-settings: var(--fvs-ui);
   font-size: 1.05rem;
-  line-height: 1;
+  line-height: 1.15;
   color: var(--paper);
-  white-space: nowrap;
 }
 
 .pip-reading--gap {
   color: var(--paper-dim);
   font-style: italic;
+}
+
+/* Next sits below current rather than beside it: at a fixed width there isn't room for
+   two readings side by side, and stacking keeps the same top-to-bottom order the main
+   display will have once #20 turns this into a queue. */
+.pip-next {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.pip-next-eyebrow {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.pip-next-name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-tiny);
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: var(--paper-dim);
+  min-width: 0;
 }
 
 .pip-close {

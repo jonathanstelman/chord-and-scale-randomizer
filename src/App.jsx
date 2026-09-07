@@ -101,7 +101,9 @@ export default function App() {
       <PipConsole
         displayRef={displayRef}
         current={current}
+        next={next}
         showCurrent={settings.showCurrent}
+        showNext={settings.showNext}
         isRunning={isRunning}
         beatIndex={beatIndex}
         totalBeats={totalBeats}

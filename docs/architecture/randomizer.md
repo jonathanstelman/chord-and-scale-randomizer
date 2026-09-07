@@ -116,10 +116,22 @@ Two rules it has to keep in step with `Display`:
 - **It shows what the display shows.** With `showCurrent` off (listening mode), the main
   display deliberately withholds the reading, and the console must not become a way to
   peek at it — it renders the same `—`.
+- **`showNext` gates the next reading** the same way, matching `NowPlaying`.
 - **Both read through `tonalCenterPhrase`** (`src/music/pool.js`), so Pure Tone's
   typeless segments can't render one way in the display and another in the console.
 
-It is deliberately minimal: current tonal center and a beat cue, no *next*, no transport,
-no tempo or volume. Everything omitted is one scroll away. The ✕ stops the session
-outright rather than just hiding the console — dismissing it and leaving audio running
-would strand a session with no visible controls.
+It shows current, next and a beat cue — no transport, tempo or volume; those are one
+scroll away. The ✕ stops the session outright rather than just hiding the console:
+dismissing it and leaving audio running would strand a session with no visible controls.
+
+**The width is fixed, the height is free.** Shrink-to-fit made the box resize on every
+segment as names changed length, which reads as the console twitching in the corner. It
+is pinned at `15rem`, sized against the longest phrase the vocabulary can produce —
+`D♭ Half-Diminished (m7♭5)`, 25 characters — which wraps to a second line rather than
+being truncated, because a clipped chord name is worse than a taller card. If a longer
+type label is ever added, check it here: the failure mode is silent wrapping, not
+overflow.
+
+*Next* sits below *current* rather than beside it. At a fixed width there isn't room for
+two readings side by side, and the vertical order is the one #20's stacked queue will
+need anyway.

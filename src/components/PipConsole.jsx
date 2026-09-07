@@ -6,14 +6,14 @@ import { tonalCenterPhrase } from '../music/pool';
  * view, and un-docks when it scrolls back — true picture-in-picture, not an always-on
  * widget.
  *
- * Deliberately shows only the current tonal center and a metronome cue: no "next", no
- * transport, no tempo or volume. Everything omitted is still one scroll away, and the
- * console exists to keep you on the beat, not to be a second control surface.
+ * Shows the current tonal center, the next one, and a metronome cue. Still no
+ * transport, tempo or volume: those are one scroll away, and the console is for
+ * staying on the beat rather than being a second control surface.
  *
  * `displayRef` points at the in-flow display element this shadows.
  */
 export default function PipConsole({
-  displayRef, current, showCurrent, isRunning, beatIndex, totalBeats, isGap, onStop,
+  displayRef, current, next, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap, onStop,
 }) {
   const [displayVisible, setDisplayVisible] = useState(true);
 
@@ -38,6 +38,7 @@ export default function PipConsole({
 
   // Mirrors Display: listening mode hides the reading everywhere, so the console must
   // not become a way to peek at the answer the main display is deliberately withholding.
+  // Same for showNext, which gates the next reading in NowPlaying.
   const reading = isGap
     ? 'Get ready…'
     : showCurrent && current
@@ -46,30 +47,39 @@ export default function PipConsole({
 
   return (
     <div className="pip-console">
-      <span className="pip-beats" aria-hidden="true">
-        {Array.from({ length: totalBeats }, (_, i) => {
-          const n = i + 1;
-          const isCurrent = n === beatIndex;
-          return (
-            <span
-              key={n}
-              className={`pip-beat${isCurrent ? ' pip-beat--current' : ''}${isGap ? ' pip-beat--gap' : ''}`}
-            />
-          );
-        })}
-      </span>
+      <div className="pip-top">
+        <span className="pip-beats" aria-hidden="true">
+          {Array.from({ length: totalBeats }, (_, i) => {
+            const n = i + 1;
+            const isCurrent = n === beatIndex;
+            return (
+              <span
+                key={n}
+                className={`pip-beat${isCurrent ? ' pip-beat--current' : ''}${isGap ? ' pip-beat--gap' : ''}`}
+              />
+            );
+          })}
+        </span>
+
+        <button
+          type="button"
+          className="pip-close"
+          onClick={onStop}
+          aria-label="Stop session"
+          title="Stop session"
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
 
       <span className={`pip-reading${isGap ? ' pip-reading--gap' : ''}`}>{reading}</span>
 
-      <button
-        type="button"
-        className="pip-close"
-        onClick={onStop}
-        aria-label="Stop session"
-        title="Stop session"
-      >
-        <span aria-hidden="true">✕</span>
-      </button>
+      {showNext && next && (
+        <span className="pip-next">
+          <span className="pip-next-eyebrow">Next</span>
+          <span className="pip-next-name">{tonalCenterPhrase(next)}</span>
+        </span>
+      )}
     </div>
   );
 }
