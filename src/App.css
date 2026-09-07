@@ -651,31 +651,6 @@
   justify-content: flex-end;
 }
 
-.session-data {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 1rem 0;
-  border-top: 1px solid var(--paper-faint);
-  border-bottom: 1px solid var(--paper-faint);
-}
-
-.session-data-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem 1.5rem;
-}
-
-.session-data-group-label {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--brass);
-  white-space: nowrap;
-}
-
 .session-data-fields {
   display: flex;
   flex-wrap: wrap;
@@ -750,16 +725,66 @@
   height: 1rem;
 }
 
-/* A single boxed settings cluster — Timing (+ Metronome) and Sound each get their own,
-   rather than the old shared-hairline-rule look, so each reads as one self-contained
-   unit you can take in at a glance. */
+/* Every settings group is one of these: a bordered box whose header lives inside it, so
+   each reads as a self-contained unit you can take in at a glance. Always a <details>,
+   so every group collapses the same way — the ones that start open differ only by the
+   `open` attribute, not by being a different kind of thing. Which ones start open is
+   decided per group in the components. */
 .settings-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
   padding: 1rem;
   border: 1px solid var(--paper-faint);
   border-radius: 0.4rem;
+}
+
+/* The group's name and its disclosure control are the same element. Styled as the brass
+   mono legend the static groups already used (TIMING, SOUND, PRESETS), rather than the
+   dimmer sentence-case treatment Advanced/Custom bank had — that legend was on five of
+   the seven groups and is the established "this is a settings group" marker. */
+.settings-section > summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brass);
+  list-style: none;
+}
+
+.settings-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The disclosure arrow is generated here rather than typed into the JSX, so it can
+   actually respond to [open]. As a literal glyph in the summary text it always read
+   "collapsed", which made the one affordance whose entire job is signalling state the
+   only thing lying about it (issue #25). The ::-webkit-details-marker rule above
+   suppresses the *native* marker and is unrelated to this one. */
+.settings-section > summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 1.1em;
+}
+
+.settings-section[open] > summary::before {
+  content: '▾';
+}
+
+.settings-section > summary:hover {
+  color: var(--paper);
+}
+
+/* Only when open: closed, the summary is the box's entire content, and a bottom margin
+   would pad dead space under it. */
+.settings-section[open] > summary {
+  margin-bottom: 0.85rem;
+}
+
+/* The revealed content stack. The box and its padding belong to the <details>, so this
+   only carries the rhythm between a group's own rows. */
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
 .metronome-control {
@@ -790,13 +815,6 @@
 }
 
 /* ---------- Mode blocks ---------- */
-
-.preset-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem 0.9rem;
-}
 
 .preset-buttons {
   display: flex;
@@ -923,25 +941,10 @@
 
 /* ---------- Custom bank ---------- */
 
+/* Layout comes from .settings-body; this only tightens the gap, because these rows are
+   one input's worth of controls rather than separate settings. */
 .custom-bank {
-  display: flex;
-  flex-direction: column;
   gap: 0.6rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--paper-faint);
-  border-radius: 0.4rem;
-}
-
-/* Collapsed by default (issue #26) — it's the section most sessions never open. The
-   summary carries the "Custom bank" name, so the block inside drops its own heading
-   and the margin-bottom every other .advanced summary uses, which would otherwise
-   leave a gap above a closed box. */
-.custom-bank-details > summary {
-  margin-bottom: 0;
-}
-
-.custom-bank-details[open] > summary {
-  margin-bottom: 0.6rem;
 }
 
 .custom-bank-head {
@@ -1041,39 +1044,6 @@
 
 /* ---------- Advanced / liner notes ---------- */
 
-.advanced summary {
-  cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  color: var(--paper-dim);
-  margin-bottom: 1rem;
-  list-style: none;
-}
-
-.advanced summary::-webkit-details-marker {
-  display: none;
-}
-
-/* The disclosure arrow is generated here rather than typed into the JSX, so it can
-   actually respond to [open]. As a literal glyph in the summary text it always read
-   "collapsed", which made the one affordance whose entire job is signalling state the
-   only thing lying about it. The ::-webkit-details-marker rule above suppresses the
-   *native* marker and is unrelated to this one. */
-.advanced summary::before {
-  content: '▸';
-  display: inline-block;
-  width: 1.1em;
-}
-
-.advanced[open] summary::before {
-  content: '▾';
-}
-
-.advanced summary:hover {
-  color: var(--paper);
-}
-
 .type-groups {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1145,10 +1115,11 @@
   margin: 0;
 }
 
-/* One internal divider, under Roots, separating it from the type grid. Conditional
-   because Pure Tone's Advanced panel contains Roots alone — an unconditional rule
-   would leave a hairline dangling at the bottom of that box. */
-.advanced-body .roots-fieldset:not(:last-child) {
+/* One internal divider, under Roots, separating it from the type grid it shares the
+   Advanced panel with. Conditional because Pure Tone renders this same picker as the
+   last thing in its Notes group — an unconditional rule would leave a hairline dangling
+   at the bottom of that box. */
+.settings-body .roots-fieldset:not(:last-child) {
   padding-bottom: 1.1rem;
   border-bottom: 1px solid var(--paper-faint);
 }

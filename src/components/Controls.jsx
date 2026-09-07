@@ -70,12 +70,14 @@ function Controls({
     <div className="controls">
       <TimingSection settings={settings} updateSettings={updateSettings} />
 
-      <div className="settings-section">
-        <div className="session-data-group">
-          <span className="session-data-group-label">Sound</span>
+      <details className="settings-section" open>
+        <summary>Sound</summary>
+        <div className="settings-body">
           <div className="session-data-fields">
+            {/* "Type", not "Sound": the group header above already says Sound, and
+                stacked under it the repeat read as a stutter. */}
             <label className="data-field">
-              <span>Sound</span>
+              <span>Type</span>
               <select
                 value={settings.soundType}
                 onChange={(e) => updateSettings({ soundType: e.target.value })}
@@ -100,14 +102,13 @@ function Controls({
             </label>
           </div>
         </div>
-      </div>
+      </details>
 
-      {/* Boxed as one topic, like Timing and Sound (#29). The box wraps the row *and*
-          its description/note rather than the row alone — those are part of the same
-          topic, and boxing only the row would leave them dangling underneath it. */}
-      <div className="settings-section">
-        <div className="preset-row">
-          <span className="session-data-group-label">Presets</span>
+      {/* The group holds the row *and* its description/note: those describe the active
+          preset, so they belong to the same group rather than dangling below it. */}
+      <details className="settings-section" open>
+        <summary>Presets</summary>
+        <div className="settings-body">
           <div className="preset-buttons">
             {PRESETS.map((preset) => (
               <button
@@ -120,45 +121,52 @@ function Controls({
               </button>
             ))}
           </div>
+          {activePreset && (
+            <>
+              <p className="preset-description">{activePreset.description}</p>
+              <p className="preset-note">
+                Any change to the mode/type/root checkboxes below customizes from here.
+              </p>
+            </>
+          )}
         </div>
-        {activePreset && (
-          <>
-            <p className="preset-description">{activePreset.description}</p>
-            <p className="preset-note">
-              Any change to the mode/type/root checkboxes below customizes from here.
-            </p>
-          </>
-        )}
-      </div>
+      </details>
 
-      <div className="mode-row">
-        {CORE_MODES.map((mode) => {
-          const state = modeCheckState(mode, settings.enabledTypes);
-          return (
-            <TriStateCheckbox
-              key={mode.key}
-              label={mode.label}
-              state={state}
-              onChange={(enabled) => setModeEnabled(mode, enabled)}
-              className={`mode-block mode-block--${mode.key}${state === 'all' ? ' is-on' : ''}${state === 'some' ? ' is-partial' : ''}`}
-            />
-          );
-        })}
-      </div>
+      {/* These cards were the one settings group with neither a box nor a legend, so
+          nothing on screen said what the three of them collectively were — they read as
+          loose buttons between two boxed groups (#29). "Tonal centers" rather than
+          "Types" because the Extended card pulls in scale-tone material, not only
+          chords; it's the vocabulary the masthead already uses. */}
+      <details className="settings-section" open>
+        <summary>Tonal centers</summary>
+        <div className="mode-row">
+          {CORE_MODES.map((mode) => {
+            const state = modeCheckState(mode, settings.enabledTypes);
+            return (
+              <TriStateCheckbox
+                key={mode.key}
+                label={mode.label}
+                state={state}
+                onChange={(enabled) => setModeEnabled(mode, enabled)}
+                className={`mode-block mode-block--${mode.key}${state === 'all' ? ' is-on' : ''}${state === 'some' ? ' is-partial' : ''}`}
+              />
+            );
+          })}
+        </div>
+      </details>
 
-      {/* Collapsed by default (#26): the one section most sessions never touch, unlike
-          everything else in this flow. The summary carries the name, so the block below
-          drops its own heading. Note the "chord bank is active" note stays *outside*
-          the details — an enabled bank silently overriding the pickers is exactly what
-          you'd miss with this closed. */}
+      {/* One of the two groups that start closed (#26): the sections most sessions never
+          touch, unlike everything above. Note the "chord bank is active" note stays
+          *outside* the details — an enabled bank silently overriding the pickers is
+          exactly what you'd miss with this closed. */}
       {/* "chord bank", not "bank": parseCustomBank only understands chord tokens
           (see chordParser.js) — scales aren't expressible here, and the old label
           implied they were. The customBank* setting keys keep their names; they're
           persisted in localStorage, and renaming them for a label change would drop
           every existing user's saved bank. */}
-      <details className="advanced custom-bank-details">
+      <details className="settings-section">
         <summary>Custom chord bank</summary>
-        <div className="custom-bank">
+        <div className="settings-body custom-bank">
           <div className="custom-bank-head">
             <label className="checkbox-label">
               <input
@@ -246,44 +254,45 @@ function Controls({
       )}
 
       {/* Advanced is one settings *topic*, so it gets one box — not one per category.
-          The box wraps the revealed content, never the summary, so a collapsed panel
-          stays a bare toggle line. */}
-      <details className="advanced">
+          Six boxed categories inside a box would read as six self-contained units
+          rather than divisions of one thing. Starts closed, like the custom bank. */}
+      <details className="settings-section">
         <summary>Advanced settings</summary>
-        <div className="settings-section advanced-body">
+        <div className="settings-body">
           <RootsPicker
+            label="Roots"
             enabledRoots={settings.enabledRoots}
             toggleRoot={toggleRoot}
             setAllRootsEnabled={setAllRootsEnabled}
           />
           <div className="type-groups">
-          {Object.entries(CATEGORY_GROUPS).map(([category, types]) => {
-            const categoryMode = { categories: [category] };
-            return (
-              <fieldset key={category}>
-                <div className="fieldset-head">
-                  <legend>{category}</legend>
-                  <TriStateCheckbox
-                    className="category-select-all"
-                    label="select all"
-                    state={modeCheckState(categoryMode, settings.enabledTypes)}
-                    onChange={(enabled) => setModeEnabled(categoryMode, enabled)}
-                  />
-                </div>
-                {types.map((t) => (
-                  <label key={t.key} className="checkbox-label track-row">
-                    <input
-                      type="checkbox"
-                      checked={settings.enabledTypes.includes(t.key)}
-                      onChange={() => toggleType(t.key)}
+            {Object.entries(CATEGORY_GROUPS).map(([category, types]) => {
+              const categoryMode = { categories: [category] };
+              return (
+                <fieldset key={category}>
+                  <div className="fieldset-head">
+                    <legend>{category}</legend>
+                    <TriStateCheckbox
+                      className="category-select-all"
+                      label="select all"
+                      state={modeCheckState(categoryMode, settings.enabledTypes)}
+                      onChange={(enabled) => setModeEnabled(categoryMode, enabled)}
                     />
-                    {t.degreeIndex && <span className="track-number">{String(t.degreeIndex).padStart(2, '0')}</span>}
-                    {t.label}
-                  </label>
-                ))}
-              </fieldset>
-            );
-          })}
+                  </div>
+                  {types.map((t) => (
+                    <label key={t.key} className="checkbox-label track-row">
+                      <input
+                        type="checkbox"
+                        checked={settings.enabledTypes.includes(t.key)}
+                        onChange={() => toggleType(t.key)}
+                      />
+                      {t.degreeIndex && <span className="track-number">{String(t.degreeIndex).padStart(2, '0')}</span>}
+                      {t.label}
+                    </label>
+                  ))}
+                </fieldset>
+              );
+            })}
           </div>
         </div>
       </details>

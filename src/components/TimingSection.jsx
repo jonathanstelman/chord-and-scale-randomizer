@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import MetronomeControl from './MetronomeControl';
 
-// Tempo/duration/pause/metronome, boxed as one unit and shared between both practice
-// tabs — see docs/architecture/randomizer.md's Components section for why the metronome
-// lives here rather than its own block.
+// Tempo/duration/pause/metronome, boxed as one collapsible group and shared between
+// both practice tabs — see docs/architecture/randomizer.md's Components section for why
+// the metronome lives here rather than its own block. Starts open: it's the group most
+// sessions actually adjust.
 export default function TimingSection({ settings, updateSettings }) {
   // "Randomize beats" / "add a pause" only decide which fields are *visible* — the
   // underlying minBeats/maxBeats/gapBeats settings are the source of truth, so these
@@ -13,9 +14,9 @@ export default function TimingSection({ settings, updateSettings }) {
   const [gapExpanded, setGapExpanded] = useState(() => settings.gapBeats > 0);
 
   return (
-    <div className="settings-section">
-      <div className="session-data-group">
-        <span className="session-data-group-label">Timing</span>
+    <details className="settings-section" open>
+      <summary>Timing</summary>
+      <div className="settings-body">
         <div className="session-data-fields">
           <label className="data-field">
             <span>Tempo</span>
@@ -114,8 +115,8 @@ export default function TimingSection({ settings, updateSettings }) {
             Add a pause between chords
           </label>
         </div>
+        <MetronomeControl settings={settings} updateSettings={updateSettings} />
       </div>
-      <MetronomeControl settings={settings} updateSettings={updateSettings} />
-    </div>
+    </details>
   );
 }
