@@ -1,0 +1,863 @@
+<title>Musical Chairs Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+
+<style>
+/* ============================================================
+   SHEET CHROME
+   ============================================================ */
+:root {
+  --sheet-bg: #0d1620;
+  --sheet-panel: #131f2b;
+  --sheet-fg: #e8e2d2;
+  --sheet-dim: rgba(232, 226, 210, 0.58);
+  --sheet-line: rgba(232, 226, 210, 0.16);
+  --sheet-accent: #4a97c4;
+  --sheet-warn: #ce9b2e;
+  --sheet-risk: #e05c33;
+  --ca: #2b6e96;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --sheet-bg: #e9e2d0; --sheet-panel: #f7f2e6; --sheet-fg: #14212e;
+    --sheet-dim: rgba(20,33,46,.62); --sheet-line: rgba(20,33,46,.17);
+    --sheet-accent: #235d81; --sheet-warn: #8a6412; --sheet-risk: #b93d16;
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="light"] {
+  --sheet-bg: #e9e2d0; --sheet-panel: #f7f2e6; --sheet-fg: #14212e;
+  --sheet-dim: rgba(20,33,46,.62); --sheet-line: rgba(20,33,46,.17);
+  --sheet-accent: #235d81; --sheet-warn: #8a6412; --sheet-risk: #b93d16;
+  color-scheme: light;
+}
+
+/* app grounds — verbatim from src/index.css, fixed */
+.ground { --cobalt:#2b6e96; --flame:#d8481f; --cream:#f4eedd; background: var(--ink); color: var(--paper); }
+.ground--dark  { --ink:#12202e; --panel:#17293b; --paper:#f4eedd; --brass:#ce9b2e;
+  --paper-dim:rgba(244,238,221,.62); --paper-faint:rgba(244,238,221,.14); --paper-medium:rgba(244,238,221,.3); }
+.ground--light { --ink:#f4eedd; --panel:#ffffff; --paper:#12202e; --brass:#8a6412;
+  --paper-dim:rgba(18,32,46,.62); --paper-faint:rgba(18,32,46,.14); --paper-medium:rgba(18,32,46,.3); }
+
+.fvs-wordmark { font-variation-settings: 'opsz' 60, 'wght' 500, 'SOFT' 40, 'WONK' 1; }
+.fvs-readout  { font-variation-settings: 'opsz' 90, 'wght' 300, 'SOFT' 70, 'WONK' 1; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0; background: var(--sheet-bg); color: var(--sheet-fg);
+  font: 400 15px/1.6 'Work Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+.fr { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; }
+.mono { font-family: 'Space Mono', ui-monospace, Consolas, monospace; }
+
+.eyebrow {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.68rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--sheet-dim); margin: 0 0 0.5rem;
+}
+
+h1.sheet-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 144, 'wght' 300, 'SOFT' 60, 'WONK' 1;
+  font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.02; margin: 0 0 0.75rem; text-wrap: balance;
+}
+
+.lede { max-width: 64ch; color: var(--sheet-dim); margin: 0 0 2rem; font-size: 1rem; }
+.lede strong { color: var(--sheet-fg); font-weight: 600; }
+.lede code { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.85em; color: var(--sheet-accent); }
+
+h2.sec {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 40, 'wght' 400, 'SOFT' 40, 'WONK' 1;
+  font-size: 1.5rem; margin: 0; text-wrap: balance;
+}
+
+.sec-head {
+  display: flex; align-items: baseline; gap: 0.85rem; flex-wrap: wrap;
+  padding-bottom: 0.7rem; border-bottom: 1px solid var(--sheet-line); margin-bottom: 1.5rem;
+}
+
+.sec-note { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.7rem; color: var(--sheet-dim); }
+section { margin-top: 3.25rem; }
+
+/* controls */
+.controls {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--sheet-panel); border: 1px solid var(--sheet-line); border-radius: 3px;
+  padding: 0.95rem 1.15rem; margin-bottom: 1.5rem;
+  display: flex; flex-wrap: wrap; gap: 0.9rem 1.9rem; align-items: center;
+  box-shadow: 0 8px 24px -14px rgba(0,0,0,.7);
+}
+
+.ctl-group { display: flex; align-items: center; gap: 0.6rem; }
+.ctl-group--grow { flex: 1 1 200px; }
+
+.ctl-name {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.62rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--sheet-dim); white-space: nowrap;
+}
+
+.ctl-val {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.78rem;
+  color: var(--sheet-accent); font-variant-numeric: tabular-nums; min-width: 2.2rem;
+}
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none; flex: 1; height: 20px;
+  background: transparent; cursor: pointer; margin: 0; min-width: 80px;
+}
+input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: var(--sheet-line); }
+input[type="range"]::-moz-range-track { height: 2px; background: var(--sheet-line); }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px; margin-top: -5.5px;
+  background: var(--sheet-accent); border: none; border-radius: 50%;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 13px; height: 13px; background: var(--sheet-accent); border: none; border-radius: 50%;
+}
+input[type="range"]:focus-visible { outline: 2px solid var(--sheet-warn); outline-offset: 3px; }
+
+.swatches { display: flex; gap: 0.4rem; }
+button.swatch {
+  width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 2px solid transparent;
+  cursor: pointer; padding: 0; transition: transform 0.12s;
+}
+button.swatch:hover { transform: scale(1.12); }
+button.swatch:focus-visible { outline: 2px solid var(--sheet-warn); outline-offset: 2px; }
+button.swatch[aria-pressed="true"] { border-color: var(--sheet-fg); }
+
+.seg { display: flex; border: 1px solid var(--sheet-line); border-radius: 2px; overflow: hidden; }
+.seg button {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.66rem;
+  padding: 0.3rem 0.6rem; color: var(--sheet-dim); background: transparent;
+  border: none; border-right: 1px solid var(--sheet-line); cursor: pointer;
+}
+.seg button:last-child { border-right: none; }
+.seg button:hover { color: var(--sheet-fg); }
+.seg button:focus-visible { outline: 2px solid var(--sheet-warn); outline-offset: -2px; }
+.seg button[aria-pressed="true"] { background: var(--sheet-accent); color: var(--sheet-bg); }
+
+button.reroll {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.66rem;
+  padding: 0.34rem 0.7rem; color: var(--sheet-dim); background: transparent;
+  border: 1px solid var(--sheet-line); border-radius: 2px; cursor: pointer;
+}
+button.reroll:hover { color: var(--sheet-fg); border-color: var(--sheet-accent); }
+button.reroll:focus-visible { outline: 2px solid var(--sheet-warn); outline-offset: 2px; }
+
+/* variation grid */
+.vgrid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1px; background: var(--sheet-line);
+  border: 1px solid var(--sheet-line); border-radius: 3px; overflow: hidden;
+}
+
+.vcell { padding: 1.2rem 0.8rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.vcell--dark { background: #12202e; color: #f4eedd; }
+.vcell--light { background: #f4eedd; color: #12202e; }
+.vcell svg { display: block; width: 100%; max-width: 150px; height: auto; }
+
+.vname {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.62rem;
+  letter-spacing: 0.09em; text-transform: uppercase; text-align: center;
+}
+
+.vparams {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.53rem;
+  letter-spacing: 0.04em; opacity: 0.55; text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* pairs */
+.pair {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--sheet-line); border: 1px solid var(--sheet-line);
+  border-radius: 3px; overflow: hidden;
+}
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+
+/* The masthead needs the wordmark and the chair row on one line, so its grounds stack
+   full-width instead of sitting side by side. */
+.pair--stack { grid-template-columns: 1fr; }
+
+.ground { padding: 1.6rem 1.4rem; position: relative; min-width: 0; }
+.ground::after {
+  content: attr(data-label); position: absolute; top: 0.55rem; right: 0.7rem;
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.55rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--paper-medium);
+}
+
+.spec-label {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.66rem;
+  color: var(--sheet-dim); margin: 1.75rem 0 0.5rem;
+  display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: baseline;
+}
+.spec-label:first-of-type { margin-top: 0; }
+.spec-label b { color: var(--sheet-accent); font-weight: 400; }
+
+.row { display: flex; gap: 2.2rem; flex-wrap: wrap; align-items: flex-end; justify-content: center; padding: 1.6rem 1.2rem 1.2rem; }
+.row-item { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+.row-item svg { display: block; }
+.row-cap {
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.55rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper-dim); text-align: center;
+}
+.row-cap b { display: block; color: var(--paper); font-weight: 400; margin-bottom: 0.15rem; }
+
+/* masthead */
+.masthead-demo { border-bottom: 2px solid var(--cobalt); padding-bottom: 1rem; }
+.masthead-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem 1rem; }
+.mh-lockup { display: flex; align-items: flex-end; gap: 0.85rem; min-width: 0; flex-wrap: wrap; }
+
+/* The chair row trails the wordmark. Rotated poses keep their layout box, so the row
+   stays on one baseline while the chairs themselves lean out of it. */
+.mh-chairs { display: flex; align-items: flex-end; gap: 0.45rem; padding-bottom: 0.2rem; }
+.mh-chairs--tight { gap: 0.25rem; padding-bottom: 0.35rem; }
+.mh-chairs svg { display: block; }
+.mhc { display: block; }
+/* A CSS rotation moves the ink but not the layout box, so both leaning chairs need an
+   optical correction. The tipping chair rotates counter-clockwise, throwing its mass
+   left inside its own box and closing the gap to the chair on its left — the extra
+   left margin buys that space back so the cluster reads evenly spaced. The fallen
+   chair needs its horizontal room reserved outright or it collides with its neighbour.
+   Values are tuned for arrangement C, the one that ships. */
+.mhc--tipping { margin: 0 0.1rem 0 0.63rem; }
+.mhc--fallen { margin: 0 0.75rem 0 0.67rem; }
+.mh-title {
+  font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 0.98; letter-spacing: 0.01em;
+  text-transform: uppercase; margin: 0; color: var(--paper); text-wrap: balance;
+}
+.theme-btn {
+  flex: none; display: flex; align-items: center; justify-content: center;
+  min-width: 2.75rem; height: 1.9rem; padding: 0 0.5rem; margin-top: 0.5rem;
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.75rem; letter-spacing: 0.06em;
+  color: var(--paper-dim); background: transparent; border: 1px solid var(--paper-faint); border-radius: 1rem;
+}
+
+.display-demo {
+  background: var(--panel); border: 1px solid var(--paper-faint); border-radius: 4px;
+  padding: 1.4rem 1.2rem; display: flex; align-items: center; gap: 1.2rem;
+}
+.idle-mark { font-size: 1.7rem; color: var(--paper); line-height: 1.15; }
+.idle-hint { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.75rem; color: var(--paper-dim); margin: 0.3rem 0 0; }
+
+/* items */
+.items {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px;
+  background: var(--sheet-line); border: 1px solid var(--sheet-line); border-radius: 3px; overflow: hidden;
+}
+.item { background: var(--sheet-panel); padding: 1.15rem 1.2rem 1.3rem; }
+.item h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 20, 'wght' 500, 'SOFT' 40, 'WONK' 1;
+  font-size: 1.05rem; margin: 0 0 0.45rem;
+}
+.item p { margin: 0 0 0.6rem; font-size: 0.86rem; color: var(--sheet-dim); line-height: 1.5; }
+.item p:last-child { margin-bottom: 0; }
+.item code { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.78em; color: var(--sheet-accent); }
+.item-tag {
+  display: inline-block; font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.55rem;
+  letter-spacing: 0.12em; text-transform: uppercase; padding: 0.16rem 0.45rem;
+  border: 1px solid currentColor; border-radius: 2px; margin-bottom: 0.7rem;
+}
+.tag-you { color: var(--sheet-warn); }
+.tag-me { color: var(--sheet-accent); }
+.tag-risk { color: var(--sheet-risk); }
+
+footer {
+  margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--sheet-line);
+  font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.68rem;
+  color: var(--sheet-dim); line-height: 1.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+
+<div class="wrap">
+
+  <p class="eyebrow">Issue #21 · v6 · the masthead lockup · still a mock-up</p>
+  <h1 class="sheet-title">Musical Chairs, in Fraunces</h1>
+  <p class="lede">
+    Locked to your picks: <strong>weight 0.7, jank 1, shading off</strong>. Three chairs trail
+    the wordmark — <strong>E1 cobalt upright</strong>, <strong>E2 brass tipping</strong>,
+    <strong>E6 flame fallen</strong> — and E1 is the hero on the idle card. Three arrangements
+    below; the ten variations are kept at the bottom for reference.
+  </p>
+
+  <!-- ================= CONTROLS ================= -->
+  <div class="controls">
+    <div class="ctl-group ctl-group--grow">
+      <span class="ctl-name">Weight</span>
+      <input type="range" id="weight" min="0.4" max="1.8" step="0.05" value="0.7" aria-label="Stroke weight">
+      <span class="ctl-val" id="weight-val">0.70</span>
+    </div>
+    <div class="ctl-group ctl-group--grow">
+      <span class="ctl-name">Jank</span>
+      <input type="range" id="jank" min="0" max="2" step="0.05" value="1" aria-label="Line jankiness">
+      <span class="ctl-val" id="jank-val">1.00</span>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-name">Shading</span>
+      <div class="seg" id="shade">
+        <button type="button" data-s="1" aria-pressed="false">on</button>
+        <button type="button" data-s="0" aria-pressed="true">off</button>
+      </div>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-name">Splash</span>
+      <div class="swatches">
+        <button class="swatch" type="button" data-c="#2b6e96" style="background:#2b6e96" aria-pressed="true" aria-label="Cobalt"></button>
+        <button class="swatch" type="button" data-c="#ce9b2e" style="background:#ce9b2e" aria-pressed="false" aria-label="Brass"></button>
+        <button class="swatch" type="button" data-c="#d8481f" style="background:#d8481f" aria-pressed="false" aria-label="Flame"></button>
+      </div>
+    </div>
+    <div class="ctl-group">
+      <button class="reroll" type="button" id="reroll">reroll hand ↻</button>
+    </div>
+  </div>
+
+  <!-- ================= SIZE ================= -->
+  <section>
+    <div class="sec-head">
+      <h2 class="sec">Where it gives out</h2>
+      <span class="sec-note">favicon is 16 · the PiP badge in #22 lands around 24</span>
+    </div>
+    <p class="lede" style="margin-bottom:1.25rem">
+      Filled ribbons survive scaling down better than strokes did — there is no hairline to
+      vanish — but the <strong>thin stems</strong> and the shading still go first.
+    </p>
+    <div class="pair">
+      <div class="ground ground--dark" data-label="dark"><div class="row" id="sizes-dark"></div></div>
+      <div class="ground ground--light" data-label="light"><div class="row" id="sizes-light"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= THE MASTHEAD ================= -->
+  <section style="margin-top:0">
+    <div class="sec-head">
+      <h2 class="sec">The masthead</h2>
+      <span class="sec-note">E1 cobalt upright · E2 brass tipping · E6 flame fallen</span>
+    </div>
+    <p class="lede" style="margin-bottom:1.25rem">
+      Three chairs trailing the wordmark, each a different variant, colour and pose — read
+      left to right they run <strong>upright → tipping → fallen</strong>, which is the game.
+      Brass is passed as <code>var(--brass)</code>, not a hex, so it keeps its per-theme
+      darkening on the cream ground.
+    </p>
+
+    <p class="spec-label"><b>A · equal size</b> <span>all three at cap height, sitting on one baseline</span></p>
+    <div class="pair pair--stack">
+      <div class="ground ground--dark" data-label="dark">
+        <div class="masthead-demo"><div class="masthead-top">
+          <div class="mh-lockup"><h3 class="mh-title fr fvs-wordmark">Musical Chairs</h3><span class="mh-chairs" id="mh-a-dark"></span></div>
+          <span class="theme-btn">AUTO</span>
+        </div></div>
+      </div>
+      <div class="ground ground--light" data-label="light">
+        <div class="masthead-demo"><div class="masthead-top">
+          <div class="mh-lockup"><h3 class="mh-title fr fvs-wordmark">Musical Chairs</h3><span class="mh-chairs" id="mh-a-light"></span></div>
+          <span class="theme-btn">AUTO</span>
+        </div></div>
+      </div>
+    </div>
+
+    <p class="spec-label"><b>B · graduated</b> <span>shrinking left to right, so the row reads as a sequence rather than three marks</span></p>
+    <div class="pair pair--stack">
+      <div class="ground ground--dark" data-label="dark">
+        <div class="masthead-demo"><div class="masthead-top">
+          <div class="mh-lockup"><h3 class="mh-title fr fvs-wordmark">Musical Chairs</h3><span class="mh-chairs" id="mh-b-dark"></span></div>
+          <span class="theme-btn">AUTO</span>
+        </div></div>
+      </div>
+      <div class="ground ground--light" data-label="light">
+        <div class="masthead-demo"><div class="masthead-top">
+          <div class="mh-lockup"><h3 class="mh-title fr fvs-wordmark">Musical Chairs</h3><span class="mh-chairs" id="mh-b-light"></span></div>
+          <span class="theme-btn">AUTO</span>
+        </div></div>
+      </div>
+    </div>
+
+    <p class="spec-label"><b>C · small cluster — chosen</b> <span>tighter and lower, closer to a colophon than a logo</span></p>
+    <div class="pair pair--stack">
+      <div class="ground ground--dark" data-label="dark">
+        <div class="masthead-demo"><div class="masthead-top">
+          <div class="mh-lockup"><h3 class="mh-title fr fvs-wordmark">Musical Chairs</h3><span class="mh-chairs mh-chairs--tight" id="mh-c-dark"></span></div>
+          <span class="theme-btn">AUTO</span>
+        </div></div>
+      </div>
+      <div class="ground ground--light" data-label="light">
+        <div class="masthead-demo"><div class="masthead-top">
+          <div class="mh-lockup"><h3 class="mh-title fr fvs-wordmark">Musical Chairs</h3><span class="mh-chairs mh-chairs--tight" id="mh-c-light"></span></div>
+          <span class="theme-btn">AUTO</span>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= THE TRIO, LARGE ================= -->
+  <section>
+    <div class="sec-head">
+      <h2 class="sec">The three, up close</h2>
+      <span class="sec-note">weight 0.7 · jank 1 · shading off</span>
+    </div>
+    <div class="pair">
+      <div class="ground ground--dark" data-label="dark"><div class="row" id="trio-dark"></div></div>
+      <div class="ground ground--light" data-label="light"><div class="row" id="trio-light"></div></div>
+    </div>
+
+    <p class="spec-label"><b>The idle card</b> <span>where #24 will want it</span></p>
+    <div class="pair">
+      <div class="ground ground--dark" data-label="dark">
+        <div class="display-demo">
+          <span id="idle-dark"></span>
+          <div>
+            <div class="idle-mark fr fvs-readout">Ready when you are</div>
+            <p class="idle-hint">press play to start</p>
+          </div>
+        </div>
+      </div>
+      <div class="ground ground--light" data-label="light">
+        <div class="display-demo">
+          <span id="idle-light"></span>
+          <div>
+            <div class="idle-mark fr fvs-readout">Ready when you are</div>
+            <p class="idle-hint">press play to start</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= VARIATIONS (reference) ================= -->
+  <section>
+    <div class="sec-head">
+      <h2 class="sec">The ten, for reference</h2>
+      <span class="sec-note">E1, E2 and E6 are the chosen three</span>
+    </div>
+    <div class="vgrid" id="grid-dark"></div>
+
+    <p class="spec-label"><b>The same ten on light</b> <span>frame is currentColor, so it flips with the theme</span></p>
+    <div class="vgrid" id="grid-light"></div>
+  </section>
+
+  <!-- ================= WHAT'S LEFT ================= -->
+  <section>
+    <div class="sec-head">
+      <h2 class="sec">What&rsquo;s left</h2>
+      <span class="sec-note">before I write any of this into the app</span>
+    </div>
+    <div class="items">
+      <div class="item">
+        <span class="item-tag tag-you">your call</span>
+        <h3>Which of the ten</h3>
+        <p>A code (E1–E10), plus a weight and jank number off the controls. <em>Reroll hand</em> redraws every chair with a new random seed — same proportions, different wobble — so you can tell a bad chair from a bad roll.</p>
+        <p>Happy to mix: a stem angle from one and leg length from another is a two-number change.</p>
+      </div>
+      <div class="item">
+        <span class="item-tag tag-me">mine to write</span>
+        <h3>How this ships</h3>
+        <p>The generator runs <strong>once at build time</strong>, not in the browser — I bake the chosen chair&rsquo;s path data into <code>Chair.jsx</code> as static SVG. No runtime cost, no per-render randomness.</p>
+        <p>That also means the exact chair you pick is the exact chair that ships, wobble and all.</p>
+      </div>
+      <div class="item">
+        <span class="item-tag tag-risk">flagged</span>
+        <h3>Brass on cream</h3>
+        <p>Cobalt and flame hold on both grounds. <strong>Brass is still the weak pairing on light</strong> — the theme already darkens it to <code>#8a6412</code> for this reason.</p>
+      </div>
+      <div class="item">
+        <span class="item-tag tag-me">mine to write</span>
+        <h3>The doc + the supersede</h3>
+        <p><code>docs/architecture/design-language.md</code> for the motif and type decisions; rewrite the record-sleeve comment at <code>index.css:2</code>; delete the stale <code>--vinyl</code> paragraph from <code>theming.md</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Mock-up for issue #21 · chord-and-scale-randomizer · v4 · chairs generated in the style of IMG_6872<br>
+    Fraunces by Undercase Type — variable axes opsz 9–144, wght 100–900, SOFT 0–100, WONK 0–1
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- seeded RNG ----------
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // ---------- Catmull-Rom densify ----------
+  function cr(p0, p1, p2, p3, t) {
+    var t2 = t * t, t3 = t2 * t;
+    return [
+      0.5 * (2*p1[0] + (-p0[0]+p2[0])*t + (2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2 + (-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+      0.5 * (2*p1[1] + (-p0[1]+p2[1])*t + (2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2 + (-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)
+    ];
+  }
+
+  function densifyOpen(pts, per) {
+    var out = [], n = pts.length;
+    var P = function (i) { return pts[Math.max(0, Math.min(n - 1, i))]; };
+    for (var i = 0; i < n - 1; i++) {
+      for (var j = 0; j < per; j++) out.push(cr(P(i-1), P(i), P(i+1), P(i+2), j / per));
+    }
+    out.push(pts[n - 1]);
+    return out;
+  }
+
+  function densifyClosed(pts, per) {
+    var out = [], n = pts.length;
+    var P = function (i) { return pts[((i % n) + n) % n]; };
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < per; j++) out.push(cr(P(i-1), P(i), P(i+1), P(i+2), j / per));
+    }
+    return out;
+  }
+
+  // Catmull-Rom through 4 bare corners rounds a quad into an oval. Planting points
+  // along each edge first makes the spline hug the straight runs and round only the
+  // corners — which is what a hand-drawn quad actually looks like.
+  function subdivideClosed(pts, per) {
+    var out = [], n = pts.length;
+    for (var i = 0; i < n; i++) {
+      var a = pts[i], b = pts[(i + 1) % n];
+      for (var k = 0; k < per; k++) {
+        var t = k / per;
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    }
+    return out;
+  }
+
+  function fmt(pts) {
+    return pts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L ');
+  }
+
+  // A pencil mark: centreline offset by a half-width that swells and tapers.
+  // This is the whole trick — a uniform stroke-width can't do it.
+  function ribbon(pts, wA, wB, r, jank) {
+    var d = densifyOpen(pts, 9), n = d.length;
+    var ph = r() * 6.28, ph2 = r() * 6.28;
+    var L = [], R = [];
+    for (var i = 0; i < n; i++) {
+      var a = d[Math.max(0, i - 1)], b = d[Math.min(n - 1, i + 1)];
+      var tx = b[0] - a[0], ty = b[1] - a[1];
+      var len = Math.hypot(tx, ty) || 1;
+      var nx = -ty / len, ny = tx / len;
+      var t = i / (n - 1);
+      // taper along the mark, plus two slow swells so thickness never reads mechanical
+      var w = (wA + (wB - wA) * t)
+            * (1 + 0.30 * jank * Math.sin(t * 5.1 + ph) + 0.17 * jank * Math.sin(t * 11.3 + ph2));
+      var hw = Math.max(0.18, w / 2);
+      L.push([d[i][0] + nx * hw, d[i][1] + ny * hw]);
+      R.push([d[i][0] - nx * hw, d[i][1] - ny * hw]);
+    }
+    return 'M' + fmt(L) + ' L ' + fmt(R.reverse()) + ' Z';
+  }
+
+  // A closed mark drawn as an annulus: outer ring and inner ring, even-odd filled.
+  // `per` trades smoothness against corner-keeping: a pre-subdivided quad wants a low
+  // number so the spline tracks its straight edges, an organic outline wants a high one.
+  function ringMark(pts, w, r, jank, per) {
+    var d = densifyClosed(pts, per || 4), n = d.length;
+    var ph = r() * 6.28, ph2 = r() * 6.28;
+    var O = [], I = [];
+    for (var i = 0; i < n; i++) {
+      var a = d[(i - 1 + n) % n], b = d[(i + 1) % n];
+      var tx = b[0] - a[0], ty = b[1] - a[1];
+      var len = Math.hypot(tx, ty) || 1;
+      var nx = -ty / len, ny = tx / len;
+      var t = i / n;
+      var ww = w * (1 + 0.32 * jank * Math.sin(t * 6.28 * 2 + ph) + 0.16 * jank * Math.sin(t * 6.28 * 5 + ph2));
+      var hw = Math.max(0.2, ww / 2);
+      O.push([d[i][0] + nx * hw, d[i][1] + ny * hw]);
+      I.push([d[i][0] - nx * hw, d[i][1] - ny * hw]);
+    }
+    return { d: 'M' + fmt(O) + ' Z M' + fmt(I.reverse()) + ' Z', inner: 'M' + fmt(I) + ' Z' };
+  }
+
+  function rot(p, cx, cy, deg) {
+    var a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+    var x = p[0] - cx, y = p[1] - cy;
+    return [cx + x * c - y * s, cy + x * s + y * c];
+  }
+
+  function lerp(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; }
+
+  // ---------- the chair ----------
+  // 100 x 132 box. Seat is a perspective quad; the backrest teardrop and the two
+  // stems rotate with it; legs hang from the rotated corners.
+  function chair(p, seed, opts) {
+    var r = rng(seed);
+    var jank = opts.jank, weight = opts.weight;
+    var J = 1.6 * jank;
+    var j = function (pt) { return [pt[0] + (r() - 0.5) * J, pt[1] + (r() - 0.5) * J]; };
+
+    var cx = 50, cy = 64, tilt = p.seatTilt;
+
+    var A = rot(j([26, 50]), cx, cy, tilt);  // back-left
+    var B = rot(j([76, 55]), cx, cy, tilt);  // back-right
+    var C = rot(j([83, 79]), cx, cy, tilt);  // front-right
+    var D = rot(j([14, 74]), cx, cy, tilt);  // front-left
+
+    var out = [];
+    var W = function (v) { return v * weight; };
+
+    // --- backrest: a teardrop, pointed at the left, floating above the seat
+    var bs = p.backScale, bx = 50, by = 22;
+    var leaf = [[-27, 2], [-20, -7], [-6, -12], [10, -12], [23, -6], [27, 2],
+                [20, 9], [4, 12], [-12, 11], [-22, 8]];
+    var back = leaf.map(function (q) {
+      var pt = [bx + q[0] * bs, by + q[1] * bs * 0.96];
+      return rot(rot(j(pt), bx, by, p.backTilt), cx, cy, tilt * 0.55);
+    });
+    var bring = ringMark(back, W(3.5), r, jank, 9);
+    // Accent is per-chair, not global: the masthead runs three at once. Passing a
+    // var() reference (rather than a hex) lets --brass keep its per-theme fork.
+    out.push('<path d="' + bring.inner + '" fill="' + (opts.accent || 'var(--ca)') + '"/>');
+    if (opts.shade) {
+      // directional graphite inside the backrest, like the sketch's scribble fill
+      for (var s = 0; s < 7; s++) {
+        var ty0 = -7 + s * 2.6;
+        var x0 = -22 + r() * 5, x1 = 22 - r() * 6;
+        var sc = [[x0, ty0], [x0 * 0.2, ty0 + (r() - 0.5) * 1.6], [x1, ty0 + (r() - 0.5) * 1.2]]
+          .map(function (q) {
+            var pt = [bx + q[0] * bs, by + q[1] * bs * 0.96];
+            return rot(rot(pt, bx, by, p.backTilt), cx, cy, tilt * 0.55);
+          });
+        out.push('<path d="' + ribbon(sc, W(0.5), W(0.8), r, jank) +
+                 '" fill="currentColor" opacity="0.22"/>');
+      }
+    }
+    out.push('<path d="' + bring.d + '" fill="currentColor" fill-rule="evenodd"/>');
+
+    // --- stems: deliberately thin, the weight contrast in the sketch.
+    // The foot is found by casting from the stem top at p.stemAngle (measured off the
+    // horizontal) until it meets the seat's back edge, so the angle is the input and
+    // the attachment point falls out of it — not the other way round.
+    var MODE = { splay: [-1, 1], converge: [1, -1], rake: [1, 1], 'rake-back': [-1, -1] };
+    var dirs = MODE[p.stemMode] || MODE.splay;
+    var ang = p.stemAngle * Math.PI / 180;
+    var ex = B[0] - A[0], ey = B[1] - A[1];
+
+    function stemFoot(top, dirX) {
+      var sx = Math.cos(ang) * dirX, sy = Math.sin(ang);
+      var det = -sx * ey + ex * sy;
+      if (Math.abs(det) < 1e-6) return lerp(A, B, 0.5);
+      var t = (sx * (A[1] - top[1]) - sy * (A[0] - top[0])) / det;
+      return lerp(A, B, Math.max(0.08, Math.min(0.92, t)));
+    }
+
+    var bBotL = lerp(back[7], back[8], 0.45), bBotR = lerp(back[6], back[7], 0.35);
+    var footL = stemFoot(bBotL, dirs[0]), footR = stemFoot(bBotR, dirs[1]);
+    out.push('<path d="' + ribbon([bBotL, j(lerp(bBotL, footL, 0.5)), footL], W(1.5), W(1.2), r, jank) + '" fill="currentColor"/>');
+    out.push('<path d="' + ribbon([bBotR, j(lerp(bBotR, footR, 0.5)), footR], W(1.5), W(1.2), r, jank) + '" fill="currentColor"/>');
+
+    // --- legs: front two only, closed tapering marks off the rotated front corners
+    var L = p.legLen, sp = p.splay;
+    function leg(from, dx, len, wA, wB) {
+      var mid = [from[0] + dx * 0.45, from[1] + len * 0.5];
+      var end = [from[0] + dx, from[1] + len];
+      return ribbon([from, j(mid), j(end)], W(wA), W(wB), r, jank);
+    }
+    out.push('<path d="' + leg([D[0] + 4, D[1] - 1], -sp, L, 3.6, 2.1) + '" fill="currentColor"/>');
+    out.push('<path d="' + leg([C[0] - 5, C[1] - 1], sp * 0.85, L * 0.96, 3.6, 2.1) + '" fill="currentColor"/>');
+
+    // --- seat: the fat perspective quad
+    var sring = ringMark(subdivideClosed([A, B, C, D], 6), W(3.7), r, jank, 3);
+    out.push('<path d="' + sring.d + '" fill="currentColor" fill-rule="evenodd"/>');
+
+    // --- front rail under the seat
+    var rl = lerp(D, C, 0.06), rr = lerp(D, C, 0.94);
+    out.push('<path d="' + ribbon([[rl[0] + 1, rl[1] + 6], [(rl[0] + rr[0]) / 2, (rl[1] + rr[1]) / 2 + 7.4], [rr[0] - 1, rr[1] + 6]], W(2.7), W(2.7), r, jank) + '" fill="currentColor"/>');
+
+    return out.join('');
+  }
+
+  function svg(p, seed, opts, w, extraStyle) {
+    return '<svg viewBox="0 0 100 132" width="' + w + '" height="' + Math.round(w * 1.32) +
+           '" style="' + (extraStyle || '') + '" role="img" aria-label="Chair illustration">' +
+           chair(p, seed, opts) + '</svg>';
+  }
+
+  // ---------- ten, all in E's family ----------
+  // E was: seat -9°, legs 33, splay 5. These hold near that and walk the stem angle
+  // from vertical down to a hard lean, across all four stem modes.
+  var VARIANTS = [
+    { key: 'E1',  name: 'E1 · vertical',   seatTilt: -9,  legLen: 33, splay: 5, backTilt: 3, backScale: 1.00, stemAngle: 90, stemMode: 'splay' },
+    { key: 'E2',  name: 'E2 · 80 splay',   seatTilt: -9,  legLen: 33, splay: 5, backTilt: 3, backScale: 1.00, stemAngle: 80, stemMode: 'splay' },
+    { key: 'E3',  name: 'E3 · 68 splay',   seatTilt: -8,  legLen: 34, splay: 5, backTilt: 2, backScale: 1.00, stemAngle: 68, stemMode: 'splay' },
+    { key: 'E4',  name: 'E4 · 56 splay',   seatTilt: -8,  legLen: 34, splay: 6, backTilt: 2, backScale: 1.02, stemAngle: 56, stemMode: 'splay' },
+    { key: 'E5',  name: 'E5 · 46 splay',   seatTilt: -10, legLen: 32, splay: 6, backTilt: 4, backScale: 1.04, stemAngle: 46, stemMode: 'splay' },
+    { key: 'E6',  name: 'E6 · 78 converge',seatTilt: -9,  legLen: 33, splay: 5, backTilt: 3, backScale: 1.00, stemAngle: 78, stemMode: 'converge' },
+    { key: 'E7',  name: 'E7 · 62 converge',seatTilt: -8,  legLen: 35, splay: 5, backTilt: 2, backScale: 0.98, stemAngle: 62, stemMode: 'converge' },
+    { key: 'E8',  name: 'E8 · 72 raked',   seatTilt: -10, legLen: 33, splay: 4, backTilt: 5, backScale: 1.00, stemAngle: 72, stemMode: 'rake' },
+    { key: 'E9',  name: 'E9 · 58 raked',   seatTilt: -11, legLen: 36, splay: 4, backTilt: 6, backScale: 0.98, stemAngle: 58, stemMode: 'rake' },
+    { key: 'E10', name: 'E10 · 66 back-raked', seatTilt: -7, legLen: 38, splay: 6, backTilt: 1, backScale: 1.02, stemAngle: 66, stemMode: 'rake-back' }
+  ];
+
+  var els = {
+    weight: document.getElementById('weight'),
+    weightVal: document.getElementById('weight-val'),
+    jank: document.getElementById('jank'),
+    jankVal: document.getElementById('jank-val'),
+    gridDark: document.getElementById('grid-dark'),
+    gridLight: document.getElementById('grid-light'),
+    trioDark: document.getElementById('trio-dark'),
+    trioLight: document.getElementById('trio-light'),
+    sizesDark: document.getElementById('sizes-dark'),
+    sizesLight: document.getElementById('sizes-light'),
+    idleDark: document.getElementById('idle-dark'),
+    idleLight: document.getElementById('idle-light'),
+    mh: ['a', 'b', 'c'].reduce(function (acc, k) {
+      acc[k] = [document.getElementById('mh-' + k + '-dark'), document.getElementById('mh-' + k + '-light')];
+      return acc;
+    }, {})
+  };
+
+  // widths per arrangement: [upright, tipping, fallen]
+  // The fallen chair reads smaller than its box once rotated, so it gets a size bump.
+  var ARRANGE = { a: [50, 50, 58], b: [56, 50, 46], c: [34, 34, 40] };
+
+  var state = { shade: false, base: 1234 };
+
+  // The chosen three. Each gets a variant, a pose and one of the tier accents.
+  var TRIO = [
+    { key: 'E1', pose: 'upright', accent: 'var(--cobalt)', name: 'cobalt' },
+    { key: 'E2', pose: 'tipping', accent: 'var(--brass)',  name: 'brass' },
+    { key: 'E6', pose: 'fallen',  accent: 'var(--flame)',  name: 'flame' }
+  ];
+
+  // Rotating past ~80° squeezes the chair into an unreadable bracket — it stops reading
+  // as a chair at all. 72° still says "toppled" while keeping the seat and legs legible.
+  var POSE_STYLE = {
+    upright: '',
+    tipping: 'transform:rotate(-21deg);transform-origin:70% 88%;',
+    fallen: 'transform:rotate(-72deg) translate(-2%, 6%);transform-origin:50% 64%;'
+  };
+
+  function byKey(k) {
+    for (var i = 0; i < VARIANTS.length; i++) if (VARIANTS[i].key === k) return VARIANTS[i];
+    return VARIANTS[0];
+  }
+
+  function opts() {
+    return {
+      weight: parseFloat(els.weight.value),
+      jank: parseFloat(els.jank.value),
+      shade: state.shade
+    };
+  }
+
+  function gridHTML(cls) {
+    var o = opts();
+    return VARIANTS.map(function (v, i) {
+      return '<div class="vcell ' + cls + '">' +
+        svg(v, state.base + i * 977, o, 140) +
+        '<span class="vname">' + v.name + '</span>' +
+        '<span class="vparams">stem ' + v.stemAngle + '° ' + v.stemMode + '<br>legs ' + v.legLen + ' · seat ' + v.seatTilt + '° · splay ' + v.splay + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  function posesHTML() {
+    var o = opts();
+    return TRIO.map(function (t, i) {
+      var oo = { weight: o.weight, jank: o.jank, shade: o.shade, accent: t.accent };
+      return '<div class="row-item">' +
+        svg(byKey(t.key), state.base + i * 311, oo, 84, POSE_STYLE[t.pose]) +
+        '<span class="row-cap"><b>' + t.key + ' · ' + t.pose + '</b>' + t.name + '</span></div>';
+    }).join('');
+  }
+
+  // sizes: [upright, tipping, fallen] widths in px
+  function mastheadHTML(sizes) {
+    var o = opts();
+    return TRIO.map(function (t, i) {
+      var oo = { weight: o.weight, jank: o.jank, shade: o.shade, accent: t.accent };
+      return '<span class="mhc mhc--' + t.pose + '">' +
+        svg(byKey(t.key), state.base + 400 + i * 613, oo, sizes[i], POSE_STYLE[t.pose]) +
+        '</span>';
+    }).join('');
+  }
+
+  function sizesHTML() {
+    var o = opts();
+    var oo = { weight: o.weight, jank: o.jank, shade: o.shade, accent: 'var(--cobalt)' };
+    return [16, 20, 24, 32, 48, 80].map(function (s) {
+      return '<div class="row-item">' + svg(byKey('E1'), state.base + 55, oo, s) +
+        '<span class="row-cap">' + s + '</span></div>';
+    }).join('');
+  }
+
+  function render() {
+    els.weightVal.textContent = parseFloat(els.weight.value).toFixed(2);
+    els.jankVal.textContent = parseFloat(els.jank.value).toFixed(2);
+
+    els.gridDark.innerHTML = gridHTML('vcell--dark');
+    els.gridLight.innerHTML = gridHTML('vcell--light');
+    els.trioDark.innerHTML = posesHTML();
+    els.trioLight.innerHTML = posesHTML();
+    els.sizesDark.innerHTML = sizesHTML();
+    els.sizesLight.innerHTML = sizesHTML();
+
+    Object.keys(ARRANGE).forEach(function (k) {
+      var html = mastheadHTML(ARRANGE[k]);
+      els.mh[k][0].innerHTML = html;
+      els.mh[k][1].innerHTML = html;
+    });
+
+    // E1 is the hero — the idle card gets it upright, in cobalt, at illustration size.
+    var o = opts();
+    var idle = svg(byKey('E1'), state.base + 9,
+      { weight: o.weight, jank: o.jank, shade: o.shade, accent: 'var(--cobalt)' },
+      92, 'display:block');
+    els.idleDark.innerHTML = idle;
+    els.idleLight.innerHTML = idle;
+  }
+
+  els.weight.addEventListener('input', render);
+  els.jank.addEventListener('input', render);
+
+  document.querySelectorAll('#shade button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.shade = b.dataset.s === '1';
+      document.querySelectorAll('#shade button').forEach(function (o) {
+        o.setAttribute('aria-pressed', o === b ? 'true' : 'false');
+      });
+      render();
+    });
+  });
+
+  document.querySelectorAll('.swatch').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.documentElement.style.setProperty('--ca', b.dataset.c);
+      document.querySelectorAll('.swatch').forEach(function (o) {
+        o.setAttribute('aria-pressed', o === b ? 'true' : 'false');
+      });
+    });
+  });
+
+  document.getElementById('reroll').addEventListener('click', function () {
+    state.base = (Math.random() * 100000) | 0;
+    render();
+  });
+
+  render();
+})();
+</script>

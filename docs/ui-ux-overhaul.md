@@ -19,10 +19,37 @@ inconsistencies (border treatments, disclosure arrows, "select all" placement) h
 crept into the settings UI piecemeal. See each linked issue for the full reasoning
 behind it — this doc only tracks sequencing.
 
+## Branching: these PRs stack
+
+Each piece branches from the **previous piece's branch**, not from `main`, and its PR
+targets that branch. So a PR's diff shows only its own work instead of re-showing
+everything ahead of it in the chain — which matters here because several of these touch
+the same markup.
+
+Two consequences worth knowing before you start one:
+
+- **Merge in order, bottom of the stack first.** After a base PR merges, retarget the
+  next PR at `main` (`gh pr edit <n> --base main`) and rebase its branch, or GitHub will
+  show the merged work as part of its diff.
+- **A change to a base branch has to be propagated up the stack** by rebasing each
+  descendant. Keep the chain short, and prefer landing the base quickly over stacking
+  four deep.
+
+| Issue | Branch | Branched from |
+|---|---|---|
+| #21 | `feature/musical-chairs-design-language` | `main` |
+
+Extend the table as you go, so the next session can see the chain without reading
+`git log --graph`.
+
 ## Build order
 
 **Phase 1 — foundational, no dependencies**
-- #21 — Establish a Musical Chairs design language
+- ~~#21 — Establish a Musical Chairs design language~~ — **landed.** The spec is
+  `docs/architecture/design-language.md`; the working material (generator, reference
+  sketches, comparison sheet) is `docs/design/chair-motif/`. Downstream work should
+  apply that language rather than inventing its own — in particular #24's illustration
+  and any further masthead treatment.
 - #22 — Display prominence + scroll-triggered PiP mini console
 
 **Phase 2 — depends on Phase 1**

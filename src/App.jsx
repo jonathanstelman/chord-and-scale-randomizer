@@ -2,6 +2,7 @@ import { useSettings } from './hooks/useSettings';
 import { useRandomizer, pickNextForPureTone } from './hooks/useRandomizer';
 import TabNav from './components/TabNav';
 import ThemeToggle from './components/ThemeToggle';
+import Chair from './components/Chair';
 import Controls from './components/Controls';
 import PureToneControls from './components/PureToneControls';
 import Display from './components/Display';
@@ -60,7 +61,16 @@ export default function App() {
     <div className="app">
       <header className="masthead">
         <div className="masthead-top">
-          <h1>Musical Chairs</h1>
+          {/* Upright, tipping, fallen — left to right, that's the game. Purely
+              decorative: the wordmark beside them already names the app. */}
+          <div className="masthead-lockup">
+            <h1>Musical Chairs</h1>
+            <span className="masthead-chairs" aria-hidden="true">
+              <Chair pose="upright" size={34} />
+              <Chair pose="tipping" size={34} className="chair-tipping" />
+              <Chair pose="fallen" size={40} className="chair-fallen" />
+            </span>
+          </div>
           <ThemeToggle theme={settings.theme} onSelect={(theme) => updateSettings({ theme })} />
         </div>
         <p className="masthead-subtitle">

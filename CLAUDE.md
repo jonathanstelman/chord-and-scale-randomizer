@@ -15,6 +15,10 @@ Read the one relevant to what you're doing, not all of them — that's the point
   not) rather than leaving a pointer to nothing.
 - `docs/architecture/` — the "why" behind each subsystem's design, one file per topic (see
   its own index) — go here when a change touches non-obvious existing behavior
+- `docs/design/` — working material behind visual design decisions: generators, reference
+  images, comparison sheets. Nothing here ships or runs at build time; it exists so a
+  motif can be *changed* without redoing the design conversation. Read the relevant
+  `README.md` there before altering artwork the app renders.
 - `docs/ui-ux-overhaul.md` — build order/dependency chain for the practice-mode UI/UX
   overhaul (issues #21–#31); the Project's Priority/Size fields don't capture this on
   their own, so check here before picking up the next piece of that initiative
