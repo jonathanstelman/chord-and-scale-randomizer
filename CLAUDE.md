@@ -32,4 +32,7 @@ Read the one relevant to what you're doing, not all of them — that's the point
 
 - `npm run dev` — start the Vite dev server
 - `npm run build` — production build
-- `npm run lint` — oxlint (no test suite exists)
+- `npm run lint` — oxlint
+- `npm test` — Vitest, covering `src/music/` (chord parsing, pool selection, voicing).
+  There are no component or DOM tests, so anything UI-shaped still needs looking at in
+  the running app.

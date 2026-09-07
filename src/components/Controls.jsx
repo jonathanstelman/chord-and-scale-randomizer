@@ -143,11 +143,16 @@ function Controls({
 
       {/* Collapsed by default (#26): the one section most sessions never touch, unlike
           everything else in this flow. The summary carries the name, so the block below
-          drops its own heading. Note the "custom bank is active" note stays *outside*
+          drops its own heading. Note the "chord bank is active" note stays *outside*
           the details — an enabled bank silently overriding the pickers is exactly what
           you'd miss with this closed. */}
+      {/* "chord bank", not "bank": parseCustomBank only understands chord tokens
+          (see chordParser.js) — scales aren't expressible here, and the old label
+          implied they were. The customBank* setting keys keep their names; they're
+          persisted in localStorage, and renaming them for a label change would drop
+          every existing user's saved bank. */}
       <details className="advanced custom-bank-details">
-        <summary>Custom bank</summary>
+        <summary>Custom chord bank</summary>
         <div className="custom-bank">
           <div className="custom-bank-head">
             <label className="checkbox-label">
@@ -157,7 +162,7 @@ function Controls({
                 disabled={settings.customBankEntries.length === 0}
                 onChange={(e) => setCustomBankEnabled(e.target.checked)}
               />
-              Use custom bank
+              Use custom chord bank
             </label>
             <div className="custom-bank-mode">
               <label className="checkbox-label">
@@ -229,8 +234,8 @@ function Controls({
         <p className="preset-note">
           {/* "the chords above" stopped being true once the bank collapsed (#26) — they
               may well be behind a closed disclosure now. */}
-          Custom bank is active ({settings.customBankMode === 'ordered' ? 'in order' : 'random'}),
-          drawing only from your custom bank. Any change to the mode/type/root checkboxes
+          Custom chord bank is active ({settings.customBankMode === 'ordered' ? 'in order' : 'random'}),
+          drawing only from your custom chord bank. Any change to the mode/type/root checkboxes
           below returns to normal filtering.
         </p>
       )}
