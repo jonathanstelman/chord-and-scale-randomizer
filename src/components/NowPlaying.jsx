@@ -1,8 +1,4 @@
-// Root name alone for Pure Tone's typeless segments (typeLabel === '', see
-// PURE_TONE_TYPE in pool.js); "root + type" for everything else.
-function tonalCenterPhrase({ rootName, typeLabel }) {
-  return typeLabel ? `${rootName} ${typeLabel}` : rootName;
-}
+import { tonalCenterPhrase } from '../music/pool';
 
 export default function NowPlaying({
   current, next, showNext, beatIndex, totalBeats, isGap,

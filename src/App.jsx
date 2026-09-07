@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useSettings } from './hooks/useSettings';
 import { useRandomizer, pickNextForPureTone } from './hooks/useRandomizer';
 import TabNav from './components/TabNav';
@@ -6,6 +7,7 @@ import Chair from './components/Chair';
 import Controls from './components/Controls';
 import PureToneControls from './components/PureToneControls';
 import Display from './components/Display';
+import PipConsole from './components/PipConsole';
 import './App.css';
 
 // See docs/architecture/randomizer.md's "Tab copy" section for why these are
@@ -50,6 +52,9 @@ export default function App() {
     ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
     : {});
 
+  // PipConsole watches this element to know when the display has scrolled away.
+  const displayRef = useRef(null);
+
   // See docs/architecture/randomizer.md's "Practice tabs" section for why switching
   // stops a running session first.
   const handleSelectTab = (tab) => {
@@ -82,6 +87,7 @@ export default function App() {
       </header>
 
       <Display
+        ref={displayRef}
         current={current}
         next={next}
         showCurrent={settings.showCurrent}
@@ -90,6 +96,17 @@ export default function App() {
         beatIndex={beatIndex}
         totalBeats={totalBeats}
         isGap={isGap}
+      />
+
+      <PipConsole
+        displayRef={displayRef}
+        current={current}
+        showCurrent={settings.showCurrent}
+        isRunning={isRunning}
+        beatIndex={beatIndex}
+        totalBeats={totalBeats}
+        isGap={isGap}
+        onStop={stop}
       />
 
       {isPureTone ? (

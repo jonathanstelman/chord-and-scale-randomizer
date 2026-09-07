@@ -1,11 +1,14 @@
 import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 
+// `ref` lands on the sleeve itself rather than a wrapper: PipConsole observes this
+// element to know when the display has left the viewport, and a wrapper would become
+// the grid item in the two-column layout and change it.
 export default function Display({
-  current, next, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap,
+  ref, current, next, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap,
 }) {
   return (
-    <div className="sleeve">
+    <div className="sleeve" ref={ref}>
       {!isRunning && (
         <div className="sleeve-idle">
           <Chair pose="upright" size={92} className="sleeve-idle-chair" />

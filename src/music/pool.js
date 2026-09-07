@@ -148,6 +148,15 @@ export const PURE_TONE_TYPE = {
   key: 'pitch', label: '', intervals: [0],
 };
 
+// How a tonal center reads on screen: root alone when there's no type (Pure Tone's
+// segments, via PURE_TONE_TYPE's empty label above), "root + type" otherwise. Lives
+// here rather than in a component because that empty-label convention is defined
+// immediately above — more than one surface renders a tonal center (the display and
+// the PiP console), and a second copy of this rule would drift from the convention.
+export function tonalCenterPhrase({ rootName, typeLabel }) {
+  return typeLabel ? `${rootName} ${typeLabel}` : rootName;
+}
+
 // Pure Tone tab's counterpart to pickRandomTonalCenter: draws a root pitch class from
 // the shared roots filter with no type/quality involved. Same "don't silently produce
 // nothing" fallback as pickRandomTonalCenter's root selection.

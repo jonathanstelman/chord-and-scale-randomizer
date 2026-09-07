@@ -91,3 +91,35 @@ length) and `RootsPicker`/`ShowToggles`. Both settings components are wrapped in
 with stable (`useCallback`'d) setters from `useSettings` — without that they'd re-render
 on every single beat tick via `App`'s state, fighting Tone.js's live scheduling for
 main-thread time for no reason.
+
+### Anything that animates per beat (issue #22)
+
+The same main-thread pressure constrains *styling*, not just re-renders. Any visual that
+changes on every beat must stay on properties the compositor can handle alone —
+`transform` and `opacity`, plus small `background` changes — and must avoid `box-shadow`,
+`filter` and `blur`, which force a paint each beat while Tone.js is scheduling audio.
+This governs `.beat-block--current` and `.pip-beat--current` today; it applies to any
+future beat-synced cue.
+
+### PiP console (`PipConsole.jsx`, issue #22)
+
+A floating console that docks once the in-flow display scrolls out of the viewport and
+un-docks when it returns — true picture-in-picture, not an always-on widget. `App` holds
+a ref to the `.sleeve` element (the ref lands on the sleeve itself, not a wrapper, since
+a wrapper would become the grid item in the two-column layout) and hands it to
+`PipConsole`, which observes it with an `IntersectionObserver`. The observer uses a small
+negative `rootMargin`: without it the console flickers on and off while the display sits
+exactly at the viewport edge.
+
+Two rules it has to keep in step with `Display`:
+
+- **It shows what the display shows.** With `showCurrent` off (listening mode), the main
+  display deliberately withholds the reading, and the console must not become a way to
+  peek at it — it renders the same `—`.
+- **Both read through `tonalCenterPhrase`** (`src/music/pool.js`), so Pure Tone's
+  typeless segments can't render one way in the display and another in the console.
+
+It is deliberately minimal: current tonal center and a beat cue, no *next*, no transport,
+no tempo or volume. Everything omitted is one scroll away. The ✕ stops the session
+outright rather than just hiding the console — dismissing it and leaving audio running
+would strand a session with no visible controls.
