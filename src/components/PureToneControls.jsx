@@ -4,7 +4,6 @@ import { SCALE_TYPES } from '../music/scaleFamilies';
 import { pitchClassToDisplayName } from '../music/notes';
 import RootsPicker from './RootsPicker';
 import TimingSection from './TimingSection';
-import ShowToggles from './ShowToggles';
 
 function groupScalesByCategory() {
   const groups = new Map();
@@ -35,16 +34,12 @@ function scaleOptionLabel(type) {
 // — see docs/architecture/randomizer.md's Pure Tone section for what it has and lacks,
 // and why.
 function PureToneControls({
-  settings, updateSettings, toggleRoot, setAllRootsEnabled, isRunning, onStart, onStop,
+  settings, updateSettings, toggleRoot, setAllRootsEnabled,
 }) {
   const isScaleMode = settings.pureToneMode === 'scale';
 
   return (
     <div className="controls">
-      <button className="transport-button" onClick={isRunning ? onStop : onStart}>
-        {isRunning ? '■ Stop Session' : '▶ Start Session'}
-      </button>
-
       <TimingSection settings={settings} updateSettings={updateSettings} />
 
       <div className="preset-row">
@@ -112,8 +107,6 @@ function PureToneControls({
           </div>
         </>
       )}
-
-      <ShowToggles settings={settings} updateSettings={updateSettings} />
 
       <details className="advanced">
         <summary>▸ Advanced settings</summary>

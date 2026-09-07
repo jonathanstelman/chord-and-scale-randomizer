@@ -197,13 +197,6 @@
   color: var(--paper);
 }
 
-.sleeve-hint {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--paper-dim);
-  margin: 0;
-}
-
 /* ---------- PiP console (docks once the display scrolls away) ---------- */
 
 .pip-console {
@@ -489,28 +482,122 @@
   gap: 1.5rem;
 }
 
-.transport-button {
-  align-self: flex-start;
-  font-family: var(--font-display);
-  font-variation-settings: var(--fvs-ui);
-  font-size: 1.1rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--paper);
-  background: var(--flame);
-  border: none;
-  border-radius: 0.3rem;
-  padding: 0.7rem 1.75rem;
-  cursor: pointer;
-  transition: transform 0.1s ease-out, filter 0.15s ease-out;
+/* ---------- Transport deck ---------- */
+
+/* One key, swapped between play and stop — not two with one disabled. There are only
+   two states, and a permanently greyed-out twin is noise on a card this prominent. */
+.transport-deck {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-.transport-button:hover {
+.deck-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  /* Same reasoning as .theme-toggle-icon: ▶ and ■ render thin and undersized in the
+     inherited body font, so they take the system face to read as keys, not punctuation. */
+  font-family: system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--paper-dim);
+  background: transparent;
+  border: 1px solid var(--paper-faint);
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out, background 0.15s ease-out;
+}
+
+.deck-key:hover {
+  color: var(--paper);
+  border-color: var(--paper-medium);
+}
+
+.deck-key--stop {
+  color: var(--cream);
+  background: var(--flame);
+  border-color: var(--flame);
+}
+
+.deck-key--stop:hover {
+  color: var(--cream);
+  border-color: var(--flame);
   filter: brightness(1.08);
 }
 
-.transport-button:active {
-  transform: scale(0.98);
+/* ---------- Tonal center veil toggles ---------- */
+
+/* Top corners of the display, each above the reading it governs — current is the
+   left-hand reading, next the right-hand one. Rendered in the system face for the same
+   reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
+.tonal-center-veil {
+  position: absolute;
+  top: 0.6rem;
+  padding: 0.35rem;
+  font-family: system-ui, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--paper-medium);
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.2s ease-out;
+}
+
+.tonal-center-veil--current { left: 0.7rem; }
+.tonal-center-veil--next { right: 0.7rem; }
+.tonal-center-veil:hover { color: var(--paper-dim); }
+.tonal-center-veil[aria-pressed='true'] { color: var(--brass); }
+
+/* ---------- The veil itself ---------- */
+
+/* opacity carries the fade; visibility is what actually removes the reading from the
+   accessibility tree and from text selection. Without it, "hidden" would still be
+   announced by a screen reader and selectable by mouse — which defeats listening mode
+   entirely. The visibility change is delayed by exactly the fade duration on the way
+   out so the animation still plays, and undelayed on the way in so the fade-in is seen.
+   prefers-reduced-motion (index.css) collapses all of this to an instant swap. */
+.reading-veil {
+  position: relative;
+  display: inline-block;
+}
+
+.veilable {
+  transition: opacity 1s ease-in-out, visibility 0s;
+}
+
+.veilable.is-veiled {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease-in-out, visibility 0s 1s;
+}
+
+/* Absolutely positioned so veiling a reading never collapses the row's height. */
+.veil-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  color: var(--paper-medium);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 1s ease-in-out, visibility 0s 1s;
+}
+
+.reading-veil.is-veiled .veil-placeholder {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1s ease-in-out, visibility 0s;
+}
+
+.reading--next .veil-placeholder {
+  justify-content: flex-end;
 }
 
 .session-data {

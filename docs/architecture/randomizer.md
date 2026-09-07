@@ -37,9 +37,10 @@ silently start drawing from the new tab's source — two tabs never share a live
 
 Tabs share one flat settings object rather than each owning its own storage key (see
 `docs/architecture/settings-and-presets.md`): tempo, duration/gap, the roots filter,
-metronome, and show-current/next all mean the same thing in every tab, so `TimingSection`,
-`RootsPicker`, and `ShowToggles` are shared components reading the same settings fields
-Controls.jsx always used. The risk of sharing one object is a
+metronome, and show-current/next all mean the same thing in every tab, so `TimingSection`
+and `RootsPicker` are shared components reading the same settings fields Controls.jsx
+always used — as does `TonalCenterVisibilityToggles`, which reads the same shared
+`showCurrent`/`showNext` from inside the display rather than the settings column. The risk of sharing one object is a
 Randomizer-only field (`soundType`, `maxChordNotes`, `enabledTypes`, `enabledPairs`,
 `customBankEnabled`/`customBankEntries`) leaking into a tab that has no UI for it and
 shouldn't care what it's set to — `useRandomizer` avoids that two ways: `forceSoundType`
@@ -84,13 +85,47 @@ redefined per tab.
 
 `App` → `TabNav` (practice-tab switcher) + `Display` (renders `NowPlaying`, the
 current/next reading + beat-panel visualization) + `Controls` or `PureToneControls` (the
-settings UI for whichever tab is active). Both settings components share `TimingSection`
+settings UI for whichever tab is active). The display also owns the **transport** and the
+**visibility toggles** — see "The display is the player" below; the settings components
+hold neither. Both settings components share `TimingSection`
 (tempo/duration/pause + metronome, boxed as one settings cluster — the metronome lives
 there too since it's timing information, it just keeps the beat rather than setting its
-length) and `RootsPicker`/`ShowToggles`. Both settings components are wrapped in `memo`
+length) and `RootsPicker`. Both settings components are wrapped in `memo`
 with stable (`useCallback`'d) setters from `useSettings` — without that they'd re-render
 on every single beat tick via `App`'s state, fighting Tone.js's live scheduling for
 main-thread time for no reason.
+
+### The display is the player (issue #23)
+
+The transport and the two visibility toggles live in `Display`, not the settings column,
+where they sat about 600px from the reading they govern.
+
+**Transport** is a single key that swaps between ▶ and ■ rather than two keys with one
+disabled — there are only two states, and a permanently greyed-out twin is noise on a
+card this prominent. `Controls`/`PureToneControls` no longer take `isRunning`/`onStart`/
+`onStop` at all.
+
+**The veil toggles** (`TonalCenterVisibilityToggles`) sit in the display's top corners,
+each above the reading it governs: current is the left-hand reading, next the right-hand
+one. ▣ is a clear pane, ▨ the same pane hatched over. They render only while a session is
+running — idle there's no reading to veil, and two glyphs over an empty card read as
+decoration.
+
+Three things about the fade that are easy to get wrong:
+
+- **It must fire on the toggle and not on a tonal center change.** Swapping the text of
+  one element would either animate every segment or animate nothing, so the reading and
+  its `—` placeholder are both mounted and crossfaded by class. The placeholder is
+  absolutely positioned so veiling never collapses the row's height.
+- **`opacity: 0` alone leaks the answer.** The text stays in the DOM — selectable, and
+  still announced by a screen reader — which defeats listening mode. `visibility` flips
+  too, delayed by exactly the fade duration on the way out so the animation still plays,
+  and undelayed on the way in.
+- **`prefers-reduced-motion` already covers this** via `index.css`'s blanket transition
+  clamp; it degrades to an instant swap with no extra rule.
+
+The old "Listening mode — tonal center hidden." hint is gone: it existed because the
+toggle was far from the reading, and ▨ directly above the `—` now says the same thing.
 
 ### Anything that animates per beat (issue #22)
 
