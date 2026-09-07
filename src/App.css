@@ -1080,10 +1080,12 @@
   gap: 1.25rem;
 }
 
+/* No per-category border now that all of Advanced sits in one box (#29): six boxed
+   categories inside a box read as six self-contained units rather than divisions of
+   one topic. The grid gap plus #28's stacked brass legend already separate them. */
 .type-groups fieldset {
   border: none;
-  border-top: 1px solid var(--paper-faint);
-  padding: 0.75rem 0 0;
+  padding: 0;
   margin: 0;
 }
 
@@ -1139,9 +1141,16 @@
 
 .roots-fieldset {
   border: none;
-  border-top: 1px solid var(--paper-faint);
-  padding: 0.75rem 0 0;
-  margin: 1.25rem 0 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* One internal divider, under Roots, separating it from the type grid. Conditional
+   because Pure Tone's Advanced panel contains Roots alone — an unconditional rule
+   would leave a hairline dangling at the bottom of that box. */
+.advanced-body .roots-fieldset:not(:last-child) {
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--paper-faint);
 }
 
 .roots-grid {

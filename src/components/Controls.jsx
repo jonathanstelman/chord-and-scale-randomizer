@@ -102,29 +102,34 @@ function Controls({
         </div>
       </div>
 
-      <div className="preset-row">
-        <span className="session-data-group-label">Presets</span>
-        <div className="preset-buttons">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.key}
-              type="button"
-              className={`preset-button${preset.key === settings.activePresetKey ? ' is-active' : ''}`}
-              onClick={() => applyPreset(preset)}
-            >
-              {preset.label}
-            </button>
-          ))}
+      {/* Boxed as one topic, like Timing and Sound (#29). The box wraps the row *and*
+          its description/note rather than the row alone — those are part of the same
+          topic, and boxing only the row would leave them dangling underneath it. */}
+      <div className="settings-section">
+        <div className="preset-row">
+          <span className="session-data-group-label">Presets</span>
+          <div className="preset-buttons">
+            {PRESETS.map((preset) => (
+              <button
+                key={preset.key}
+                type="button"
+                className={`preset-button${preset.key === settings.activePresetKey ? ' is-active' : ''}`}
+                onClick={() => applyPreset(preset)}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
         </div>
+        {activePreset && (
+          <>
+            <p className="preset-description">{activePreset.description}</p>
+            <p className="preset-note">
+              Any change to the mode/type/root checkboxes below customizes from here.
+            </p>
+          </>
+        )}
       </div>
-      {activePreset && (
-        <>
-          <p className="preset-description">{activePreset.description}</p>
-          <p className="preset-note">
-            Any change to the mode/type/root checkboxes below customizes from here.
-          </p>
-        </>
-      )}
 
       <div className="mode-row">
         {CORE_MODES.map((mode) => {
@@ -240,14 +245,18 @@ function Controls({
         </p>
       )}
 
+      {/* Advanced is one settings *topic*, so it gets one box — not one per category.
+          The box wraps the revealed content, never the summary, so a collapsed panel
+          stays a bare toggle line. */}
       <details className="advanced">
         <summary>Advanced settings</summary>
-        <RootsPicker
-          enabledRoots={settings.enabledRoots}
-          toggleRoot={toggleRoot}
-          setAllRootsEnabled={setAllRootsEnabled}
-        />
-        <div className="type-groups">
+        <div className="settings-section advanced-body">
+          <RootsPicker
+            enabledRoots={settings.enabledRoots}
+            toggleRoot={toggleRoot}
+            setAllRootsEnabled={setAllRootsEnabled}
+          />
+          <div className="type-groups">
           {Object.entries(CATEGORY_GROUPS).map(([category, types]) => {
             const categoryMode = { categories: [category] };
             return (
@@ -275,6 +284,7 @@ function Controls({
               </fieldset>
             );
           })}
+          </div>
         </div>
       </details>
     </div>
