@@ -758,7 +758,28 @@
   border: none;
   border-bottom: 1px solid var(--cobalt);
   padding: 0.15rem 0.1rem;
-  width: 4.5rem;
+  /* Sized to the digits the field's own max needs (NumberField sets --field-digits from
+     it), rather than one width for every field. A flat 4.5rem comfortably fitted five
+     digits, which made a two-digit setting look like it wanted a much larger number than
+     it accepts. The floor keeps a one-digit field from becoming a sliver. */
+  width: max(2.25rem, calc(var(--field-digits, 3) * 1ch + 0.9rem));
+}
+
+/* Spinner buttons don't fit beside a field this narrow — they'd sit on top of the value.
+   Their step-by-one affordance is no great loss on settings that are typed far more
+   often than nudged, and the arrow keys still step the value while focused. */
+.data-field input[type='number'],
+.timing-line input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.data-field input[type='number']::-webkit-outer-spin-button,
+.data-field input[type='number']::-webkit-inner-spin-button,
+.timing-line input[type='number']::-webkit-outer-spin-button,
+.timing-line input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .data-field select {

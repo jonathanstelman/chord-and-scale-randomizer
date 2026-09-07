@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import MetronomeControl from './MetronomeControl';
+import NumberField from './NumberField';
+import { NUMERIC_LIMITS } from '../hooks/useSettings';
 
 // "1 beat", not "1 beats". These counts are small and frequently land on 1, where the
 // bare plural reads as a typo.
@@ -37,10 +39,11 @@ export default function TimingSection({ settings, updateSettings }) {
           <span className="timing-caption">Tempo</span>
           <div className="timing-line">
             <span className="timing-value">
-              <input
-                type="number" min="30" max="300"
+              <NumberField
+                {...NUMERIC_LIMITS.bpm}
                 value={settings.bpm}
-                onChange={(e) => updateSettings({ bpm: Number(e.target.value) })}
+                onCommit={(bpm) => updateSettings({ bpm })}
+                aria-label="Tempo in beats per minute"
               />
               <span className="data-unit">bpm</span>
             </span>
@@ -57,11 +60,10 @@ export default function TimingSection({ settings, updateSettings }) {
                 same thing at three times the length. One span, so the whole reading
                 wraps as a piece instead of stranding part of itself on a line alone. */}
             <span className="timing-value">
-              <input
-                type="number" min="1" max="64"
+              <NumberField
+                {...NUMERIC_LIMITS.minBeats}
                 value={settings.minBeats}
-                onChange={(e) => {
-                  const beats = Number(e.target.value);
+                onCommit={(beats) => {
                   // With the range collapsed this field *is* the duration, so it has to
                   // carry max along with it; expanded, it's only the floor.
                   updateSettings(rangeExpanded ? { minBeats: beats } : { minBeats: beats, maxBeats: beats });
@@ -71,10 +73,10 @@ export default function TimingSection({ settings, updateSettings }) {
               {rangeExpanded && (
                 <>
                   <span className="timing-range-dash" aria-hidden="true">–</span>
-                  <input
-                    type="number" min="1" max="64"
+                  <NumberField
+                    {...NUMERIC_LIMITS.maxBeats}
                     value={settings.maxBeats}
-                    onChange={(e) => updateSettings({ maxBeats: Number(e.target.value) })}
+                    onCommit={(maxBeats) => updateSettings({ maxBeats })}
                     aria-label="Maximum beats"
                   />
                 </>
@@ -94,9 +96,17 @@ export default function TimingSection({ settings, updateSettings }) {
                 if (checked) {
                   // Revealing a max still equal to min (true on a fresh page load, and
                   // any other time the toggle was off) looks like nothing happened —
-                  // seed a real, non-degenerate range instead.
+                  // seed a real, non-degenerate range instead. Bounded, because a bare
+                  // `min + 2` pushes straight past the ceiling when min is already at or
+                  // near it; with min at 50 that produced a max of 52, above the cap the
+                  // field itself enforces. When there's no room to widen upward, widen
+                  // downward instead so the range stays a range.
                   if (settings.minBeats === settings.maxBeats) {
-                    updateSettings({ maxBeats: settings.minBeats + 2 });
+                    const { min: lo, max: hi } = NUMERIC_LIMITS.maxBeats;
+                    const seeded = Math.min(hi, settings.minBeats + 2);
+                    updateSettings(seeded > settings.minBeats
+                      ? { maxBeats: seeded }
+                      : { minBeats: Math.max(lo, seeded - 2), maxBeats: seeded });
                   }
                 } else {
                   // Collapsing back to a single field means one duration, not a stale
@@ -136,10 +146,11 @@ export default function TimingSection({ settings, updateSettings }) {
           {gapExpanded && (
             <div className="timing-line">
               <span className="timing-value">
-                <input
-                  type="number" min="0" max="16"
+                <NumberField
+                  {...NUMERIC_LIMITS.gapBeats}
                   value={settings.gapBeats}
-                  onChange={(e) => updateSettings({ gapBeats: Number(e.target.value) })}
+                  onCommit={(gapBeats) => updateSettings({ gapBeats })}
+                  aria-label="Rest length in beats"
                 />
                 <span className="data-unit">{beatsUnit(settings.gapBeats)}</span>
               </span>
