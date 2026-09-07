@@ -38,6 +38,7 @@ Two consequences worth knowing before you start one:
 | Issue | Branch | Branched from |
 |---|---|---|
 | #21 | `feature/musical-chairs-design-language` | `main` |
+| #22 | `feature/display-prominence-pip` | `feature/musical-chairs-design-language` |
 
 Extend the table as you go, so the next session can see the chain without reading
 `git log --graph`.
