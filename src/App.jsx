@@ -88,14 +88,16 @@ export default function App() {
 
       <Display
         ref={displayRef}
+        settings={settings}
+        updateSettings={updateSettings}
         current={current}
         next={next}
-        showCurrent={settings.showCurrent}
-        showNext={settings.showNext}
         isRunning={isRunning}
         beatIndex={beatIndex}
         totalBeats={totalBeats}
         isGap={isGap}
+        onStart={start}
+        onStop={stop}
       />
 
       <PipConsole
@@ -117,9 +119,6 @@ export default function App() {
           updateSettings={updateSettings}
           toggleRoot={toggleRoot}
           setAllRootsEnabled={setAllRootsEnabled}
-          isRunning={isRunning}
-          onStart={start}
-          onStop={stop}
         />
       ) : (
         <Controls
@@ -134,9 +133,6 @@ export default function App() {
           commitCustomBank={commitCustomBank}
           setCustomBankMode={setCustomBankMode}
           setCustomBankEnabled={setCustomBankEnabled}
-          isRunning={isRunning}
-          onStart={start}
-          onStop={stop}
         />
       )}
     </div>

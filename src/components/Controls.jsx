@@ -7,7 +7,6 @@ import { parseCustomBank } from '../music/chordParser';
 import TriStateCheckbox from './TriStateCheckbox';
 import RootsPicker from './RootsPicker';
 import TimingSection from './TimingSection';
-import ShowToggles from './ShowToggles';
 
 function typeLabelForKey(key) {
   return ALL_TONAL_CENTER_TYPES.find((t) => t.key === key)?.label ?? key;
@@ -30,7 +29,6 @@ const CATEGORY_GROUPS = groupByCategory(ALL_TONAL_CENTER_TYPES);
 function Controls({
   settings, updateSettings, toggleType, setModeEnabled, toggleRoot, setAllRootsEnabled, applyPreset,
   setCustomBankText, commitCustomBank, setCustomBankMode, setCustomBankEnabled,
-  isRunning, onStart, onStop,
 }) {
   // Transient — cleared on every successful parse, never persisted. A parse failure
   // keeps whatever customBankEntries was last committed (see commitCustomBank), so a
@@ -51,10 +49,6 @@ function Controls({
 
   return (
     <div className="controls">
-      <button className="transport-button" onClick={isRunning ? onStop : onStart}>
-        {isRunning ? '■ Stop Session' : '▶ Start Session'}
-      </button>
-
       <TimingSection settings={settings} updateSettings={updateSettings} />
 
       <div className="settings-section">
@@ -88,8 +82,6 @@ function Controls({
           </div>
         </div>
       </div>
-
-      <ShowToggles settings={settings} updateSettings={updateSettings} />
 
       <div className="preset-row">
         <span className="session-data-group-label">Presets</span>

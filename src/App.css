@@ -197,13 +197,6 @@
   color: var(--paper);
 }
 
-.sleeve-hint {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--paper-dim);
-  margin: 0;
-}
-
 /* ---------- PiP console (docks once the display scrolls away) ---------- */
 
 .pip-console {
@@ -489,28 +482,173 @@
   gap: 1.5rem;
 }
 
-.transport-button {
-  align-self: flex-start;
-  font-family: var(--font-display);
-  font-variation-settings: var(--fvs-ui);
-  font-size: 1.1rem;
-  letter-spacing: 0.03em;
+/* ---------- Transport deck ---------- */
+
+/* One key, swapped between play and stop — not two with one disabled. There are only
+   two states, and a permanently greyed-out twin is noise on a card this prominent. */
+/* Bottom-left corner, mirroring the veil toggles in the top two — the card's controls
+   sit on its edges and leave the middle to the reading. Absolute, so it's out of flow
+   and the reading stays optically centred in the card rather than being pushed up by a
+   control row. */
+.transport-deck {
+  position: absolute;
+  left: 0.7rem;
+  bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The key sits in the corner, so the word goes to its right — there's no room to its
+   left. Mono and quiet, like a legend printed beside a deck's key rather than a second
+   button. */
+.deck-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--paper);
-  background: var(--flame);
-  border: none;
+  color: var(--paper-medium);
+  transition: color 0.15s ease-out;
+}
+
+.transport-deck:hover .deck-label {
+  color: var(--paper-dim);
+}
+
+.deck-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  /* Same reasoning as .theme-toggle-icon: ▶ and ■ render thin and undersized in the
+     inherited body font, so they take the system face to read as keys, not punctuation. */
+  font-family: system-ui, sans-serif;
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--paper-dim);
+  background: transparent;
+  border: 1px solid var(--paper-faint);
   border-radius: 0.3rem;
-  padding: 0.7rem 1.75rem;
   cursor: pointer;
-  transition: transform 0.1s ease-out, filter 0.15s ease-out;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out, background 0.15s ease-out;
 }
 
-.transport-button:hover {
-  filter: brightness(1.08);
+.deck-key:hover {
+  color: var(--paper);
+  border-color: var(--paper-medium);
 }
 
-.transport-button:active {
-  transform: scale(0.98);
+ /* Flame as the mark, not as a fill: a solid orange block competes with the reading
+    for a card whose whole point is that the reading is the focal point. */
+.deck-key--stop {
+  color: var(--flame);
+  border-color: var(--flame);
+}
+
+.deck-key--stop:hover {
+  color: var(--flame);
+  border-color: var(--flame);
+  background: color-mix(in srgb, var(--flame) 12%, transparent);
+}
+
+/* ---------- Tonal center veil toggles ---------- */
+
+/* Top corners of the display, each above the reading it governs — current is the
+   left-hand reading, next the right-hand one. Rendered in the system face for the same
+   reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
+/* Each toggle pairs a key with a faint word, like the transport. The right-hand group
+   reverses so its word sits inboard — the glyph stays pinned to the card's edge and the
+   label never runs off it. */
+.tonal-center-veil-group {
+  position: absolute;
+  top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tonal-center-veil-group--current { left: 0.7rem; }
+
+.tonal-center-veil-group--next {
+  right: 0.7rem;
+  flex-direction: row-reverse;
+}
+
+.veil-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-medium);
+  transition: color 0.15s ease-out;
+}
+
+.tonal-center-veil-group:hover .veil-label {
+  color: var(--paper-dim);
+}
+
+.tonal-center-veil {
+  padding: 0.35rem;
+  font-family: system-ui, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--paper-medium);
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.2s ease-out;
+}
+
+.tonal-center-veil:hover { color: var(--paper-dim); }
+.tonal-center-veil[aria-pressed='true'] { color: var(--brass); }
+
+/* ---------- The veil itself ---------- */
+
+/* opacity carries the fade; visibility is what actually removes the reading from the
+   accessibility tree and from text selection. Without it, "hidden" would still be
+   announced by a screen reader and selectable by mouse — which defeats listening mode
+   entirely. The visibility change is delayed by exactly the fade duration on the way
+   out so the animation still plays, and undelayed on the way in so the fade-in is seen.
+   prefers-reduced-motion (index.css) collapses all of this to an instant swap. */
+.reading-veil {
+  position: relative;
+  display: inline-block;
+}
+
+.veilable {
+  transition: opacity 1s ease-in-out, visibility 0s;
+}
+
+.veilable.is-veiled {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease-in-out, visibility 0s 1s;
+}
+
+/* Absolutely positioned so veiling a reading never collapses the row's height. */
+.veil-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  color: var(--paper-medium);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 1s ease-in-out, visibility 0s 1s;
+}
+
+.reading-veil.is-veiled .veil-placeholder {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1s ease-in-out, visibility 0s;
+}
+
+.reading--next .veil-placeholder {
+  justify-content: flex-end;
 }
 
 .session-data {
