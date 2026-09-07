@@ -1087,12 +1087,17 @@
   margin: 0;
 }
 
+/* Stacked, not a wrapping row (issue #28). Side by side, "select all" only dropped to
+   its own line once a legend was long enough not to fit beside it at the type grid's
+   ~200px column — so Diatonic Modes sat on one line and Melodic Minor Modes wrapped,
+   with no rule a reader could predict. A column removes the wrap threshold entirely,
+   and gives each fieldset a real hierarchy: group name, then group-level control, then
+   indented members. */
 .fieldset-head {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.25rem 0.75rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   margin-bottom: 0.5rem;
 }
 
@@ -1104,7 +1109,6 @@
   text-transform: uppercase;
   color: var(--brass);
   padding: 0;
-  white-space: nowrap;
 }
 
 .category-select-all {
@@ -1115,18 +1119,17 @@
   white-space: nowrap;
 }
 
-.category-select-all::before {
-  content: '[ ';
-}
-
-.category-select-all::after {
-  content: ' ]';
-}
-
 .track-row {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   margin: 0.35rem 0;
+}
+
+/* The item list reads as nested beneath the legend and its select-all. Indent is
+   applied to the type-group rows and to the roots *container* — not to .track-row
+   globally, since roots labels carry that class too and would end up indented twice. */
+.type-groups .track-row {
+  padding-left: 0.85rem;
 }
 
 .track-number {
@@ -1145,6 +1148,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1.1rem;
+  padding-left: 0.85rem;
 }
 
 /* ---------- Responsive ---------- */
