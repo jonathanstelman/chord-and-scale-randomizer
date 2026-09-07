@@ -494,6 +494,25 @@
   position: absolute;
   left: 0.7rem;
   bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The key sits in the corner, so the word goes to its right — there's no room to its
+   left. Mono and quiet, like a legend printed beside a deck's key rather than a second
+   button. */
+.deck-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-medium);
+  transition: color 0.15s ease-out;
+}
+
+.transport-deck:hover .deck-label {
+  color: var(--paper-dim);
 }
 
 .deck-key {

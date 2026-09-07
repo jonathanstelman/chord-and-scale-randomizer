@@ -37,17 +37,23 @@ export default function Display({
       )}
 
       {/* One key, swapped — never a disabled twin. There are only two states, and a
-          permanently greyed-out button is noise on a card this prominent. */}
+          permanently greyed-out button is noise on a card this prominent.
+
+          The word beside it is for anyone who doesn't already read ▶/■ as transport
+          controls. It's aria-hidden because the button is already named — but the name
+          has to *contain* the visible word ("Play session", not "Start session"), or
+          speech-input users saying "click Play" won't match the control (WCAG 2.5.3). */}
       <div className="transport-deck">
         <button
           type="button"
           className={`deck-key${isRunning ? ' deck-key--stop' : ''}`}
           onClick={isRunning ? onStop : onStart}
-          aria-label={isRunning ? 'Stop session' : 'Start session'}
-          title={isRunning ? 'Stop session' : 'Start session'}
+          aria-label={isRunning ? 'Stop session' : 'Play session'}
+          title={isRunning ? 'Stop session' : 'Play session'}
         >
           <span aria-hidden="true">{isRunning ? '■' : '▶'}</span>
         </button>
+        <span className="deck-label" aria-hidden="true">{isRunning ? 'Stop' : 'Play'}</span>
       </div>
     </div>
   );
