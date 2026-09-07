@@ -6,6 +6,8 @@ import { pitchClassToDisplayName } from '../music/notes';
 import { parseCustomBank } from '../music/chordParser';
 import TriStateCheckbox from './TriStateCheckbox';
 import RootsPicker from './RootsPicker';
+import NumberField from './NumberField';
+import { NUMERIC_LIMITS } from '../hooks/useSettings';
 import TimingSection from './TimingSection';
 
 function typeLabelForKey(key) {
@@ -86,17 +88,14 @@ function Controls({
                 <option value="arpeggio">Arpeggio</option>
                 <option value="none">No Sound</option>
               </select>
-              {/* Reserves the same third line Density's "notes" unit takes, so the two
-                  fields' captions/controls line up instead of Density's extra line
-                  pulling it up relative to Sound under the shared flex-end alignment. */}
-              <span className="data-unit" aria-hidden="true">&nbsp;</span>
             </label>
             <label className="data-field">
               <span>Density</span>
-              <input
-                type="number" min="1" max="7"
+              <NumberField
+                {...NUMERIC_LIMITS.maxChordNotes}
                 value={settings.maxChordNotes}
-                onChange={(e) => updateSettings({ maxChordNotes: Number(e.target.value) })}
+                onCommit={(maxChordNotes) => updateSettings({ maxChordNotes })}
+                aria-label="Maximum notes per chord"
               />
               <span className="data-unit">notes</span>
             </label>

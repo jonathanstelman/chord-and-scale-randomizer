@@ -658,14 +658,77 @@
   gap: 1.5rem;
 }
 
+/* One block per control, caption then value then whatever belongs to it. The block
+   structure is what keeps a toggle from displacing itself when clicked — see
+   docs/architecture/randomizer.md's "Timing group layout". */
+.timing-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.timing-caption {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+/* Baseline-aligned so a unit and the metronome sit on the value's own line rather than
+   centring against the block as a whole. */
+.timing-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+
+/* Joins the two ends of a beat range into one reading: "4 – 6 beats". */
+.timing-range-dash {
+  color: var(--paper-dim);
+}
+
+/* A value and its unit wrap as one piece; loose, a narrow viewport strands the unit on a
+   line away from the number it belongs to. */
+.timing-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
 .data-toggle {
   white-space: nowrap;
 }
 
+/* Caption on its own line, then the input and its unit side by side. The unit used to
+   sit on a *third* line below the input, which made every field three lines tall — the
+   single biggest source of dead vertical space in Timing, where each row carries one
+   (issue #40). Inline, the unit reads as part of the value ("50 bpm") instead of a
+   caption of its own. */
 .data-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  display: grid;
+  grid-template-areas:
+    'caption caption'
+    'value   unit';
+  grid-template-columns: auto auto;
+  justify-content: start;
+  align-items: baseline;
+  gap: 0.3rem 0.4rem;
+}
+
+.data-field > span:first-child {
+  grid-area: caption;
+}
+
+.data-field > input,
+.data-field > select {
+  grid-area: value;
+}
+
+.data-field > .data-unit {
+  grid-area: unit;
 }
 
 .data-field span:first-child {
@@ -677,7 +740,8 @@
 }
 
 .data-field input,
-.data-field select {
+.data-field select,
+.timing-line input {
   font-family: var(--font-mono);
   font-size: 0.95rem;
   color: var(--paper);
@@ -685,7 +749,25 @@
   border: none;
   border-bottom: 1px solid var(--cobalt);
   padding: 0.15rem 0.1rem;
-  width: 4.5rem;
+  /* Sized to the digits the field's own max needs — NumberField sets --field-digits from
+     it. The floor keeps a one-digit field from becoming a sliver. */
+  width: max(2.25rem, calc(var(--field-digits, 3) * 1ch + 0.9rem));
+}
+
+/* Spinners don't fit beside a field this narrow — they'd sit on top of the value. Arrow
+   keys still step it while focused. */
+.data-field input[type='number'],
+.timing-line input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.data-field input[type='number']::-webkit-outer-spin-button,
+.data-field input[type='number']::-webkit-inner-spin-button,
+.timing-line input[type='number']::-webkit-outer-spin-button,
+.timing-line input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .data-field select {
@@ -693,7 +775,8 @@
 }
 
 .data-field input:focus,
-.data-field select:focus {
+.data-field select:focus,
+.timing-line input:focus {
   outline: none;
   border-bottom-color: var(--brass);
 }
@@ -736,10 +819,9 @@
   border-radius: 0.4rem;
 }
 
-/* The group's name and its disclosure control are the same element. Styled as the brass
-   mono legend the static groups already used (TIMING, SOUND, PRESETS), rather than the
-   dimmer sentence-case treatment Advanced/Custom bank had — that legend was on five of
-   the seven groups and is the established "this is a settings group" marker. */
+/* The group's name and its disclosure control are the same element, styled as the brass
+   mono settings-group legend — see docs/architecture/design-language.md's Typography
+   section. */
 .settings-section > summary {
   cursor: pointer;
   font-family: var(--font-mono);

@@ -3,6 +3,26 @@ import { ALL_ROOTS, DEFAULT_ENABLED_TYPES, typeKeysInCategories } from '../music
 
 const STORAGE_KEY = 'chord-scale-randomizer-settings';
 
+// Bounds for the numeric settings, read by both NumberField (on edit) and loadSettings
+// (on read). Why both, why minBeats caps 2 below maxBeats, and why the lower bound isn't
+// enforced while typing: docs/architecture/settings-and-presets.md.
+export const NUMERIC_LIMITS = {
+  bpm: { min: 30, max: 300 },
+  minBeats: { min: 1, max: 30 },
+  maxBeats: { min: 1, max: 32 },
+  gapBeats: { min: 0, max: 16 },
+  maxChordNotes: { min: 1, max: 7 },
+};
+
+function clampNumericSettings(s) {
+  const out = { ...s };
+  for (const [key, { min, max }] of Object.entries(NUMERIC_LIMITS)) {
+    const n = Number(out[key]);
+    out[key] = Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n))) : DEFAULT_SETTINGS[key];
+  }
+  return out;
+}
+
 const DEFAULT_SETTINGS = {
   // Which practice tab is showing — see docs/architecture/randomizer.md's Pure Tone
   // section for why tabs share this one settings object instead of each owning its own
@@ -53,7 +73,7 @@ function loadSettings() {
     // going blank. The engine would already play it correctly either way (anything that
     // isn't 'arpeggio'/'none' hits the same code path), this is purely a UI nicety.
     if (loaded.soundType === 'pad') loaded.soundType = 'chord';
-    return loaded;
+    return clampNumericSettings(loaded);
   } catch {
     return DEFAULT_SETTINGS;
   }

@@ -46,6 +46,15 @@ Body text (`--font-body`, Work Sans) and data/labels (`--font-mono`, Space Mono)
 unchanged. Notably the small uppercase legends — `TIMING`, `SOUND`, `PRESETS` — are mono
 in `--brass`, *not* display type, so the typeface swap doesn't reach them.
 
+**That brass mono legend is the settings-group marker** (issue #29). Every top-level
+group in the settings column is named by one, including the collapsible ones, where the
+legend *is* the `<summary>` — the group's name and its disclosure control are the same
+element. Two groups (Advanced settings, Custom chord bank) once used a dimmer
+sentence-case treatment instead, from when they were the only collapsible ones; that
+split disappeared when every group became collapsible. Don't reintroduce a second header
+style for a subset of groups — a group that opens is not a different kind of thing from
+one that doesn't, it just starts closed.
+
 ## The chair motif
 
 Three chairs, each a complete drawing with its accent already baked in:
