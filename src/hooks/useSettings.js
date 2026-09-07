@@ -13,14 +13,17 @@ const STORAGE_KEY = 'chord-scale-randomizer-settings';
 // cells. Bounding the input alone would leave anyone who already hit that stuck.
 //
 // The two beat caps differ by exactly the 2 that turning on Randomize adds: with min
-// held at or below 62, the seeded `min + 2` always lands inside max's own ceiling, so
-// the seeding needs no special case for running out of room. 64 is the ceiling itself
-// because the display draws one cell per beat, and past about that the grid stops
-// reading as a count of anything.
+// held at or below 30, the seeded `min + 2` always lands inside max's own ceiling, so
+// the seeding needs no special case for running out of room — and so the toggle never
+// has to move a value the user set.
+//
+// 32 is the ceiling. The display draws one cell per beat, and this is also about where
+// the setting stops being musically useful: at 32 beats a single tonal center already
+// holds for eight bars of 4/4, which is long past "react before the next one comes".
 export const NUMERIC_LIMITS = {
   bpm: { min: 30, max: 300 },
-  minBeats: { min: 1, max: 62 },
-  maxBeats: { min: 1, max: 64 },
+  minBeats: { min: 1, max: 30 },
+  maxBeats: { min: 1, max: 32 },
   gapBeats: { min: 0, max: 16 },
   maxChordNotes: { min: 1, max: 7 },
 };

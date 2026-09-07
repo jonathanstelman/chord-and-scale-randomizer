@@ -98,7 +98,8 @@ export default function TimingSection({ settings, updateSettings }) {
                   // any other time the toggle was off) looks like nothing happened —
                   // seed a real, non-degenerate range instead. No bound needed here:
                   // minBeats caps 2 below maxBeats precisely so this always lands inside
-                  // the range's own ceiling (see NUMERIC_LIMITS).
+                  // the range's own ceiling, which is also why checking this box never
+                  // rewrites minBeats (see NUMERIC_LIMITS).
                   if (settings.minBeats === settings.maxBeats) {
                     updateSettings({ maxBeats: settings.minBeats + 2 });
                   }
