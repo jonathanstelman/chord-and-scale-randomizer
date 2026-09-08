@@ -305,7 +305,7 @@ function Controls({
             {/* Sits at the bottom of the deepest panel, so you only meet it once you
                 have gone looking. */}
             <div className="settings-easter-chair">
-              <Chair pose="fallen" size={38} />
+              <Chair pose="fallen" size={38} fallRight />
             </div>
           </div>
         </details>

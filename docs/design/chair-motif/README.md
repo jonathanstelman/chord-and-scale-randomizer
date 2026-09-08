@@ -74,7 +74,7 @@ app has two states, not three, so only two poses carry meaning.
 | Masthead, 2nd | E2 | brass | tipping |
 | Masthead, 3rd | E6 | flame | fallen |
 | Idle card (hero) | E1 | cobalt | upright |
-| Foot of Advanced settings | E6 | flame | fallen |
+| Foot of Advanced settings | E6 | flame | fallen, mirrored (`fallRight`) |
 
 Drawn at weight `0.7`, jank `1`, shading off. Masthead arrangement is the "small
 cluster": ~34px chairs (40px for the fallen one), tight spacing, sitting low.

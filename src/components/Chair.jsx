@@ -11,6 +11,15 @@ const POSE_STYLE = {
   fallen: { transform: 'rotate(-72deg) translate(-2%, 6%)', transformOrigin: '50% 64%' },
 };
 
+// `fallen` mirrored. Which way a chair drops is composition rather than meaning, and it
+// depends on where it sits: one in a lower-right corner has to fall away from the panel,
+// or it reads as toppling back into the content. The translate flips with the rotation
+// because it runs in the already-rotated axes.
+const FALLEN_RIGHT_STYLE = {
+  transform: 'rotate(72deg) translate(2%, 6%)',
+  transformOrigin: '50% 64%',
+};
+
 // The viewBox is taller than it is wide, so height follows from width.
 const ASPECT = 132 / 100;
 
@@ -24,11 +33,15 @@ const ASPECT = 132 / 100;
  * whatever `color` its container has and flips with the theme for free.
  *
  * Decorative by default. Pass `label` only where the chair carries meaning no
- * neighbouring text already conveys.
+ * neighbouring text already conveys. `fallRight` mirrors the `fallen` pose.
  */
-export default function Chair({ pose = 'upright', size = 34, className, label }) {
+export default function Chair({
+  pose = 'upright', size = 34, className, label, fallRight = false,
+}) {
   const art = CHAIR_ART[pose];
   if (!art) return null;
+
+  const poseStyle = fallRight && pose === 'fallen' ? FALLEN_RIGHT_STYLE : POSE_STYLE[pose];
 
   return (
     <svg
@@ -36,7 +49,7 @@ export default function Chair({ pose = 'upright', size = 34, className, label })
       viewBox={CHAIR_VIEWBOX}
       width={size}
       height={Math.round(size * ASPECT)}
-      style={{ display: 'block', overflow: 'visible', ...POSE_STYLE[pose] }}
+      style={{ display: 'block', overflow: 'visible', ...poseStyle }}
       role={label ? 'img' : undefined}
       aria-label={label || undefined}
       aria-hidden={label ? undefined : 'true'}
