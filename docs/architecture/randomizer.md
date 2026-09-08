@@ -187,9 +187,18 @@ future beat-synced cue.
 
 ### Settings in two columns (issue #27)
 
-Above 1040px the display is a full-width hero and the settings split beneath it: player
-controls in a third, tonal-center pickers in the remaining two. The split is by what a
-setting *governs* — how it plays versus what gets picked — not by size.
+Above 1040px the display is a full-width hero and the settings split beneath it into even
+halves: player controls on the left, tonal-center pickers on the right. The split is by
+what a setting *governs* — how it plays versus what gets picked — not by size.
+
+**The even split is a measurement, not a preference.** It was 1fr 2fr first, which read
+as the right emphasis — the pickers carry the mode row, the presets and the whole
+Advanced breakdown — and broke Timing. Its Tempo row needs 394px to keep the bpm field,
+the metronome checkbox and the volume slider on one line, which is how #40 built it; a
+third of the page is 333px, so the slider wrapped under the checkbox and separated a
+control from the thing it controls. The player column can't go below ~426px with the
+group's padding. Don't narrow it back on the grounds that the right column looks busier
+— at the breakpoint itself, halves leave the Tempo row 54px of slack and 45/55 leaves 6.
 
 **This replaced a gatefold.** #22 had seated the sleeve and the controls side by side as
 two columns. That read well in the abstract and badly in practice: the display is about

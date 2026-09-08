@@ -1282,14 +1282,23 @@
     padding-top: 3.5rem;
   }
 
-  /* A third for the player controls, two thirds for the tonal-center pickers: the
-     pickers carry the mode row, the preset buttons and the whole Advanced breakdown,
-     and Timing and Sound are single-column stacks of short fields either way.
+  /* Even halves, and the ratio is a measurement rather than a preference. Timing's
+     Tempo row — the bpm field, the metronome checkbox and its volume slider — needs
+     394px to stay on one line, which #40 designed it to do. Add the group's padding and
+     the player column can't go below ~426px. A third of the page is 333px at this
+     breakpoint, so 1fr 2fr wrapped the volume slider under the checkbox and split a
+     control from the thing it controls.
+
+     Don't rebalance this toward the pickers because the right column looks busier: at
+     the 1040px breakpoint an even split leaves the Tempo row 54px of slack, while 45/55
+     leaves 6px — one label change from wrapping again. What the pickers give up is one
+     row of preset buttons wrapping; the mode row still holds three cards abreast.
+
      align-items: start so a short column doesn't stretch its groups to match a tall
      neighbour. */
   .controls {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 1fr;
     align-items: start;
     column-gap: 2rem;
   }
