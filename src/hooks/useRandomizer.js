@@ -7,6 +7,7 @@ import {
 } from '../music/pool';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
+import { useWakeLock } from './useWakeLock';
 
 const MAX_REPEAT_AVOIDANCE_ATTEMPTS = 20;
 
@@ -227,6 +228,10 @@ export function useRandomizer(settings, options = {}) {
     setTotalBeats(0);
     setIsGap(false);
   }, []);
+
+  // Keep the screen awake for the length of a session: a practising user watches the
+  // reading and plays an instrument, producing no input events for an idle timer to see.
+  useWakeLock(isRunning);
 
   // Keep tempo/metronome-volume changes live while running.
   useEffect(() => {

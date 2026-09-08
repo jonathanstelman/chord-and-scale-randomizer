@@ -185,6 +185,27 @@ changes on every beat must stay on properties the compositor can handle alone �
 This governs `.beat-block--current` and `.pip-beat--current` today; it applies to any
 future beat-synced cue.
 
+### Keeping the screen awake
+
+`useWakeLock` holds a screen wake lock for exactly as long as a session is running.
+Practising is a "watching, not touching" activity — you read the display and play an
+instrument, generating no input events at all — which is precisely the pattern an idle
+timer reads as "away", so the laptop dims and sleeps mid-session.
+
+Two things it has to get right, both of which look like unnecessary ceremony until they
+bite:
+
+- **The browser drops the lock whenever the tab is hidden, and never restores it.** One
+  request per session isn't enough: switching tabs and back would silently lose the lock
+  for the rest of the session, so it re-acquires on `visibilitychange`.
+- **The request is async and the session can end while it's in flight.** Without a
+  cancelled flag in the effect cleanup, a lock taken for a session that already stopped
+  outlives it, and nothing ever releases it.
+
+It's best-effort on purpose. The lock is refused outside a secure context, under battery
+saver, and on browsers that don't implement it — in all of those the session still runs
+and the screen behaves as it did before, so there's nothing worth telling the user about.
+
 ### Settings in two columns (issue #27)
 
 Above 1040px the display is a full-width hero and the settings split beneath it into even
