@@ -207,13 +207,76 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1.1rem;
+  /* The stage centres its children, which would shrink this to its content and stop the
+     example spanning the way a live readout does — the whole point of showing it. */
+  width: 100%;
   color: var(--paper-dim);
+}
+
+.sleeve-idle-copy {
+  margin: 0;
 }
 
 /* The hero chair — the same drawing as the masthead's upright chair, just larger.
    Cobalt is baked into its path data; the frame follows the container's color. */
 .sleeve-idle-chair {
+  color: var(--paper);
+}
+
+/* The example readout. It reuses the live classes, so it only needs to say how a sample
+   differs from the real thing: quieter, smaller, and captioned. */
+.idle-sample {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  /* One opacity on the wrapper rather than dimmed colours per element: the beat blocks
+     are flame and cobalt, which have no dimmed variants to reach for. */
+  opacity: 0.58;
+  pointer-events: none;
+}
+
+.idle-sample-tag {
+  /* Left, not centred: it labels the readout beneath it, and that readout sits at the
+     row's left edge the same way a live one does. */
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+/* Smaller than a live readout: at full size the example competes with the session it
+   only illustrates, and the card also has to hold the chair and the copy. */
+.idle-sample .chord-name {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+}
+.idle-sample .chord-name--next {
+  font-size: 0.8rem;
+}
+.idle-sample .beat-numeral-current {
+  font-size: 1.5rem;
+}
+
+/* Parked in the corner the grid's uneven last row leaves empty — out of flow, so it
+   costs the panel no height at all.
+
+   `right` cancels the pose rotation, which throws the drawing 10px past its own layout
+   box (see docs/design/chair-motif/README.md); offsetting by that much lands the ink on
+   the grid's own right edge, which is already the panel's 1rem padding. In px because
+   the overhang scales with the chair's px size, not with the root font.
+
+   pointer-events: none because the grid collapses to one column on narrow viewports,
+   where there is no dead corner and the chair sits over the last fieldset's empty right
+   side. It is decorative and aria-hidden; it must never intercept a checkbox. */
+.settings-easter-chair {
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+  pointer-events: none;
   color: var(--paper);
 }
 
@@ -288,7 +351,7 @@
   border-color: var(--cobalt);
 }
 
-.pip-reading {
+.pip-readout {
   font-family: var(--font-display);
   font-variation-settings: var(--fvs-ui);
   font-size: 1.05rem;
@@ -296,13 +359,13 @@
   color: var(--paper);
 }
 
-.pip-reading--gap {
+.pip-readout--gap {
   color: var(--paper-dim);
   font-style: italic;
 }
 
 /* Next sits below current rather than beside it: at a fixed width there isn't room for
-   two readings side by side, and stacking keeps the same top-to-bottom order the main
+   two readouts side by side, and stacking keeps the same top-to-bottom order the main
    display will have once #20 turns this into a queue. */
 .pip-next {
   display: flex;
@@ -352,7 +415,7 @@
   border-color: var(--flame);
 }
 
-/* ---------- Now Playing (current/next reading + beat progress) ---------- */
+/* ---------- Now Playing (current/next readout + beat progress) ---------- */
 
 .now-playing {
   display: flex;
@@ -362,7 +425,7 @@
   gap: 1.25rem;
 }
 
-.reading-row {
+.readout-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -378,20 +441,20 @@
   width: 100%;
 }
 
-.reading {
+.readout {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.reading--next {
+.readout--next {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.3rem;
   opacity: 0.85;
 }
 
-.reading-eyebrow {
+.readout-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.14em;
@@ -530,7 +593,7 @@
 /* One key, swapped between play and stop — not two with one disabled. There are only
    two states, and a permanently greyed-out twin is noise on a card this prominent. */
 /* Bottom-left of the stage, mirroring the veil toggles in the top two. Absolute, so the
-   reading stays optically centred rather than being pushed up by a control row. The
+   readout stays optically centred rather than being pushed up by a control row. The
    bottom offset is larger than the toggles' 0.6rem top on purpose — borderless glyphs
    vs. a bordered key; it's an optical correction, not an inconsistency to unify. */
 .transport-deck {
@@ -583,8 +646,8 @@
   border-color: var(--paper-medium);
 }
 
- /* Flame as the mark, not as a fill: a solid orange block competes with the reading
-    for a card whose whole point is that the reading is the focal point. */
+ /* Flame as the mark, not as a fill: a solid orange block competes with the readout
+    for a card whose whole point is that the readout is the focal point. */
 .deck-key--stop {
   color: var(--flame);
   border-color: var(--flame);
@@ -599,11 +662,11 @@
 /* ---------- Tonal center veil toggles ---------- */
 
 /* These and the transport inset to the stage's content edge, not its border box, so
-   each lines up with the reading it belongs to — see docs/architecture/randomizer.md's
+   each lines up with the readout it belongs to — see docs/architecture/randomizer.md's
    "Settings in two columns". */
 
-/* Top corners of the display, each above the reading it governs — current is the
-   left-hand reading, next the right-hand one. Rendered in the system face for the same
+/* Top corners of the display, each above the readout it governs — current is the
+   left-hand readout, next the right-hand one. Rendered in the system face for the same
    reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
 /* Each toggle pairs a key with a faint word, like the transport. The right-hand group
    reverses so its word sits inboard — the glyph stays pinned to the card's edge and the
@@ -654,13 +717,13 @@
 
 /* ---------- The veil itself ---------- */
 
-/* opacity carries the fade; visibility is what actually removes the reading from the
+/* opacity carries the fade; visibility is what actually removes the readout from the
    accessibility tree and from text selection. Without it, "hidden" would still be
    announced by a screen reader and selectable by mouse — which defeats listening mode
    entirely. The visibility change is delayed by exactly the fade duration on the way
    out so the animation still plays, and undelayed on the way in so the fade-in is seen.
    prefers-reduced-motion (index.css) collapses all of this to an instant swap. */
-.reading-veil {
+.readout-veil {
   position: relative;
   display: inline-block;
 }
@@ -675,7 +738,7 @@
   transition: opacity 1s ease-in-out, visibility 0s 1s;
 }
 
-/* Absolutely positioned so veiling a reading never collapses the row's height. */
+/* Absolutely positioned so veiling a readout never collapses the row's height. */
 .veil-placeholder {
   position: absolute;
   inset: 0;
@@ -688,13 +751,13 @@
   transition: opacity 1s ease-in-out, visibility 0s 1s;
 }
 
-.reading-veil.is-veiled .veil-placeholder {
+.readout-veil.is-veiled .veil-placeholder {
   opacity: 1;
   visibility: visible;
   transition: opacity 1s ease-in-out, visibility 0s;
 }
 
-.reading--next .veil-placeholder {
+.readout--next .veil-placeholder {
   justify-content: flex-end;
 }
 
@@ -1174,6 +1237,7 @@
 /* ---------- Advanced / liner notes ---------- */
 
 .type-groups {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25rem;
@@ -1263,7 +1327,7 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 560px) {
-  .reading-row {
+  .readout-row {
     flex-wrap: wrap;
   }
 }

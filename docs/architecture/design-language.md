@@ -86,6 +86,20 @@ was considered and rejected — it would collide with a code the mode blocks alr
 - **Decorative by default.** `Chair` renders `aria-hidden` unless given a `label`. In
   the masthead the wordmark beside it already names the app.
 
+### Where they are
+
+| Placement | Pose | Note |
+|---|---|---|
+| Masthead lockup | upright, tipping, fallen | The identity mark: at rest, running, and one for composition. |
+| Idle display card | upright | The hero of the idle state (#24). |
+| Foot of Advanced settings | fallen (`fallRight`) | Right-aligned inside a panel that starts closed — found rather than presented. |
+
+The last one is deliberately the only chair you have to go looking for, and it only
+exists on the Chords & Scales tab, since Pure Tone has no Advanced panel. It uses
+`fallRight`, which mirrors the pose: a chair in a lower-right corner has to drop away
+from the panel, or it reads as toppling back into the content above it. Which way a
+chair falls is composition, not meaning — the same rule as its accent colour.
+
 ### Two constraints that will bite
 
 **A chair rotated past roughly 80° stops reading as a chair** — it collapses into an
