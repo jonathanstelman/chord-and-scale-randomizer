@@ -1,5 +1,14 @@
+/* The page column's width, in one place. The PiP console aligns itself to this same
+   column and has to do it arithmetically (it's position: fixed, so it can't inherit the
+   column's edges) — which is how it silently drifted: it hard-coded half of 720px while
+   .app had been widening to 1080px at the breakpoint since #22, leaving the console 204px
+   inside the column at wide widths. Change the column here and both follow. */
+:root {
+  --app-column: 720px;
+}
+
 .app {
-  max-width: 720px;
+  max-width: var(--app-column);
   margin: 0 auto;
   padding: 2.5rem 1.5rem 3rem;
 }
@@ -222,9 +231,10 @@
   position: fixed;
   top: 1rem;
   /* Aligned to the app's content column on wide screens rather than the raw viewport
-     corner, where it would float alone in the empty margin. Falls back to a small
-     inset once the viewport is narrower than the column. */
-  left: max(0.75rem, calc(50vw - 360px + 1.5rem));
+     corner, where it would float alone in the empty margin. Derived from --app-column
+     rather than a literal, so it tracks the column at every breakpoint. Falls back to a
+     small inset once the viewport is narrower than the column. */
+  left: max(0.75rem, calc(50vw - var(--app-column) / 2 + 1.5rem));
   z-index: 20;
   /* Fixed width, not shrink-to-fit: sized to the content it has to hold, the box would
      otherwise resize on every segment as tonal center names change length, which reads
@@ -1287,8 +1297,11 @@
    beneath it (#27), so the extra room goes to the column that actually has content to
    fill it. */
 @media (min-width: 1040px) {
+  :root {
+    --app-column: 1080px;
+  }
+
   .app {
-    max-width: 1080px;
     padding-top: 3.5rem;
   }
 

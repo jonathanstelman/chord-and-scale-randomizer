@@ -259,6 +259,15 @@ it with an `IntersectionObserver`. The observer uses a small
 negative `rootMargin`: without it the console flickers on and off while the display sits
 exactly at the viewport edge.
 
+**It aligns to the page column, not the viewport corner**, so on a wide screen it doesn't
+float alone out in the margin. Being `position: fixed` it can't inherit that column's
+edges and has to compute them, which is why `--app-column` exists: the console derives its
+`left` from the same token `.app` sizes itself with. It previously hard-coded half of
+720px while `.app` had been widening to 1080px at the breakpoint since #22 — so above
+1040px the console sat 204px inside the column, correct at narrow widths and visibly adrift
+at wide ones. Any future change to the column's width has to stay a change to that one
+token.
+
 Two rules it has to keep in step with `Display`:
 
 - **It shows what the display shows.** With `showCurrent` off (listening mode), the main
