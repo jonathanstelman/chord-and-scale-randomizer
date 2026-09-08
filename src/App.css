@@ -288,7 +288,7 @@
   border-color: var(--cobalt);
 }
 
-.pip-reading {
+.pip-readout {
   font-family: var(--font-display);
   font-variation-settings: var(--fvs-ui);
   font-size: 1.05rem;
@@ -296,13 +296,13 @@
   color: var(--paper);
 }
 
-.pip-reading--gap {
+.pip-readout--gap {
   color: var(--paper-dim);
   font-style: italic;
 }
 
 /* Next sits below current rather than beside it: at a fixed width there isn't room for
-   two readings side by side, and stacking keeps the same top-to-bottom order the main
+   two readouts side by side, and stacking keeps the same top-to-bottom order the main
    display will have once #20 turns this into a queue. */
 .pip-next {
   display: flex;
@@ -352,7 +352,7 @@
   border-color: var(--flame);
 }
 
-/* ---------- Now Playing (current/next reading + beat progress) ---------- */
+/* ---------- Now Playing (current/next readout + beat progress) ---------- */
 
 .now-playing {
   display: flex;
@@ -362,7 +362,7 @@
   gap: 1.25rem;
 }
 
-.reading-row {
+.readout-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -378,20 +378,20 @@
   width: 100%;
 }
 
-.reading {
+.readout {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.reading--next {
+.readout--next {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.3rem;
   opacity: 0.85;
 }
 
-.reading-eyebrow {
+.readout-eyebrow {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.14em;
@@ -530,7 +530,7 @@
 /* One key, swapped between play and stop — not two with one disabled. There are only
    two states, and a permanently greyed-out twin is noise on a card this prominent. */
 /* Bottom-left of the stage, mirroring the veil toggles in the top two. Absolute, so the
-   reading stays optically centred rather than being pushed up by a control row. The
+   readout stays optically centred rather than being pushed up by a control row. The
    bottom offset is larger than the toggles' 0.6rem top on purpose — borderless glyphs
    vs. a bordered key; it's an optical correction, not an inconsistency to unify. */
 .transport-deck {
@@ -583,8 +583,8 @@
   border-color: var(--paper-medium);
 }
 
- /* Flame as the mark, not as a fill: a solid orange block competes with the reading
-    for a card whose whole point is that the reading is the focal point. */
+ /* Flame as the mark, not as a fill: a solid orange block competes with the readout
+    for a card whose whole point is that the readout is the focal point. */
 .deck-key--stop {
   color: var(--flame);
   border-color: var(--flame);
@@ -599,11 +599,11 @@
 /* ---------- Tonal center veil toggles ---------- */
 
 /* These and the transport inset to the stage's content edge, not its border box, so
-   each lines up with the reading it belongs to — see docs/architecture/randomizer.md's
+   each lines up with the readout it belongs to — see docs/architecture/randomizer.md's
    "Settings in two columns". */
 
-/* Top corners of the display, each above the reading it governs — current is the
-   left-hand reading, next the right-hand one. Rendered in the system face for the same
+/* Top corners of the display, each above the readout it governs — current is the
+   left-hand readout, next the right-hand one. Rendered in the system face for the same
    reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
 /* Each toggle pairs a key with a faint word, like the transport. The right-hand group
    reverses so its word sits inboard — the glyph stays pinned to the card's edge and the
@@ -654,13 +654,13 @@
 
 /* ---------- The veil itself ---------- */
 
-/* opacity carries the fade; visibility is what actually removes the reading from the
+/* opacity carries the fade; visibility is what actually removes the readout from the
    accessibility tree and from text selection. Without it, "hidden" would still be
    announced by a screen reader and selectable by mouse — which defeats listening mode
    entirely. The visibility change is delayed by exactly the fade duration on the way
    out so the animation still plays, and undelayed on the way in so the fade-in is seen.
    prefers-reduced-motion (index.css) collapses all of this to an instant swap. */
-.reading-veil {
+.readout-veil {
   position: relative;
   display: inline-block;
 }
@@ -675,7 +675,7 @@
   transition: opacity 1s ease-in-out, visibility 0s 1s;
 }
 
-/* Absolutely positioned so veiling a reading never collapses the row's height. */
+/* Absolutely positioned so veiling a readout never collapses the row's height. */
 .veil-placeholder {
   position: absolute;
   inset: 0;
@@ -688,13 +688,13 @@
   transition: opacity 1s ease-in-out, visibility 0s 1s;
 }
 
-.reading-veil.is-veiled .veil-placeholder {
+.readout-veil.is-veiled .veil-placeholder {
   opacity: 1;
   visibility: visible;
   transition: opacity 1s ease-in-out, visibility 0s;
 }
 
-.reading--next .veil-placeholder {
+.readout--next .veil-placeholder {
   justify-content: flex-end;
 }
 
@@ -1263,7 +1263,7 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 560px) {
-  .reading-row {
+  .readout-row {
     flex-wrap: wrap;
   }
 }

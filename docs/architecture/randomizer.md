@@ -84,7 +84,7 @@ redefined per tab.
 ## Components
 
 `App` → `TabNav` (practice-tab switcher) + `Display` (renders `NowPlaying`, the
-current/next reading + beat-panel visualization) + `Controls` or `PureToneControls` (the
+current/next readout + beat-panel visualization) + `Controls` or `PureToneControls` (the
 settings UI for whichever tab is active). The display also owns the **transport** and the
 **visibility toggles** — see "The display is the player" below; the settings components
 hold neither. Both settings components share `TimingSection`
@@ -147,7 +147,7 @@ distinguishes them under a single Duration caption.
 ### The display is the player (issue #23)
 
 The transport and the two visibility toggles live in `Display`, not the settings column,
-where they sat about 600px from the reading they govern.
+where they sat about 600px from the readout they govern.
 
 **Transport** is a single key that swaps between ▶ and ■ rather than two keys with one
 disabled — there are only two states, and a permanently greyed-out twin is noise on a
@@ -155,15 +155,15 @@ card this prominent. `Controls`/`PureToneControls` no longer take `isRunning`/`o
 `onStop` at all.
 
 **The veil toggles** (`TonalCenterVisibilityToggles`) sit in the display's top corners,
-each above the reading it governs: current is the left-hand reading, next the right-hand
+each above the readout it governs: current is the left-hand readout, next the right-hand
 one. ▣ is a clear pane, ▨ the same pane hatched over. They render only while a session is
-running — idle there's no reading to veil, and two glyphs over an empty card read as
+running — idle there's no readout to veil, and two glyphs over an empty card read as
 decoration.
 
 Three things about the fade that are easy to get wrong:
 
 - **It must fire on the toggle and not on a tonal center change.** Swapping the text of
-  one element would either animate every segment or animate nothing, so the reading and
+  one element would either animate every segment or animate nothing, so the readout and
   its `—` placeholder are both mounted and crossfaded by class. The placeholder is
   absolutely positioned so veiling never collapses the row's height.
 - **`opacity: 0` alone leaks the answer.** The text stays in the DOM — selectable, and
@@ -174,7 +174,7 @@ Three things about the fade that are easy to get wrong:
   clamp; it degrades to an instant swap with no extra rule.
 
 The old "Listening mode — tonal center hidden." hint is gone: it existed because the
-toggle was far from the reading, and ▨ directly above the `—` now says the same thing.
+toggle was far from the readout, and ▨ directly above the `—` now says the same thing.
 
 ### Anything that animates per beat (issue #22)
 
@@ -244,7 +244,7 @@ inside it caps the content at 46rem — the width the display was designed and m
 #22 — and carries the padding and min-height. It also has to be the containing block for
 the three absolutely-positioned corner controls (the two veil toggles and the transport):
 pinned to a full-width card they'd sit at its far edges, putting a veil toggle half a page
-from the reading it governs, which is the exact proximity problem #23 moved them into the
+from the readout it governs, which is the exact proximity problem #23 moved them into the
 display to fix. The min-height belongs on the stage rather than the card for a related
 reason — a card taller than its content would leave the transport floating above its own
 bottom edge.
@@ -253,7 +253,7 @@ bottom edge.
 0.7rem they sat 21px inside the text above them — near enough to read as a misalignment
 rather than a margin — and on a full-width card they were anchored to nothing at all,
 floating ~150px in from the card's own edge. At the content edge the transport key sits
-directly below the current reading and each veil toggle directly above the reading it
+directly below the current readout and each veil toggle directly above the readout it
 governs.
 
 The transport's *bottom* offset is deliberately larger than the toggles' top. Those are
@@ -283,9 +283,9 @@ token.
 Two rules it has to keep in step with `Display`:
 
 - **It shows what the display shows.** With `showCurrent` off (listening mode), the main
-  display deliberately withholds the reading, and the console must not become a way to
+  display deliberately withholds the readout, and the console must not become a way to
   peek at it — it renders the same `—`.
-- **`showNext` gates the next reading** the same way, matching `NowPlaying`.
+- **`showNext` gates the next readout** the same way, matching `NowPlaying`.
 - **Both read through `tonalCenterPhrase`** (`src/music/pool.js`), so Pure Tone's
   typeless segments can't render one way in the display and another in the console.
 
@@ -302,5 +302,5 @@ type label is ever added, check it here: the failure mode is silent wrapping, no
 overflow.
 
 *Next* sits below *current* rather than beside it. At a fixed width there isn't room for
-two readings side by side, and the vertical order is the one #20's stacked queue will
+two readouts side by side, and the vertical order is the one #20's stacked queue will
 need anyway.

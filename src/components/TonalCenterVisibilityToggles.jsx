@@ -1,4 +1,4 @@
-// A veil you draw over a reading, not a checkbox: ▣ is a clear pane, ▨ is the same pane
+// A veil you draw over a readout, not a checkbox: ▣ is a clear pane, ▨ is the same pane
 // hatched over. Plain glyphs rather than emoji, matching the app's ▶ ■ ▸ ▷ ☀ ☾ language.
 //
 // Rendered in the system face for the same reason ThemeToggle's ☀/☾ are — these render
@@ -6,8 +6,8 @@
 const SHOWN = '▣';
 const HIDDEN = '▨';
 
-// Sits in the display's top corners, each above the reading it governs: current is the
-// left-hand reading, next is the right-hand one, so the toggles mirror that order.
+// Sits in the display's top corners, each above the readout it governs: current is the
+// left-hand readout, next is the right-hand one, so the toggles mirror that order.
 export default function TonalCenterVisibilityToggles({ settings, updateSettings }) {
   const toggle = (key, label) => {
     const isShown = settings[key];

@@ -36,10 +36,10 @@ export default function PipConsole({
   // stale tonal center hanging in the corner.
   if (!isRunning || displayVisible) return null;
 
-  // Mirrors Display: listening mode hides the reading everywhere, so the console must
+  // Mirrors Display: listening mode hides the readout everywhere, so the console must
   // not become a way to peek at the answer the main display is deliberately withholding.
-  // Same for showNext, which gates the next reading in NowPlaying.
-  const reading = isGap
+  // Same for showNext, which gates the next readout in NowPlaying.
+  const readout = isGap
     ? 'Get ready…'
     : showCurrent && current
       ? tonalCenterPhrase(current)
@@ -72,7 +72,7 @@ export default function PipConsole({
         </button>
       </div>
 
-      <span className={`pip-reading${isGap ? ' pip-reading--gap' : ''}`}>{reading}</span>
+      <span className={`pip-readout${isGap ? ' pip-readout--gap' : ''}`}>{readout}</span>
 
       {showNext && next && (
         <span className="pip-next">

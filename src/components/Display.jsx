@@ -13,7 +13,7 @@ export default function Display({
   return (
     <div className="sleeve" ref={ref}>
       <div className="sleeve-stage">
-        {/* Only while a session is running: idle, there's no reading to veil, and two
+        {/* Only while a session is running: idle, there's no readout to veil, and two
             glyphs floating over an empty card read as decoration. */}
         {isRunning && (
           <TonalCenterVisibilityToggles settings={settings} updateSettings={updateSettings} />

@@ -125,14 +125,14 @@ momentum rather than need. Prefer landing the base.
   same "control disconnected from display" problem #23 fixed. #23 has landed, so #20 is
   free to proceed without reintroducing that proximity issue in a new form.
 
-- **#20 also owns how big "next" is.** #22 scaled the current reading up to
+- **#20 also owns how big "next" is.** #22 scaled the current readout up to
   `clamp(2rem, 7vw, 3rem)` and deliberately left `.chord-name--next` at
   `clamp(1rem, 3vw, 1.25rem)` — so the gap between them widened from ~1.7x to ~2.4x as a
   side effect. That was left alone on purpose rather than re-tuned, because #20 replaces
   a single "next" with a stack and has to re-decide it anyway.
 
   The intended hierarchy when that lands: the queue renders **smaller than the current
-  reading**, and within the queue every entry is the **same size** — size can't encode
+  readout**, and within the queue every entry is the **same size** — size can't encode
   depth in a stack without becoming a staircase. Depth is carried by **saturation**
   instead, so the top of the queue reads stronger than the entries behind it while still
   clearly sitting below the current tonal center. The `--paper` / `--paper-dim` /
