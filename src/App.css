@@ -164,14 +164,11 @@
 
 /* ---------- Sleeve / Display ---------- */
 
+/* The card. It spans whatever width the page gives it; everything that sets the
+   display's proportions lives on .sleeve-stage inside. */
 .sleeve {
-  position: relative;
-  min-height: 19rem;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 1.1rem;
   background: var(--panel);
   /* No drop shadow (issue #31): the display gets its prominence from type and air
      instead, and a real border makes it read as part of the page rather than floating
@@ -180,7 +177,29 @@
   border: 1px solid var(--paper-medium);
   border-radius: 0.5rem;
   margin-bottom: 2rem;
+}
+
+/* Holds the display's measure, its padding and its min-height, so a card that spans
+   the page doesn't stretch the reading across it (#27). It's also the containing block
+   for the three absolutely-positioned corner controls — the two veil toggles and the
+   transport — which is the point: pinned to the card they'd sit at the far edges of a
+   full-width sleeve, and #23 put each veil toggle above the reading it governs. 46rem
+   is the width the display was designed and mocked at in #22, kept rather than re-tuned.
+
+   min-height and padding sit here rather than on .sleeve so the card shrink-wraps this
+   box; on .sleeve, a card taller than its content would leave the transport floating
+   above its own bottom edge. */
+.sleeve-stage {
+  position: relative;
+  width: 100%;
+  max-width: 46rem;
+  min-height: 19rem;
   padding: 2.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
 }
 
 .sleeve-idle {
@@ -492,6 +511,15 @@
 /* ---------- Controls ---------- */
 
 .controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Each column stacks its own groups at the same rhythm .controls uses between them, so
+   the single-column layout below the breakpoint reads as one even stack rather than as
+   two wrappers that happen to be adjacent. */
+.controls-column {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -1243,24 +1271,26 @@
 }
 
 /* A wide window shouldn't leave the page stranded in a narrow column with the rest of
-   the desk empty — past this width, the sleeve and the controls sit side by side like a
-   gatefold, sharing the extra room instead of ignoring it. */
+   the desk empty. This used to seat the sleeve and the controls side by side like a
+   gatefold, which left a tall void under the display — the settings stack is roughly
+   three times its height. Now the display is a full-width hero and the settings split
+   beneath it (#27), so the extra room goes to the column that actually has content to
+   fill it. */
 @media (min-width: 1040px) {
   .app {
     max-width: 1080px;
     padding-top: 3.5rem;
+  }
+
+  /* A third for the player controls, two thirds for the tonal-center pickers: the
+     pickers carry the mode row, the preset buttons and the whole Advanced breakdown,
+     and Timing and Sound are single-column stacks of short fields either way.
+     align-items: start so a short column doesn't stretch its groups to match a tall
+     neighbour. */
+  .controls {
     display: grid;
-    grid-template-columns: minmax(320px, 460px) 1fr;
-    column-gap: 3rem;
-    row-gap: 2rem;
+    grid-template-columns: 1fr 2fr;
     align-items: start;
-  }
-
-  .masthead {
-    grid-column: 1 / -1;
-  }
-
-  .sleeve {
-    margin-bottom: 0;
+    column-gap: 2rem;
   }
 }

@@ -21,17 +21,18 @@ behind it — this doc only tracks sequencing.
 
 ## Status at a glance
 
-**Landed:** #21, #22, #23, #25, #26, #28, #29, #31 (subsumed).
+**Landed:** #21, #22, #23, #25, #26, #27, #28, #29, #31 (subsumed).
 **Dropped:** #30 — closed won't-do, see below.
-**Remaining:** #27 (L), #24 (L), #20 (M) — plus #34, which spun out of #23.
+**Remaining:** #24 (L), #20 (M) — plus #34, which spun out of #23.
 
-**Next up:** **#27** is unblocked and is the last of Phase 4.
+**Next up:** **#24** (idle state) and **#20** (stacked queue) are what's left of this
+initiative, and neither blocks the other.
 
 **Not part of this initiative, but it landed in the middle of it:** #40 rebuilt the
 Timing group's internals (captioned blocks, toggles that hold position when clicked,
-numeric bounds that actually bind). #27 reflows that group into the left column, so read
-`randomizer.md`'s "Timing group layout" before moving it — the order of a toggle and the
-fields it governs is load-bearing, not cosmetic.
+numeric bounds that actually bind). #27 moved that group into the left column without
+touching its internals — the order of a toggle and the fields it governs is load-bearing,
+not cosmetic, so read `randomizer.md`'s "Timing group layout" before rearranging it.
 
 ## Branching
 
@@ -83,13 +84,19 @@ momentum rather than need. Prefer landing the base.
   Also renamed to **"Custom chord bank"** (it only parses chords) and given an Apply
   button plus Enter-to-apply, since committing was previously blur-only.
 
-**Phase 4 — depended on #22, #23, #26 — all now landed, so this is unblocked**
-- #27 — Rebalance settings into two columns (player controls vs. tonal center
-  pickers). Note its plan already assumes the transport lives on the display, which
-  #23 delivered, and assigns metronome volume to the left column — putting volume on
-  the display card was considered during #23 and **rejected**: it changes how the
-  session sounds rather than what you're looking at, and moving it would split the
-  metronome's on/off from its level.
+**Phase 4 — depended on #22, #23, #26**
+- ~~#27 — Rebalance settings into two columns~~ — **landed**, and it had to resolve a
+  conflict the issue didn't know about: #27 assumed a full-width hero display, while #22
+  had actually shipped a *gatefold* with the display as one of two columns. The gatefold
+  left a tall void under the display (it's a third the height of the settings stack), so
+  the hero won — see `randomizer.md`'s "Settings in two columns" for the full reasoning
+  and for the two things that are easy to undo by accident.
+
+  It also needed `.sleeve-stage`: a full-width card would have flung the veil toggles and
+  the transport to its far edges, undoing #23's proximity fix. Metronome volume stayed in
+  the left column as the issue planned — putting it on the display card was considered
+  during #23 and **rejected**, since it changes how the session sounds rather than what
+  you're looking at, and moving it would split the metronome's on/off from its level.
 
 **Phase 5 — sequenced together, touch the same fieldset markup**
 - ~~#28 — Fieldset headers: drop brackets, stack select-all, indent items~~ — **landed.**

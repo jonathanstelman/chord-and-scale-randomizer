@@ -185,13 +185,47 @@ changes on every beat must stay on properties the compositor can handle alone �
 This governs `.beat-block--current` and `.pip-beat--current` today; it applies to any
 future beat-synced cue.
 
+### Settings in two columns (issue #27)
+
+Above 1040px the display is a full-width hero and the settings split beneath it: player
+controls in a third, tonal-center pickers in the remaining two. The split is by what a
+setting *governs* — how it plays versus what gets picked — not by size.
+
+**This replaced a gatefold.** #22 had seated the sleeve and the controls side by side as
+two columns. That read well in the abstract and badly in practice: the display is about
+300px tall and the settings stack about three times that, so the left column was mostly
+void. #27 was written expecting a full-width hero and had to be reconciled with what #22
+actually shipped; the hero won, because it's the arrangement where the extra width goes
+to the column that has content to fill it.
+
+Two things that fall out of it, both easy to undo by accident:
+
+- **The columns are real wrappers** (`.controls-column`), not a `column-count` on
+  `.controls`. A settings group must never be split across a column boundary, and
+  multi-column layout will happily break one mid-fieldset.
+- **Source order is the mobile order.** The player column comes first in the markup,
+  which is also the order the single-column stack below the breakpoint wants, so the
+  narrow layout needs no reordering — no `order`, no `grid-row` juggling. Keep it that
+  way: the moment the columns need reordering for mobile, the two layouts start
+  disagreeing about which group follows which.
+
+**`.sleeve-stage` is why a full-width card is safe.** The card spans the page; the stage
+inside it caps the content at 46rem — the width the display was designed and mocked at in
+#22 — and carries the padding and min-height. It also has to be the containing block for
+the three absolutely-positioned corner controls (the two veil toggles and the transport):
+pinned to a full-width card they'd sit at its far edges, putting a veil toggle half a page
+from the reading it governs, which is the exact proximity problem #23 moved them into the
+display to fix. The min-height belongs on the stage rather than the card for a related
+reason — a card taller than its content would leave the transport floating above its own
+bottom edge.
+
 ### PiP console (`PipConsole.jsx`, issue #22)
 
 A floating console that docks once the in-flow display scrolls out of the viewport and
 un-docks when it returns — true picture-in-picture, not an always-on widget. `App` holds
-a ref to the `.sleeve` element (the ref lands on the sleeve itself, not a wrapper, since
-a wrapper would become the grid item in the two-column layout) and hands it to
-`PipConsole`, which observes it with an `IntersectionObserver`. The observer uses a small
+a ref to the `.sleeve` element — the outer card, not `.sleeve-stage` inside it, since the
+card is what actually leaves the viewport — and hands it to `PipConsole`, which observes
+it with an `IntersectionObserver`. The observer uses a small
 negative `rootMargin`: without it the console flickers on and off while the display sits
 exactly at the viewport edge.
 
