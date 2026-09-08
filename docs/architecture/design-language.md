@@ -92,7 +92,7 @@ was considered and rejected — it would collide with a code the mode blocks alr
 |---|---|---|
 | Masthead lockup | upright, tipping, fallen | The identity mark: at rest, running, and one for composition. |
 | Idle display card | upright | The hero of the idle state (#24). |
-| Foot of Advanced settings | fallen (`fallRight`) | Faint and right-aligned, inside a panel that starts closed — found rather than presented. |
+| Foot of Advanced settings | fallen (`fallRight`) | Right-aligned inside a panel that starts closed — found rather than presented. |
 
 The last one is deliberately the only chair you have to go looking for, and it only
 exists on the Chords & Scales tab, since Pure Tone has no Advanced panel. It uses

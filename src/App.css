@@ -261,13 +261,18 @@
   font-size: 1.5rem;
 }
 
-/* Right-aligned and faint: found rather than presented. */
+/* Right-aligned at the foot of the panel: found rather than presented.
+
+   padding-right cancels the pose rotation, which throws the drawing 10px past its own
+   layout box (see docs/design/chair-motif/README.md). Without it the chair sat 7px from
+   the panel border while everything else sits at its 1rem padding. In px because the
+   overhang scales with the chair's px size, not with the root font. */
 .settings-easter-chair {
   display: flex;
   justify-content: flex-end;
   margin-top: 1.25rem;
+  padding-right: 10px;
   color: var(--paper);
-  opacity: 0.4;
 }
 
 /* ---------- PiP console (docks once the display scrolls away) ---------- */
