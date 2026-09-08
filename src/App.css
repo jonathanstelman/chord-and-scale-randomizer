@@ -529,14 +529,18 @@
 
 /* One key, swapped between play and stop — not two with one disabled. There are only
    two states, and a permanently greyed-out twin is noise on a card this prominent. */
-/* Bottom-left corner, mirroring the veil toggles in the top two — the card's controls
-   sit on its edges and leave the middle to the reading. Absolute, so it's out of flow
-   and the reading stays optically centred in the card rather than being pushed up by a
-   control row. */
+/* Bottom-left of the stage, mirroring the veil toggles in the top two — the card's
+   controls sit on its edges and leave the middle to the reading. Absolute, so it's out
+   of flow and the reading stays optically centred rather than being pushed up by a
+   control row.
+
+   The bottom offset is deliberately larger than the toggles' 0.6rem top: those are
+   borderless glyphs, this is a bordered key, and at an equal gap a drawn box reads as
+   crowding the card's own border. Optical, not an inconsistency to "unify". */
 .transport-deck {
   position: absolute;
-  left: 0.7rem;
-  bottom: 0.6rem;
+  left: 2rem;
+  bottom: 1.15rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -598,6 +602,12 @@
 
 /* ---------- Tonal center veil toggles ---------- */
 
+/* These and the transport inset to the stage's *content* edge (2rem), not its border
+   box, so each control lines up with the reading it belongs to. At 0.7rem they sat 21px
+   inside the text above them — near enough to read as a misalignment rather than a
+   margin — and once the card went full width (#27) they were anchored to nothing at all,
+   floating ~150px in from the card's own edge. */
+
 /* Top corners of the display, each above the reading it governs — current is the
    left-hand reading, next the right-hand one. Rendered in the system face for the same
    reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
@@ -612,10 +622,10 @@
   gap: 0.4rem;
 }
 
-.tonal-center-veil-group--current { left: 0.7rem; }
+.tonal-center-veil-group--current { left: 2rem; }
 
 .tonal-center-veil-group--next {
-  right: 0.7rem;
+  right: 2rem;
   flex-direction: row-reverse;
 }
 
