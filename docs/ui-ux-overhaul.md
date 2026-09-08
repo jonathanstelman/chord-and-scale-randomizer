@@ -22,10 +22,10 @@ behind it — this doc only tracks sequencing.
 ## Status at a glance
 
 **Landed:** #21, #22, #23, #25, #26, #28, #29, #31 (subsumed).
-**Remaining:** #30 (S), #27 (L), #24 (L), #20 (M) — plus #34, which spun out of #23.
+**Dropped:** #30 — closed won't-do, see below.
+**Remaining:** #27 (L), #24 (L), #20 (M) — plus #34, which spun out of #23.
 
-**Next up:** **#30** is still the cheapest remaining and the one that decays if left —
-see the note under it. #27 is unblocked and is the last of Phase 4.
+**Next up:** **#27** is unblocked and is the last of Phase 4.
 
 **Not part of this initiative, but it landed in the middle of it:** #40 rebuilt the
 Timing group's internals (captioned blocks, toggles that hold position when clicked,
@@ -102,12 +102,14 @@ momentum rather than need. Prefer landing the base.
 
 **Independent — land whenever, low coordination cost**
 - ~~#25 — Advanced disclosure arrow fix~~ — **landed** (with #26).
-- #30 — Visual transition cue on tonal-center change. **Do this before the structure in
-  `NowPlaying.jsx` goes cold.** #23 built a crossfade on the readings that must *not*
-  fire when the tonal center changes; #30 wants an animation on the same element that
-  *does* fire on every change. Getting one wrong re-triggers the other — see the veil
-  notes in `randomizer.md`. Branches from `main`; nothing else is in flight to collide
-  with.
+- ~~#30 — Visual transition cue on tonal-center change~~ — **closed won't-do.** Explored
+  over three rounds (cues on the chord name, then colourings of the beat track) and
+  rejected as visual noise: the moment is already marked twice, by the beat track
+  resetting to 1 and by the metronome's accented click on that same beat. The comparison
+  sheet and the full reasoning are kept in `docs/design/transition-cue/` — read that
+  before re-proposing this. Two findings there are worth having anyway: the accented
+  click already lands on the downbeat of each new tonal center, and light-mode `--brass`
+  is a deep olive for a documented reason that constrains any fill-plus-numeral pairing.
 - ~~#31 — Remove the display's drop-shadow~~ — **subsumed by #22.**
 
 ## Related but separate
