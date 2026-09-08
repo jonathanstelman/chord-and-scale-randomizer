@@ -70,12 +70,10 @@ function Controls({
 
   return (
     <div className="controls">
-      {/* Two columns at wide widths, grouped by what a setting actually governs:
-          this column is *how* it plays, the next is *what* gets picked (#27).
-          Real wrappers rather than a column-count on .controls, because a group
-          must never be split across a column boundary. The player column comes
-          first in source order, which is also the order the narrow single-column
-          stack wants — so the mobile layout needs no reordering. */}
+      {/* Two columns at wide widths: how it plays, then what gets picked. Real wrappers
+          rather than a column-count, and the player column is first in source order —
+          see docs/architecture/randomizer.md's "Settings in two columns" for why both
+          are load-bearing. */}
       <div className="controls-column controls-column--player">
         <TimingSection settings={settings} updateSettings={updateSettings} />
 

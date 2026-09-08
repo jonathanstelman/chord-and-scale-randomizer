@@ -2,15 +2,10 @@ import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
 
-// `ref` lands on the outer `.sleeve` — the card itself — because that's the element
-// whose visibility PipConsole tracks to know when the display has left the viewport.
-//
-// `.sleeve-stage` inside it caps the content to a readable measure while the card is
-// free to span the page (#27). It has to wrap *everything*, not just the reading: the
-// two veil toggles and the transport are absolutely positioned to the corners, and
-// pinned to the card they'd drift to the far edges of a full-width sleeve — a veil
-// toggle half a page from the reading it governs, which is exactly the proximity
-// problem #23 moved them here to fix.
+// The ref goes on the outer `.sleeve`: the card is what leaves the viewport, and that's
+// what PipConsole observes. `.sleeve-stage` caps the content measure and has to wrap
+// everything, corner controls included — see docs/architecture/randomizer.md's "Settings
+// in two columns".
 export default function Display({
   ref, settings, updateSettings, current, next, isRunning, beatIndex, totalBeats, isGap,
   onStart, onStop,

@@ -229,8 +229,6 @@ export function useRandomizer(settings, options = {}) {
     setIsGap(false);
   }, []);
 
-  // Keep the screen awake for the length of a session: a practising user watches the
-  // reading and plays an instrument, producing no input events for an idle timer to see.
   useWakeLock(isRunning);
 
   // Keep tempo/metronome-volume changes live while running.

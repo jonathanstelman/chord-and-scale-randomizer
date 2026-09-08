@@ -249,6 +249,18 @@ display to fix. The min-height belongs on the stage rather than the card for a r
 reason — a card taller than its content would leave the transport floating above its own
 bottom edge.
 
+**Those three controls inset to the stage's content edge (2rem), not its border box.** At
+0.7rem they sat 21px inside the text above them — near enough to read as a misalignment
+rather than a margin — and on a full-width card they were anchored to nothing at all,
+floating ~150px in from the card's own edge. At the content edge the transport key sits
+directly below the current reading and each veil toggle directly above the reading it
+governs.
+
+The transport's *bottom* offset is deliberately larger than the toggles' top. Those are
+borderless glyphs; the transport is a bordered key, and at an equal gap a drawn box reads
+as crowding the card's border. It's an optical correction, not an inconsistency to
+unify.
+
 ### PiP console (`PipConsole.jsx`, issue #22)
 
 A floating console that docks once the in-flow display scrolls out of the viewport and

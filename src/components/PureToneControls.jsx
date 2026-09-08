@@ -41,8 +41,8 @@ function PureToneControls({
 
   return (
     <div className="controls">
-      {/* Same two-column split as Controls (#27) — one group per column here,
-          since this tab's settings surface is deliberately smaller. */}
+      {/* Same two-column split as Controls — one group per column, since this tab's
+          settings surface is deliberately smaller. */}
       <div className="controls-column controls-column--player">
         <TimingSection settings={settings} updateSettings={updateSettings} />
       </div>

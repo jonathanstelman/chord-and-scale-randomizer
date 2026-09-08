@@ -13,6 +13,20 @@ Read the one relevant to what you're doing, not all of them — that's the point
   a change, not only once one visibly balloons — and if a comment points at a doc
   section, confirm that section actually contains what it claims (add it there first if
   not) rather than leaving a pointer to nothing.
+
+  **Re-read every comment you wrote before you commit**, as its own pass. Writing the
+  reasoning out at length while the decision is fresh is the easy failure here, and it
+  produces comments that duplicate `docs/architecture/` almost word for word. Any of
+  these tells means the reasoning belongs in the doc with a pointer left behind:
+
+  - it cites an issue number, or narrates what some past change did
+  - it describes an alternative that was tried and rejected
+  - it stacks several facts, or is long enough to want a blank line
+  - it runs past ~4 lines without explaining the algorithm on the line below it
+
+  A comment earns its length only when deleting it would stop you safely editing *that
+  line*. Default to a couple of lines plus a pointer, and put the essay in
+  `docs/architecture/` where it can be found and kept current.
 - `docs/architecture/` — the "why" behind each subsystem's design, one file per topic (see
   its own index) — go here when a change touches non-obvious existing behavior
 - `docs/design/` — working material behind visual design decisions: generators, reference
