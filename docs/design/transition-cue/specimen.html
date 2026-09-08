@@ -1,0 +1,915 @@
+<meta charset="utf-8">
+<title>Transition Cue Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+
+<style>
+/* ============================================================
+   SHEET CHROME — deliberately *not* the app's palette, so the
+   instrument never gets mistaken for the thing being measured.
+   Same chrome tokens as docs/design/chair-motif/specimen.html.
+   ============================================================ */
+:root {
+  --sheet-bg: #0d1620;
+  --sheet-panel: #131f2b;
+  --sheet-fg: #e8e2d2;
+  --sheet-dim: rgba(232, 226, 210, 0.58);
+  --sheet-faint: rgba(232, 226, 210, 0.30);
+  --sheet-line: rgba(232, 226, 210, 0.16);
+  --sheet-accent: #4a97c4;
+  --sheet-warn: #ce9b2e;
+  --sheet-ok: #4f9d6a;
+  --sheet-bad: #d8481f;
+
+  /* ---- The app's real tokens (src/index.css), verbatim. Dark is the
+     baseline here exactly as it is in the app. ---- */
+  --ink: #12202e;
+  --panel: #17293b;
+  --paper: #f4eedd;
+  --cobalt: #2b6e96;
+  --brass: #ce9b2e;
+  --flame: #d8481f;
+  --paper-dim: rgba(244, 238, 221, 0.62);
+  --paper-faint: rgba(244, 238, 221, 0.14);
+  --paper-medium: rgba(244, 238, 221, 0.3);
+
+  /* The colour the off-beats take. Dark mode has no problem: --brass is already
+     a bright gold on a dark panel. Light mode is the open question — see the
+     "off-beat gold" control — so it reads from --gold-light, which the control
+     sets and which falls back to today's --brass. */
+  --offbeat: var(--brass);
+
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Work Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, Consolas, monospace;
+  --fvs-readout: 'opsz' 90, 'wght' 300, 'SOFT' 70, 'WONK' 1;
+  --fvs-ui: 'opsz' 40, 'wght' 400, 'SOFT' 50, 'WONK' 1;
+  --fvs-tiny: 'opsz' 14, 'wght' 500, 'SOFT' 50, 'WONK' 1;
+
+  color-scheme: dark;
+}
+
+/* Three-state theming, same shape the app uses: an explicit choice wins over
+   the OS preference in both directions. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --sheet-bg: #e9e2d0; --sheet-panel: #f7f2e6; --sheet-fg: #14212e;
+    --sheet-dim: rgba(20,33,46,.62); --sheet-faint: rgba(20,33,46,.34);
+    --sheet-line: rgba(20,33,46,.17);
+    --sheet-accent: #235d81; --sheet-warn: #8a6412;
+    --sheet-ok: #2f7048; --sheet-bad: #b93d16;
+    --ink: #f4eedd; --panel: #ffffff; --paper: #12202e; --brass: #8a6412;
+    --paper-dim: rgba(18, 32, 46, 0.62);
+    --paper-faint: rgba(18, 32, 46, 0.14);
+    --paper-medium: rgba(18, 32, 46, 0.3);
+    --offbeat: var(--gold-light, var(--brass));
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --sheet-bg: #e9e2d0; --sheet-panel: #f7f2e6; --sheet-fg: #14212e;
+  --sheet-dim: rgba(20,33,46,.62); --sheet-faint: rgba(20,33,46,.34);
+  --sheet-line: rgba(20,33,46,.17);
+  --sheet-accent: #235d81; --sheet-warn: #8a6412;
+  --sheet-ok: #2f7048; --sheet-bad: #b93d16;
+  --ink: #f4eedd; --panel: #ffffff; --paper: #12202e; --brass: #8a6412;
+  --paper-dim: rgba(18, 32, 46, 0.62);
+  --paper-faint: rgba(18, 32, 46, 0.14);
+  --paper-medium: rgba(18, 32, 46, 0.3);
+  --offbeat: var(--gold-light, var(--brass));
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--sheet-bg);
+  color: var(--sheet-fg);
+  font: 15px/1.6 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+/* ---------- Masthead ---------- */
+
+.sheet-head { border-bottom: 1px solid var(--sheet-line); padding-bottom: 1.75rem; }
+
+.sheet-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sheet-warn);
+  margin: 0 0 0.6rem;
+}
+
+.sheet-head h1 {
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 60, 'wght' 500, 'SOFT' 40, 'WONK' 1;
+  font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+  line-height: 1.05;
+  margin: 0 0 0.75rem;
+  text-wrap: balance;
+}
+
+.sheet-head p { margin: 0 0 0.6rem; max-width: 64ch; color: var(--sheet-dim); }
+.sheet-head b { color: var(--sheet-fg); font-weight: 600; }
+
+/* This sheet outlived the decision it was built for — say so at the top, or
+   someone opens it and reads a settled question as an open one. */
+.verdict {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  max-width: 64ch;
+  margin: 0 0 1.1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--sheet-bad);
+  border-left-width: 3px;
+  border-radius: 0.3rem;
+}
+.verdict strong {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sheet-bad);
+  white-space: nowrap;
+}
+.verdict span { font-size: 0.88rem; color: var(--sheet-dim); }
+.verdict b { color: var(--sheet-fg); font-weight: 600; }
+
+/* ---------- Control bar ---------- */
+
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.25rem 1.6rem;
+  margin: 1.75rem 0 2.25rem;
+  padding: 1rem 1.15rem;
+  background: var(--sheet-panel);
+  border: 1px solid var(--sheet-line);
+  border-radius: 0.4rem;
+}
+
+.control { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.control > span,
+.control-check {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--sheet-dim);
+}
+
+.control input[type="range"] { width: 9rem; accent-color: var(--sheet-accent); }
+.control-check { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; }
+.control-check input { accent-color: var(--sheet-accent); margin: 0; }
+
+.seg { display: flex; border: 1px solid var(--sheet-line); border-radius: 0.25rem; overflow: hidden; }
+.seg button {
+  font: 500 0.78rem/1 var(--font-body);
+  padding: 0.45rem 0.65rem;
+  background: transparent;
+  color: var(--sheet-dim);
+  border: 0;
+  border-right: 1px solid var(--sheet-line);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--sheet-accent); color: #fff; }
+.seg button i { width: 9px; height: 9px; border-radius: 2px; }
+
+.btn {
+  font: 600 0.82rem/1 var(--font-body);
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--sheet-accent);
+  background: transparent;
+  color: var(--sheet-accent);
+  cursor: pointer;
+}
+.btn--primary { background: var(--sheet-accent); color: #fff; }
+.btn:focus-visible, .seg button:focus-visible, .control-check:focus-within {
+  outline: 2px solid var(--sheet-warn);
+  outline-offset: 2px;
+}
+
+.readout-bpm { font-family: var(--font-mono); font-size: 0.8rem; color: var(--sheet-fg); font-variant-numeric: tabular-nums; }
+
+.gold-caption {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  color: var(--sheet-faint);
+  font-variant-numeric: tabular-nums;
+}
+.gold-caption b { font-weight: 700; }
+.gold-caption .pass { color: var(--sheet-ok); }
+.gold-caption .fail { color: var(--sheet-bad); }
+
+/* ---------- Variant grid ---------- */
+
+.grid {
+  display: grid;
+  /* 420px floor gives two columns on a laptop rather than three — four cards
+     compare far better as a 2x2 than as a row of three and a stray. */
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.variant { display: flex; flex-direction: column; gap: 0.85rem; }
+
+.variant-head { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+
+.variant-name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-ui);
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+  border-radius: 2px;
+  border: 1px solid var(--sheet-accent);
+  color: var(--sheet-accent);
+}
+
+.variant-note { margin: 0; font-size: 0.86rem; color: var(--sheet-dim); }
+.variant-note b { color: var(--sheet-fg); font-weight: 600; }
+
+.variant-swatches {
+  display: flex;
+  gap: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-faint);
+}
+.variant-swatches span { display: flex; align-items: center; gap: 0.35rem; }
+.variant-swatches i { width: 9px; height: 13px; border-radius: 2px; }
+
+/* ============================================================
+   THE DISPLAY CARD — reproduces src/App.css's .sleeve / .now-playing
+   at a smaller readout size, so the beat track is judged on the real
+   surface, at the size and spacing it actually has.
+   ============================================================ */
+
+.sleeve {
+  --readout: clamp(1.5rem, 3.6vw, 2rem);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  min-height: 12.5rem;
+  padding: 1.75rem 1.35rem;
+  background: var(--panel);
+  border: 1px solid var(--paper-medium);
+  border-radius: 0.5rem;
+}
+
+.reading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+.reading--current { flex: 1 1 auto; min-width: 0; }
+
+.reading--next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  opacity: 0.85;
+  flex: 0 0 auto;
+}
+
+.reading-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.chord-name {
+  display: block;
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-readout);
+  line-height: 1.1;
+  color: var(--paper);
+  font-size: var(--readout);
+}
+
+.chord-name--gap { color: var(--paper-dim); font-style: italic; }
+.chord-name--veiled { color: var(--paper-medium); }
+
+.chord-name--next {
+  font-size: 0.8rem;
+  color: var(--paper-dim);
+  max-width: 7rem;
+  text-align: right;
+}
+
+.beat-panel { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 100%; }
+
+.beat-numeral { display: flex; align-items: baseline; gap: 0.3rem; font-family: var(--font-display); }
+.beat-numeral-current {
+  font-variation-settings: var(--fvs-readout);
+  font-size: 1.9rem; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  /* Matches the block below it — see "the numeral follows the block" rules. */
+  color: var(--flame);
+  transition: color .15s ease-out;
+}
+.beat-numeral-total { font-variation-settings: var(--fvs-tiny); font-size: 0.8rem; color: var(--paper); }
+
+.beat-track { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.3rem; }
+
+/* ============================================================
+   THE BEAT BLOCKS.
+
+   Baseline is src/App.css verbatim. Every variant below changes
+   nothing but which token fills a block — the transition, the
+   scaleY, and the per-beat class swap are machinery the app already
+   runs on every beat, so none of this adds a frame of work.
+   ============================================================ */
+
+.beat-block {
+  width: 0.75rem; height: 1.1rem; border-radius: 2px;
+  border: 1px solid var(--paper-faint); background: transparent;
+  transition: background .15s ease-out, border-color .15s ease-out, transform .15s ease-out;
+}
+.beat-block.past { background: var(--paper-medium); border-color: transparent; }
+.beat-block.current { background: var(--flame); border-color: var(--flame); transform: scaleY(1.15); }
+
+/* --- B: Downbeat flame. Beat 1 flame, the rest of the span gold. --- */
+.v-downbeat .beat-block.current.offbeat { background: var(--offbeat); border-color: var(--offbeat); }
+
+/* --- C: Downbeat brass — the same idea inverted, the singleton beat carrying
+   the gold. This is the one that matches the accented click's *beat*; whether
+   it matches its *weight* is the thing to look at. --- */
+.v-inverse .beat-block.current.downbeat { background: var(--offbeat); border-color: var(--offbeat); }
+.v-inverse .beat-block.current.offbeat { background: var(--flame); border-color: var(--flame); }
+
+/* --- D: Coloured trail. Position, not just the highlight: a block keeps its
+   colour after you've passed it, at the same weight --paper-medium had, so the
+   track remembers where the downbeat was for the whole span. Upcoming blocks
+   stay neutral outlines — colouring those too would preview the change rather
+   than mark it. --- */
+.v-trail .beat-block.past.downbeat {
+  background: color-mix(in srgb, var(--flame) 52%, transparent);
+  border-color: transparent;
+}
+.v-trail .beat-block.past.offbeat {
+  background: color-mix(in srgb, var(--offbeat) 42%, transparent);
+  border-color: transparent;
+}
+.v-trail .beat-block.current.offbeat { background: var(--offbeat); border-color: var(--offbeat); }
+
+/* ---- The numeral follows the block ----
+   The numeral takes the colour of the block it's counting, so "3" and the third
+   square are never two different colours. This also fixes something already
+   wrong in the app: during a rest the block goes cobalt while the numeral stays
+   flame. */
+.v-downbeat .beat-numeral-current.offbeat { color: var(--offbeat); }
+.v-inverse .beat-numeral-current.downbeat { color: var(--offbeat); }
+.v-inverse .beat-numeral-current.offbeat { color: var(--flame); }
+.v-trail .beat-numeral-current.offbeat { color: var(--offbeat); }
+
+/* Cobalt during the silent rest, in every variant — visually distinct from a
+   sounding beat, same shape language. Last, and with the variant class in the
+   selector, so it outranks the rules above rather than losing to them. */
+.beat-block.current.gap,
+.v-downbeat .beat-block.current.gap,
+.v-inverse .beat-block.current.gap,
+.v-trail .beat-block.current.gap {
+  background: var(--cobalt); border-color: var(--cobalt);
+}
+.beat-numeral-current.gap,
+.v-downbeat .beat-numeral-current.gap,
+.v-inverse .beat-numeral-current.gap,
+.v-trail .beat-numeral-current.gap { color: var(--cobalt); }
+
+/* Mirrors index.css's blanket prefers-reduced-motion clamp. */
+body.reduced *, body.reduced *::before, body.reduced *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ---------- Notes ---------- */
+
+.notes { margin-top: 3.5rem; border-top: 1px solid var(--sheet-line); padding-top: 2rem; }
+.notes h2 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-ui);
+  font-size: 1.3rem; margin: 0 0 1.25rem;
+}
+.notes h3 {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--sheet-warn); margin: 1.75rem 0 0.5rem;
+}
+.notes p, .notes li { max-width: 68ch; color: var(--sheet-dim); }
+.notes p { margin: 0 0 0.75rem; }
+.notes ul { margin: 0 0 0.75rem; padding-left: 1.1rem; }
+.notes li { margin-bottom: 0.4rem; }
+.notes b { color: var(--sheet-fg); font-weight: 600; }
+.notes code {
+  font-family: var(--font-mono); font-size: 0.85em;
+  background: var(--sheet-panel); border: 1px solid var(--sheet-line);
+  border-radius: 3px; padding: 0.05em 0.3em;
+}
+
+.ratio-table {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  margin: 0 0 1rem;
+  font-variant-numeric: tabular-nums;
+}
+.ratio-table th, .ratio-table td {
+  text-align: left;
+  padding: 0.35rem 0.9rem 0.35rem 0;
+  border-bottom: 1px solid var(--sheet-line);
+  color: var(--sheet-dim);
+  white-space: nowrap;
+}
+.ratio-table th { color: var(--sheet-faint); font-weight: 400; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.62rem; }
+.ratio-table .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 0.45rem; vertical-align: -1px; }
+.ratio-table .pass { color: var(--sheet-ok); }
+.ratio-table .fail { color: var(--sheet-bad); }
+</style>
+
+<div class="wrap">
+  <header class="sheet-head">
+    <p class="sheet-eyebrow">Issue #30 · working sheet · final state</p>
+    <h1>Transition Cue Specimen</h1>
+
+    <div class="verdict">
+      <strong>Rejected</strong>
+      <span>
+        #30 is <b>closed as won&rsquo;t-do</b>. A visual cue for the tonal-center change added
+        noise without adding information: the moment is already marked twice — the beat track
+        resets to 1, and the metronome plays an accented click on that exact beat. This page is
+        kept as the record of what was tried, not as an open question.
+      </span>
+    </div>
+
+    <p>
+      What it shows: colour the beat blocks so the first beat of a tonal center reads
+      differently from the rest of its span, with the <b>numeral taking the colour of the
+      block it&rsquo;s counting</b>. Four cards on one shared clock. An earlier round put the
+      cue on the chord name — a fade, a lift, a flash, a wash across the card — and was
+      rejected first; see the README.
+    </p>
+    <p>
+      Two findings here outlived the feature: the <b>accented click already marks the
+      downbeat</b>, and light-mode brass is a deep olive for a specific reason that constrains
+      any future pairing of a fill with a numeral. Both are written up below the cards.
+    </p>
+  </header>
+
+  <div class="controls">
+    <button type="button" class="btn btn--primary" id="playBtn" aria-pressed="true">Pause</button>
+    <button type="button" class="btn" id="nowBtn">Change now</button>
+
+    <label class="control">
+      <span>Tempo <span class="readout-bpm" id="bpmOut">84 bpm</span></span>
+      <input type="range" id="bpm" min="40" max="180" step="2" value="84">
+    </label>
+
+    <div class="control">
+      <span>Beats per tonal center</span>
+      <div class="seg" id="beatsSeg" role="group" aria-label="Beats per tonal center"></div>
+    </div>
+
+    <div class="control">
+      <span>Rest between tones</span>
+      <div class="seg" id="restSeg" role="group" aria-label="Rest between tones"></div>
+    </div>
+
+    <div class="control">
+      <span>Theme</span>
+      <div class="seg" id="themeSeg" role="group" aria-label="Theme"></div>
+    </div>
+
+    <div class="control">
+      <span>Off-beat gold · light mode only</span>
+      <div class="seg" id="goldSeg" role="group" aria-label="Off-beat gold, light mode"></div>
+      <span class="gold-caption" id="goldOut"></span>
+    </div>
+
+    <label class="control-check">
+      <input type="checkbox" id="veil"> Listening mode
+    </label>
+
+    <label class="control-check">
+      <input type="checkbox" id="reduced"> Simulate reduced motion
+    </label>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="notes">
+    <h2>Findings that outlived the feature</h2>
+
+    <h3>The darkening was for small label text</h3>
+    <p>
+      <code>theming.md</code>: <code>--brass</code> is the one accent that forks per theme
+      (<code>#ce9b2e</code> &rarr; <code>#8a6412</code>) because at its dark-mode value it
+      reads as washed-out, low-contrast text on a light page — <em>&ldquo;small uppercase
+      labels (TIMING, SOUND, PRESETS…) especially.&rdquo;</em> That darkening is correct for
+      those labels. It is why the light theme&rsquo;s gold is a deep olive rather than a gold,
+      and it is exactly what you&rsquo;re seeing as muddy in the beat track.
+    </p>
+
+    <h3>A block is a fill; the numeral is text — and that&rsquo;s the whole problem</h3>
+    <p>
+      A filled 12&times;18px block has no contrast requirement worth the name, so it could
+      take the bright gold in light mode and look right. The numeral can&rsquo;t: it&rsquo;s
+      text. Asking the two to match — which is the right call, they read as one object —
+      means the <b>fill inherits the numeral&rsquo;s contrast floor</b>. That&rsquo;s the
+      trade this round makes visible.
+    </p>
+    <p>
+      The floor is lower than the one that forced the original darkening, though. The numeral
+      is large display type — <code>clamp(2.4rem, 7vw, 3.25rem)</code>, so 38–52px in the app
+      — which clears WCAG&rsquo;s large-text bar at <b>3:1</b> rather than the 4.5:1 those
+      small uppercase labels need. That gap is the room to work in:
+    </p>
+
+    <table class="ratio-table" id="ratioTable">
+      <thead>
+        <tr><th>Option</th><th>Hex</th><th>On white</th><th>Numeral · 3:1</th><th>Small label · 4.5:1</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <p>
+      Note what the table does <em>not</em> say: none of this touches
+      <code>--brass</code> itself. The settings-group legends keep the deep value they need.
+      A second token — off-beat gold, used by the beat track only — is the change, and it
+      only needs a light-mode value, since dark mode was never the problem.
+    </p>
+
+    <h3>The other reason light mode reads flatter</h3>
+    <p>
+      Dark mode puts a bright gold and a bright flame on a dark panel: both advance, and they
+      differ mostly in hue. Light mode puts two dark-ish colours on white: both recede, and
+      they now differ in <em>lightness</em> as well as hue, so the pair reads as
+      &ldquo;dark and darker&rdquo; rather than &ldquo;two accents.&rdquo; Bringing the gold
+      up narrows that lightness gap, which is most of what makes it feel like the dark-mode
+      version.
+    </p>
+
+    <h3>Constraints any future attempt inherits</h3>
+    <ul>
+      <li>
+        <b>Does brass want this job at all?</b> Flame already means &ldquo;downbeat accent&rdquo;;
+        brass means &ldquo;Seventh Chords, the <em>Next</em> sticker, settings-group legend.&rdquo;
+        A dedicated off-beat token sidesteps this — it need not be gold.
+      </li>
+      <li>
+        <b>Colour can&rsquo;t be the only signal.</b> Red/gold is the most common colour-vision
+        confusion there is. The <code>scaleY(1.15)</code> on the current block carries position
+        non-chromatically and covers it — worth not removing.
+      </li>
+      <li>
+        <b>The PiP console has its own beat blocks</b> (<code>.pip-beat--current</code>) and its
+        own numeral. #22&rsquo;s rule is that the console shows what the display shows.
+      </li>
+    </ul>
+  </section>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   One clock, four cards. Mirrors useRandomizer's phase model (playing
+   / gap, beats counted down, next segment pre-picked) closely enough
+   that the timing feel is honest, without any audio.
+   ------------------------------------------------------------------ */
+
+const VARIANTS = [
+  {
+    cls: '', name: 'Baseline (today)', tag: '',
+    note: 'Every beat of the span is flame, numeral included. The only thing marking a change is the highlight jumping back to position 1.',
+    swatches: [['var(--flame)', 'every beat']],
+  },
+  {
+    cls: 'v-downbeat', name: 'Downbeat flame', tag: '',
+    note: 'Beat 1 flame, the rest of the span gold. Agrees with the accented click the metronome already plays on that exact beat.',
+    swatches: [['var(--flame)', 'beat 1'], ['var(--offbeat)', 'rest']],
+  },
+  {
+    cls: 'v-inverse', name: 'Downbeat brass', tag: 'got closest',
+    note: 'The inverse. The singleton beat carries the gold and stands out by contrast rather than by weight — the strongest read in dark mode, and the one the light-mode gold matters most for.',
+    swatches: [['var(--offbeat)', 'beat 1'], ['var(--flame)', 'rest']],
+  },
+  {
+    cls: 'v-trail', name: 'Coloured trail', tag: '',
+    note: 'Downbeat flame, but blocks <b>keep</b> their colour after you pass them, so the whole span stays legible instead of the colour existing for one beat.',
+    swatches: [['var(--flame)', 'beat 1'], ['var(--offbeat)', 'rest'], ['var(--paper-faint)', 'upcoming']],
+  },
+];
+
+const PHRASES = [
+  'A♭ Minor 7', 'D Lydian', 'F♯ Diminished', 'C Major', 'E Mixolydian',
+  'B♭ Dominant 7', 'G Half-Diminished', 'E♭ Major 7', 'B Phrygian', 'F Augmented',
+];
+
+/* Light-mode candidates for the off-beat gold. Deep is what ships today. */
+const GOLDS = [
+  ['Deep', '#8a6412', 'today’s --brass'],
+  ['Mid', '#a87716', 'brighter, still clears 3:1'],
+  ['Bright', '#ce9b2e', 'dark mode’s --brass'],
+];
+
+const grid = document.getElementById('grid');
+const cards = [];
+
+for (const v of VARIANTS) {
+  const el = document.createElement('div');
+  el.className = 'variant';
+  el.innerHTML = `
+    <div class="sleeve ${v.cls}">
+      <div class="reading-row">
+        <div class="reading--current">
+          <span class="chord-name" data-role="current">&mdash;</span>
+        </div>
+        <div class="reading--next">
+          <span class="reading-eyebrow">Next</span>
+          <span class="chord-name chord-name--next" data-role="next">&mdash;</span>
+        </div>
+      </div>
+      <div class="beat-panel">
+        <div class="beat-numeral">
+          <span class="beat-numeral-current" data-role="beat">1</span>
+          <span class="beat-numeral-total" data-role="total">/ 4</span>
+        </div>
+        <div class="beat-track" data-role="track"></div>
+      </div>
+    </div>
+    <div class="variant-head">
+      <h2 class="variant-name">${v.name}</h2>
+      ${v.tag ? `<span class="tag">${v.tag}</span>` : ''}
+    </div>
+    <div class="variant-swatches">
+      ${v.swatches.map(([c, label]) => `<span><i style="background:${c}"></i>${label}</span>`).join('')}
+    </div>
+    <p class="variant-note">${v.note}</p>
+  `;
+  grid.appendChild(el);
+  const sleeve = el.querySelector('.sleeve');
+  cards.push({
+    current: sleeve.querySelector('[data-role="current"]'),
+    next: sleeve.querySelector('[data-role="next"]'),
+    beat: sleeve.querySelector('[data-role="beat"]'),
+    total: sleeve.querySelector('[data-role="total"]'),
+    track: sleeve.querySelector('[data-role="track"]'),
+  });
+}
+
+/* ---- Contrast maths, so the ratios quoted here are measured, not remembered ---- */
+
+function relLuminance(hex) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+    .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrast(hex, againstHex) {
+  const a = relLuminance(hex);
+  const b = relLuminance(againstHex);
+  const [hi, lo] = a > b ? [a, b] : [b, a];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/* ---- Segmented controls ---- */
+
+function segmented(host, options, initial, onPick) {
+  let value = initial;
+  const buttons = options.map(([label, val, swatch]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    if (swatch) {
+      const i = document.createElement('i');
+      i.style.background = swatch;
+      b.appendChild(i);
+    }
+    b.appendChild(document.createTextNode(label));
+    b.setAttribute('aria-pressed', String(val === value));
+    b.addEventListener('click', () => {
+      value = val;
+      buttons.forEach((other, i) => other.setAttribute('aria-pressed', String(options[i][1] === value)));
+      onPick(val);
+    });
+    host.appendChild(b);
+    return b;
+  });
+}
+
+/* ---- Clock state ---- */
+
+const state = {
+  bpm: 84,
+  beats: 4,
+  restBeats: 0,
+  running: true,
+  phase: null,        // 'play' | 'rest'
+  phaseTotal: 0,
+  beatsLeft: 0,
+  beatIndex: 1,
+  currentText: '—',
+  nextText: PHRASES[1],
+  // Points at nextText, so the first advance() hands out PHRASES[2] rather than
+  // re-serving what's already queued as "next".
+  cursor: 1,
+  veiled: false,
+};
+
+function nextPhrase() {
+  state.cursor = (state.cursor + 1) % PHRASES.length;
+  return PHRASES[state.cursor];
+}
+
+function renderTrack(card, total) {
+  if (card.track.childElementCount === total) return;
+  card.track.replaceChildren();
+  for (let i = 0; i < total; i += 1) card.track.appendChild(document.createElement('span'));
+}
+
+function render() {
+  const resting = state.phase === 'rest';
+  const shown = resting ? 'Get ready…' : state.veiled ? '—' : state.currentText;
+  // During a rest there is no downbeat to mark — the cobalt rules want to win,
+  // and leaving these classes off keeps them from being outranked.
+  const roleFor = (n) => (resting ? 'gap' : n === 1 ? 'downbeat' : 'offbeat');
+
+  for (const card of cards) {
+    card.current.textContent = shown;
+    card.current.className = 'chord-name'
+      + (resting ? ' chord-name--gap' : '')
+      + (state.veiled && !resting ? ' chord-name--veiled' : '');
+    card.next.textContent = state.veiled ? '—' : state.nextText;
+
+    card.beat.textContent = String(state.beatIndex);
+    // The numeral carries the same role class as the block it's counting, so the
+    // two can never disagree about colour.
+    card.beat.className = `beat-numeral-current ${roleFor(state.beatIndex)}`;
+    card.total.textContent = `/ ${state.phaseTotal}`;
+
+    renderTrack(card, state.phaseTotal);
+    [...card.track.children].forEach((block, i) => {
+      const n = i + 1;
+      const position = n < state.beatIndex ? 'past' : n === state.beatIndex ? 'current' : '';
+      block.className = `beat-block ${position} ${roleFor(n)}`.trim();
+    });
+  }
+}
+
+function advance() {
+  state.currentText = state.nextText;
+  state.nextText = nextPhrase();
+  state.phase = 'play';
+  state.phaseTotal = state.beats;
+  state.beatsLeft = state.beats;
+  state.beatIndex = 1;
+  render();
+}
+
+function beginRest() {
+  state.phase = 'rest';
+  state.phaseTotal = state.restBeats;
+  state.beatsLeft = state.restBeats;
+  state.beatIndex = 1;
+  render();
+}
+
+function onBeat() {
+  state.beatsLeft -= 1;
+  if (state.beatsLeft <= 0) {
+    if (state.phase === 'play' && state.restBeats > 0) beginRest();
+    else advance();
+  } else {
+    state.beatIndex = state.phaseTotal - state.beatsLeft + 1;
+    render();
+  }
+}
+
+let acc = 0;
+let last = null;
+function frame(t) {
+  if (last === null) last = t;
+  const dt = t - last;
+  last = t;
+  if (state.running) {
+    acc += dt;
+    const beatMs = 60000 / state.bpm;
+    // Cap the catch-up so a backgrounded tab doesn't fire a hundred beats at once.
+    if (acc > beatMs * 4) acc = beatMs;
+    while (acc >= beatMs) { acc -= beatMs; onBeat(); }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---- Wiring ---- */
+
+const playBtn = document.getElementById('playBtn');
+playBtn.addEventListener('click', () => {
+  state.running = !state.running;
+  playBtn.textContent = state.running ? 'Pause' : 'Play';
+  playBtn.setAttribute('aria-pressed', String(state.running));
+});
+
+document.getElementById('nowBtn').addEventListener('click', () => { acc = 0; advance(); });
+
+const bpmInput = document.getElementById('bpm');
+const bpmOut = document.getElementById('bpmOut');
+bpmInput.addEventListener('input', () => {
+  state.bpm = Number(bpmInput.value);
+  bpmOut.textContent = `${state.bpm} bpm`;
+});
+
+segmented(document.getElementById('beatsSeg'), [['2', 2], ['4', 4], ['6', 6], ['8', 8]], 4, (v) => {
+  state.beats = v;
+});
+segmented(document.getElementById('restSeg'), [['None', 0], ['2 beats', 2], ['4 beats', 4]], 0, (v) => {
+  state.restBeats = v;
+});
+segmented(document.getElementById('themeSeg'), [['System', ''], ['Dark', 'dark'], ['Light', 'light']], '', (v) => {
+  if (v) document.documentElement.setAttribute('data-theme', v);
+  else document.documentElement.removeAttribute('data-theme');
+});
+
+const goldOut = document.getElementById('goldOut');
+function pickGold(hex) {
+  document.documentElement.style.setProperty('--gold-light', hex);
+  const r = contrast(hex, '#ffffff');
+  const large = r >= 3 ? '<span class="pass">passes 3:1</span>' : '<span class="fail">fails 3:1</span>';
+  goldOut.innerHTML = `<b>${hex}</b> · ${r.toFixed(2)}:1 on white · numeral ${large}`;
+}
+segmented(
+  document.getElementById('goldSeg'),
+  GOLDS.map(([label, hex]) => [label, hex, hex]),
+  GOLDS[0][1],
+  pickGold,
+);
+pickGold(GOLDS[0][1]);
+
+/* The ratio table is filled from the same maths as the caption. */
+const tbody = document.querySelector('#ratioTable tbody');
+for (const [label, hex, blurb] of GOLDS) {
+  const r = contrast(hex, '#ffffff');
+  const cell = (ok, bar) => `<span class="${ok ? 'pass' : 'fail'}">${ok ? 'passes' : 'fails'} ${bar}</span>`;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="sw" style="background:${hex}"></span>${label} <span style="opacity:.6">— ${blurb}</span></td>
+    <td>${hex}</td>
+    <td>${r.toFixed(2)}:1</td>
+    <td>${cell(r >= 3, '3:1')}</td>
+    <td>${cell(r >= 4.5, '4.5:1')}</td>
+  `;
+  tbody.appendChild(tr);
+}
+
+document.getElementById('veil').addEventListener('change', (e) => {
+  state.veiled = e.target.checked;
+  render();
+});
+
+const reducedBox = document.getElementById('reduced');
+reducedBox.addEventListener('change', (e) => {
+  document.body.classList.toggle('reduced', e.target.checked);
+});
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  reducedBox.checked = true;
+  document.body.classList.add('reduced');
+}
+
+advance();
+requestAnimationFrame(frame);
+</script>
