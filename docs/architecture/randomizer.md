@@ -185,15 +185,100 @@ changes on every beat must stay on properties the compositor can handle alone �
 This governs `.beat-block--current` and `.pip-beat--current` today; it applies to any
 future beat-synced cue.
 
+### Keeping the screen awake
+
+`useWakeLock` holds a screen wake lock for exactly as long as a session is running.
+Practising is a "watching, not touching" activity — you read the display and play an
+instrument, generating no input events at all — which is precisely the pattern an idle
+timer reads as "away", so the laptop dims and sleeps mid-session.
+
+Two things it has to get right, both of which look like unnecessary ceremony until they
+bite:
+
+- **The browser drops the lock whenever the tab is hidden, and never restores it.** One
+  request per session isn't enough: switching tabs and back would silently lose the lock
+  for the rest of the session, so it re-acquires on `visibilitychange`.
+- **The request is async and the session can end while it's in flight.** Without a
+  cancelled flag in the effect cleanup, a lock taken for a session that already stopped
+  outlives it, and nothing ever releases it.
+
+It's best-effort on purpose. The lock is refused outside a secure context, under battery
+saver, and on browsers that don't implement it — in all of those the session still runs
+and the screen behaves as it did before, so there's nothing worth telling the user about.
+
+### Settings in two columns (issue #27)
+
+Above 1040px the display is a full-width hero and the settings split beneath it into even
+halves: player controls on the left, tonal-center pickers on the right. The split is by
+what a setting *governs* — how it plays versus what gets picked — not by size.
+
+**The even split is a measurement, not a preference.** It was 1fr 2fr first, which read
+as the right emphasis — the pickers carry the mode row, the presets and the whole
+Advanced breakdown — and broke Timing. Its Tempo row needs 394px to keep the bpm field,
+the metronome checkbox and the volume slider on one line, which is how #40 built it; a
+third of the page is 333px, so the slider wrapped under the checkbox and separated a
+control from the thing it controls. The player column can't go below ~426px with the
+group's padding. Don't narrow it back on the grounds that the right column looks busier
+— at the breakpoint itself, halves leave the Tempo row 54px of slack and 45/55 leaves 6.
+
+**This replaced a gatefold.** #22 had seated the sleeve and the controls side by side as
+two columns. That read well in the abstract and badly in practice: the display is about
+300px tall and the settings stack about three times that, so the left column was mostly
+void. #27 was written expecting a full-width hero and had to be reconciled with what #22
+actually shipped; the hero won, because it's the arrangement where the extra width goes
+to the column that has content to fill it.
+
+Two things that fall out of it, both easy to undo by accident:
+
+- **The columns are real wrappers** (`.controls-column`), not a `column-count` on
+  `.controls`. A settings group must never be split across a column boundary, and
+  multi-column layout will happily break one mid-fieldset.
+- **Source order is the mobile order.** The player column comes first in the markup,
+  which is also the order the single-column stack below the breakpoint wants, so the
+  narrow layout needs no reordering — no `order`, no `grid-row` juggling. Keep it that
+  way: the moment the columns need reordering for mobile, the two layouts start
+  disagreeing about which group follows which.
+
+**`.sleeve-stage` is why a full-width card is safe.** The card spans the page; the stage
+inside it caps the content at 46rem — the width the display was designed and mocked at in
+#22 — and carries the padding and min-height. It also has to be the containing block for
+the three absolutely-positioned corner controls (the two veil toggles and the transport):
+pinned to a full-width card they'd sit at its far edges, putting a veil toggle half a page
+from the reading it governs, which is the exact proximity problem #23 moved them into the
+display to fix. The min-height belongs on the stage rather than the card for a related
+reason — a card taller than its content would leave the transport floating above its own
+bottom edge.
+
+**Those three controls inset to the stage's content edge (2rem), not its border box.** At
+0.7rem they sat 21px inside the text above them — near enough to read as a misalignment
+rather than a margin — and on a full-width card they were anchored to nothing at all,
+floating ~150px in from the card's own edge. At the content edge the transport key sits
+directly below the current reading and each veil toggle directly above the reading it
+governs.
+
+The transport's *bottom* offset is deliberately larger than the toggles' top. Those are
+borderless glyphs; the transport is a bordered key, and at an equal gap a drawn box reads
+as crowding the card's border. It's an optical correction, not an inconsistency to
+unify.
+
 ### PiP console (`PipConsole.jsx`, issue #22)
 
 A floating console that docks once the in-flow display scrolls out of the viewport and
 un-docks when it returns — true picture-in-picture, not an always-on widget. `App` holds
-a ref to the `.sleeve` element (the ref lands on the sleeve itself, not a wrapper, since
-a wrapper would become the grid item in the two-column layout) and hands it to
-`PipConsole`, which observes it with an `IntersectionObserver`. The observer uses a small
+a ref to the `.sleeve` element — the outer card, not `.sleeve-stage` inside it, since the
+card is what actually leaves the viewport — and hands it to `PipConsole`, which observes
+it with an `IntersectionObserver`. The observer uses a small
 negative `rootMargin`: without it the console flickers on and off while the display sits
 exactly at the viewport edge.
+
+**It aligns to the page column, not the viewport corner**, so on a wide screen it doesn't
+float alone out in the margin. Being `position: fixed` it can't inherit that column's
+edges and has to compute them, which is why `--app-column` exists: the console derives its
+`left` from the same token `.app` sizes itself with. It previously hard-coded half of
+720px while `.app` had been widening to 1080px at the breakpoint since #22 — so above
+1040px the console sat 204px inside the column, correct at narrow widths and visibly adrift
+at wide ones. Any future change to the column's width has to stay a change to that one
+token.
 
 Two rules it has to keep in step with `Display`:
 

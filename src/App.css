@@ -1,5 +1,12 @@
+/* The page column's width. .pip-console is position: fixed and computes its left from
+   this same token, so change the column here and both follow — see
+   docs/architecture/randomizer.md's PiP console section. */
+:root {
+  --app-column: 720px;
+}
+
 .app {
-  max-width: 720px;
+  max-width: var(--app-column);
   margin: 0 auto;
   padding: 2.5rem 1.5rem 3rem;
 }
@@ -164,14 +171,11 @@
 
 /* ---------- Sleeve / Display ---------- */
 
+/* The card. It spans whatever width the page gives it; everything that sets the
+   display's proportions lives on .sleeve-stage inside. */
 .sleeve {
-  position: relative;
-  min-height: 19rem;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 1.1rem;
   background: var(--panel);
   /* No drop shadow (issue #31): the display gets its prominence from type and air
      instead, and a real border makes it read as part of the page rather than floating
@@ -180,7 +184,23 @@
   border: 1px solid var(--paper-medium);
   border-radius: 0.5rem;
   margin-bottom: 2rem;
+}
+
+/* Caps the display's measure, and is the containing block for the three corner
+   controls. min-height and padding live here, not on .sleeve, so the card shrink-wraps
+   it — see docs/architecture/randomizer.md's "Settings in two columns" for why all
+   three matter. */
+.sleeve-stage {
+  position: relative;
+  width: 100%;
+  max-width: 46rem;
+  min-height: 19rem;
   padding: 2.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
 }
 
 .sleeve-idle {
@@ -202,10 +222,10 @@
 .pip-console {
   position: fixed;
   top: 1rem;
-  /* Aligned to the app's content column on wide screens rather than the raw viewport
-     corner, where it would float alone in the empty margin. Falls back to a small
-     inset once the viewport is narrower than the column. */
-  left: max(0.75rem, calc(50vw - 360px + 1.5rem));
+  /* Aligned to the app's content column rather than the raw viewport corner, and
+     derived from --app-column so it tracks that column at every breakpoint. Falls back
+     to a small inset once the viewport is narrower than the column. */
+  left: max(0.75rem, calc(50vw - var(--app-column) / 2 + 1.5rem));
   z-index: 20;
   /* Fixed width, not shrink-to-fit: sized to the content it has to hold, the box would
      otherwise resize on every segment as tonal center names change length, which reads
@@ -497,18 +517,26 @@
   gap: 1.5rem;
 }
 
+/* Same rhythm between groups as .controls uses between columns, so the single-column
+   layout below the breakpoint reads as one even stack. */
+.controls-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 /* ---------- Transport deck ---------- */
 
 /* One key, swapped between play and stop — not two with one disabled. There are only
    two states, and a permanently greyed-out twin is noise on a card this prominent. */
-/* Bottom-left corner, mirroring the veil toggles in the top two — the card's controls
-   sit on its edges and leave the middle to the reading. Absolute, so it's out of flow
-   and the reading stays optically centred in the card rather than being pushed up by a
-   control row. */
+/* Bottom-left of the stage, mirroring the veil toggles in the top two. Absolute, so the
+   reading stays optically centred rather than being pushed up by a control row. The
+   bottom offset is larger than the toggles' 0.6rem top on purpose — borderless glyphs
+   vs. a bordered key; it's an optical correction, not an inconsistency to unify. */
 .transport-deck {
   position: absolute;
-  left: 0.7rem;
-  bottom: 0.6rem;
+  left: 2rem;
+  bottom: 1.15rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -570,6 +598,10 @@
 
 /* ---------- Tonal center veil toggles ---------- */
 
+/* These and the transport inset to the stage's content edge, not its border box, so
+   each lines up with the reading it belongs to — see docs/architecture/randomizer.md's
+   "Settings in two columns". */
+
 /* Top corners of the display, each above the reading it governs — current is the
    left-hand reading, next the right-hand one. Rendered in the system face for the same
    reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
@@ -584,10 +616,10 @@
   gap: 0.4rem;
 }
 
-.tonal-center-veil-group--current { left: 0.7rem; }
+.tonal-center-veil-group--current { left: 2rem; }
 
 .tonal-center-veil-group--next {
-  right: 0.7rem;
+  right: 2rem;
   flex-direction: row-reverse;
 }
 
@@ -1242,25 +1274,26 @@
   }
 }
 
-/* A wide window shouldn't leave the page stranded in a narrow column with the rest of
-   the desk empty — past this width, the sleeve and the controls sit side by side like a
-   gatefold, sharing the extra room instead of ignoring it. */
+/* Past this width the display is a full-width hero and the settings split beneath it,
+   so a wide window's extra room goes to the column with content to fill it. Replaced a
+   gatefold — see docs/architecture/randomizer.md's "Settings in two columns". */
 @media (min-width: 1040px) {
+  :root {
+    --app-column: 1080px;
+  }
+
   .app {
-    max-width: 1080px;
     padding-top: 3.5rem;
+  }
+
+  /* Even halves, not thirds: Timing's Tempo row needs 394px to stay on one line and a
+     third of the page is 333px. It's a measured floor, not an emphasis choice — don't
+     rebalance it by eye, see docs/architecture/randomizer.md's "Settings in two
+     columns". align-items: start so a short column doesn't stretch to a tall one. */
+  .controls {
     display: grid;
-    grid-template-columns: minmax(320px, 460px) 1fr;
-    column-gap: 3rem;
-    row-gap: 2rem;
+    grid-template-columns: 1fr 1fr;
     align-items: start;
-  }
-
-  .masthead {
-    grid-column: 1 / -1;
-  }
-
-  .sleeve {
-    margin-bottom: 0;
+    column-gap: 2rem;
   }
 }
