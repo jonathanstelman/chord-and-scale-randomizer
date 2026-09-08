@@ -9,6 +9,7 @@ import RootsPicker from './RootsPicker';
 import NumberField from './NumberField';
 import { NUMERIC_LIMITS } from '../hooks/useSettings';
 import TimingSection from './TimingSection';
+import Chair from './Chair';
 
 function typeLabelForKey(key) {
   return ALL_TONAL_CENTER_TYPES.find((t) => t.key === key)?.label ?? key;
@@ -299,6 +300,12 @@ function Controls({
                   </fieldset>
                 );
               })}
+            </div>
+
+            {/* Sits at the bottom of the deepest panel, so you only meet it once you
+                have gone looking. */}
+            <div className="settings-easter-chair">
+              <Chair pose="fallen" size={38} />
             </div>
           </div>
         </details>

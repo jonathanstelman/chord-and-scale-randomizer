@@ -144,6 +144,30 @@ one value (`4 – 6 beats`) rather than two each carrying its own unit and a min
 qualifier — which is also why both inputs carry `aria-label`s, since nothing visible
 distinguishes them under a single Duration caption.
 
+### Idle state (issue #24)
+
+The card shows a worked example of a real result — a fixed `C Major`, a `Next`, a beat
+numeral and a four-beat track — rather than an empty box, so a first-time visitor can see
+the shape of what they are about to get before pressing anything.
+
+Three things about it:
+
+- **It reuses the live classes** (`readout-row`, `chord-name`, `beat-block`) instead of
+  its own markup, so it cannot drift from what a session actually looks like. The sample
+  only overrides what makes it a sample: smaller type, one wrapper opacity, a caption.
+- **The dimming is one `opacity` on the wrapper, not per-element colours.** The beat
+  blocks are flame and cobalt, neither of which has a dimmed variant to reach for.
+- **It's `aria-hidden`.** A screen reader announcing "C Major" on an idle card would be
+  announcing a chord that isn't playing; the copy beneath already says what to do.
+
+`.sleeve-idle` needs `width: 100%` explicitly. The stage centres its children, which
+would otherwise shrink it to its content and stop the example spanning edge-to-edge the
+way a live readout does — which is the one thing it exists to demonstrate.
+
+**The example was chosen fixed rather than cycling.** A rotating name on an idle card
+reads as a session that's already running, and the point is the *shape* of a result, not
+its content.
+
 ### The display is the player (issue #23)
 
 The transport and the two visibility toggles live in `Display`, not the settings column,

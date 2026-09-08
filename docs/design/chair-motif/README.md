@@ -66,7 +66,7 @@ surface it sits on; loading a third meaning onto them was rejected deliberately.
 **Poses.** `upright` = at rest, `tipping` = running. `fallen` is illustration-only — the
 app has two states, not three, so only two poses carry meaning.
 
-### The shipped four
+### The shipped five
 
 | Where | Variant | Accent | Pose |
 |---|---|---|---|
@@ -74,6 +74,7 @@ app has two states, not three, so only two poses carry meaning.
 | Masthead, 2nd | E2 | brass | tipping |
 | Masthead, 3rd | E6 | flame | fallen |
 | Idle card (hero) | E1 | cobalt | upright |
+| Foot of Advanced settings | E6 | flame | fallen |
 
 Drawn at weight `0.7`, jank `1`, shading off. Masthead arrangement is the "small
 cluster": ~34px chairs (40px for the fallen one), tight spacing, sitting low.

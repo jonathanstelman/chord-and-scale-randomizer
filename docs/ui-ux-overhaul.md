@@ -21,12 +21,11 @@ behind it — this doc only tracks sequencing.
 
 ## Status at a glance
 
-**Landed:** #21, #22, #23, #25, #26, #27, #28, #29, #31 (subsumed).
+**Landed:** #21, #22, #23, #24, #25, #26, #27, #28, #29, #31 (subsumed).
 **Dropped:** #30 — closed won't-do, see below.
-**Remaining:** #24 (L), #20 (M) — plus #34, which spun out of #23.
+**Remaining:** #20 (M) — plus #34 (spun out of #23) and #45 (spun out of #24).
 
-**Next up:** **#24** (idle state) and **#20** (stacked queue) are what's left of this
-initiative, and neither blocks the other.
+**Next up:** **#20** is the last item of this initiative.
 
 **Not part of this initiative, but it landed in the middle of it:** #40 rebuilt the
 Timing group's internals (captioned blocks, toggles that hold position when clicked,
@@ -75,9 +74,13 @@ momentum rather than need. Prefer landing the base.
   the **Start/Stop transport moved into the display too**, which the issue body never
   said. The display is now the player — see `randomizer.md`'s "The display is the
   player". Pause was considered for a fuller cassette deck and split out to **#34**.
-- #24 — Idle state redesign (needs #21's motifs/color decisions). Also owns the idle
-  copy: it currently reads "Press play to begin.", which #23 wrote to match the new
-  ▶ key.
+- ~~#24 — Idle state redesign~~ — **landed.** The card now shows a fixed worked example
+  (`C Major`, a Next, a beat track) built from the live classes so it can't drift from
+  what a session looks like — see `randomizer.md`'s "Idle state". The `reading` → `card`
+  rename it bundled became `reading` → **`readout`**: "card" had since come to mean the
+  display sleeve itself, so the issue's name would have meant two nested things. The idle
+  copy stayed "Press play to begin." — with the example captioned above it, changing it
+  had nothing left to say.
 
 **Phase 3 — feeds Phase 4**
 - ~~#26 — Collapse Custom bank behind details/summary~~ — **landed**, along with #25.

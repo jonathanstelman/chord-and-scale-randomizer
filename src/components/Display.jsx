@@ -21,8 +21,38 @@ export default function Display({
 
         {!isRunning && (
           <div className="sleeve-idle">
-            <Chair pose="upright" size={92} className="sleeve-idle-chair" />
-            <p>Press play to begin.</p>
+            <Chair pose="upright" size={78} className="sleeve-idle-chair" />
+
+            {/* A worked example of the real thing, built from the same classes so it
+                can't drift from what a session actually looks like. aria-hidden: a
+                screen reader announcing "C Major" here would be announcing a chord
+                that isn't playing, and the copy below already says what to do. */}
+            <div className="idle-sample" aria-hidden="true">
+              <span className="idle-sample-tag">Example</span>
+              <div className="readout-row">
+                <div className="readout readout--current">
+                  <span className="chord-name">C Major</span>
+                </div>
+                <div className="readout readout--next">
+                  <span className="readout-eyebrow">Next</span>
+                  <span className="chord-name chord-name--next">A Minor</span>
+                </div>
+              </div>
+              <div className="beat-panel">
+                <div className="beat-numeral">
+                  <span className="beat-numeral-current">1</span>
+                  <span className="beat-numeral-total">/ 4</span>
+                </div>
+                <div className="beat-track">
+                  <span className="beat-block beat-block--current" />
+                  <span className="beat-block beat-block--upcoming" />
+                  <span className="beat-block beat-block--upcoming" />
+                  <span className="beat-block beat-block--upcoming" />
+                </div>
+              </div>
+            </div>
+
+            <p className="sleeve-idle-copy">Press play to begin.</p>
           </div>
         )}
 
