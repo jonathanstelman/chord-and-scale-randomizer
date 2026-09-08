@@ -261,17 +261,22 @@
   font-size: 1.5rem;
 }
 
-/* Right-aligned at the foot of the panel: found rather than presented.
+/* Parked in the corner the grid's uneven last row leaves empty — out of flow, so it
+   costs the panel no height at all.
 
-   padding-right cancels the pose rotation, which throws the drawing 10px past its own
-   layout box (see docs/design/chair-motif/README.md). Without it the chair sat 7px from
-   the panel border while everything else sits at its 1rem padding. In px because the
-   overhang scales with the chair's px size, not with the root font. */
+   `right` cancels the pose rotation, which throws the drawing 10px past its own layout
+   box (see docs/design/chair-motif/README.md); offsetting by that much lands the ink on
+   the grid's own right edge, which is already the panel's 1rem padding. In px because
+   the overhang scales with the chair's px size, not with the root font.
+
+   pointer-events: none because the grid collapses to one column on narrow viewports,
+   where there is no dead corner and the chair sits over the last fieldset's empty right
+   side. It is decorative and aria-hidden; it must never intercept a checkbox. */
 .settings-easter-chair {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1.25rem;
-  padding-right: 10px;
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+  pointer-events: none;
   color: var(--paper);
 }
 
@@ -1232,6 +1237,7 @@
 /* ---------- Advanced / liner notes ---------- */
 
 .type-groups {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25rem;

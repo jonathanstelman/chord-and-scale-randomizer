@@ -300,12 +300,13 @@ function Controls({
                   </fieldset>
                 );
               })}
-            </div>
 
-            {/* Sits at the bottom of the deepest panel, so you only meet it once you
-                have gone looking. */}
-            <div className="settings-easter-chair">
-              <Chair pose="fallen" size={38} fallRight />
+              {/* Sits at the bottom of the deepest panel, so you only meet it once you
+                  have gone looking. Inside the grid, and out of flow, so it fills the
+                  dead corner the uneven last row leaves rather than adding a row. */}
+              <div className="settings-easter-chair">
+                <Chair pose="fallen" size={38} fallRight />
+              </div>
             </div>
           </div>
         </details>
