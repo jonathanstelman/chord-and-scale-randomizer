@@ -423,6 +423,21 @@
   font-size: clamp(2.4rem, 7vw, 3.25rem);
   line-height: 1;
   color: var(--flame);
+  /* Same duration as .beat-block's, so the numeral and the track arrive at the new
+     colour together — snapping while the blocks eased left them disagreeing for the
+     length of the fade, which is the thing this pairing exists to avoid. It's one
+     glyph repainting on a phase boundary the blocks already repaint on, so it doesn't
+     add a beat-synced cost of its own. */
+  transition: color 0.15s ease-out;
+}
+
+/* The numeral counts the track below it, so it takes the track's colour — cobalt
+   during the silent gap, for the same reason .beat-block--current.beat-block--gap
+   does. Without
+   this the numeral stayed flame while every block went cobalt, and the two disagreed
+   about what phase you were in. */
+.beat-numeral-current--gap {
+  color: var(--cobalt);
 }
 
 /* Optical size has to track the size the glyph is actually *rendered* at. Left on the

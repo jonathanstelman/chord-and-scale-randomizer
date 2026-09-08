@@ -42,7 +42,7 @@ export default function NowPlaying({
       {(current || isGap) && (
         <div className="beat-panel">
           <div className="beat-numeral">
-            <span className="beat-numeral-current">{beatIndex}</span>
+            <span className={`beat-numeral-current${isGap ? ' beat-numeral-current--gap' : ''}`}>{beatIndex}</span>
             <span className="beat-numeral-total">/ {totalBeats}</span>
           </div>
           <div className="beat-track">
