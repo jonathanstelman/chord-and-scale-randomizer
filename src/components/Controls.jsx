@@ -86,16 +86,17 @@ function Controls({
 
         <DisplaySection settings={settings} updateSettings={updateSettings} />
 
-        <MixerSection settings={settings} updateSettings={updateSettings} />
+        <MixerSection settings={settings} updateSettings={updateSettings} played="Tonal center" />
 
+        {/* "Voicing": how the tonal center is sounded — struck or swept, and how many
+            notes. Not "Sound", which names the medium rather than the decision, and
+            not "Type", which the Tonal centers group already means something else by. */}
         <details className="settings-section" open>
-          <summary>Sound</summary>
+          <summary>Voicing</summary>
           <div className="settings-body">
             <div className="session-data-fields">
-              {/* "Type", not "Sound": the group header above already says Sound, and
-                  stacked under it the repeat read as a stutter. */}
               <label className="data-field">
-                <span>Type</span>
+                <span>Play as</span>
                 <select
                   value={settings.soundType}
                   onChange={(e) => updateSettings({ soundType: e.target.value })}

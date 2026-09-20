@@ -198,18 +198,28 @@ live scheduling for main-thread time for no reason.
 ### Mixer (issue #58)
 
 **Every level in one group, in the player column of every tab, after Display.** A
-channel strip per sound source — Tone (the tonal center), Drone (Scale Degrees only),
+channel strip per sound source — what the tab plays, Drone (Scale Degrees only),
 Metronome — each with the same three things in the same three grid columns: name, mute,
 slider. The alternative, each level beside the settings responsible for its sound, was
 prototyped in the app and compared on a phone (both layouts behind a `?layout=` switch,
 since deleted). The mixer won on the task that motivated the slider: *balancing* the
 drone against the target is a relationship between two levels, and on a phone the
 local layout put them a screen apart. The split it leaves is clean — what sounds stays
-with its settings (Sound → Type/Density, Drone → Tonic/fifth/chord); how loud is the
-Mixer's — and a future sound source adds a channel, not a group.
+with its settings (Voicing → Play as/Density, Drone → Voicing); how loud is the Mixer's
+— and a future sound source adds a channel, not a group.
+
+- **The first channel is named for what the tab plays**, the way each tab's description
+  is: *Tonal center* on Chords & Scales (the same noun the picker group uses — what gets
+  picked there, how loud here), *Pitch* on Pure Tone, *Note* on Scale Degrees, where the
+  drone is the actual tonal center and calling the target one would be wrong. The row
+  holds its position; only the word follows the tab. "Tone" was the first draft and
+  named the medium, not the thing; so did "Sound" on the group that decides how the
+  tonal center is voiced, now **Voicing** (Play as: Chord / Arpeggio; Density) — the
+  same word the Drone group uses for the same decision.
 
 - **Every channel has a mute, or none would.** A mixer with a mute on one strip is a
-  mixer with a broken strip. Tone's mute (`toneAudio`) replaced the "No Sound" sound
+  mixer with a broken strip. The played channel's mute (`toneAudio` — the setting keeps
+  the engine's name) replaced the "No Sound" sound
   type, which would otherwise have been a second control silencing the same thing; a
   persisted `'none'` is migrated to "Chord, muted" in `loadSettings`. The drone's mute
   (`droneAudio`) is new. The metronome's on/off moved here from Timing with its level —
@@ -220,7 +230,7 @@ Mixer's — and a future sound source adds a channel, not a group.
   "Metronome"), the mute column is one width, and every slider is exactly the same
   length. Rows are `align-items: center`, which is safe here for the reason the Timing
   rows aren't: nothing in a channel reveals anything.
-- **Order is foreground to background**: Tone, Drone, Metronome.
+- **Order is foreground to background**: what plays, Drone, Metronome.
 - **Mute is a mute, not a stop.** The tone and drone mutes flip a `Tone.Volume` node's
   `mute`; the metronome's just stops `click()`. The clock, the queue and the other
   channels carry on — see `audio.md`, "Volume sliders".

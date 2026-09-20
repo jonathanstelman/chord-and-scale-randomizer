@@ -1120,11 +1120,11 @@
 
 /* A channel strip per sound source, on one grid so every row has its name, mute and
    slider in the same three columns and every slider is the same length. The name
-   column is sized to "Metronome", the longest; the mute is a bare checkbox, unlabeled
+   column is sized to "Tonal center", the longest; the mute is a bare checkbox, unlabeled
    on screen because the row *is* its label (it carries an accessible name). */
 .mixer {
   display: grid;
-  grid-template-columns: 6.5rem auto 1fr;
+  grid-template-columns: 7rem auto 1fr;
   column-gap: 0.75rem;
   row-gap: 0.85rem;
   align-items: center;

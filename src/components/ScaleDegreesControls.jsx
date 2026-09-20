@@ -17,7 +17,7 @@ function ScaleDegreesControls({ settings, updateSettings }) {
       <div className="controls-column controls-column--player">
         <TimingSection settings={settings} updateSettings={updateSettings} />
         <DisplaySection settings={settings} updateSettings={updateSettings} />
-        <MixerSection settings={settings} updateSettings={updateSettings} showDrone />
+        <MixerSection settings={settings} updateSettings={updateSettings} played="Note" showDrone />
       </div>
 
       <div className="controls-column controls-column--pickers">
@@ -93,13 +93,14 @@ function ScaleDegreesControls({ settings, updateSettings }) {
           </div>
         </details>
 
-        {/* What the drone sounds like; how loud is the Mixer's. */}
+        {/* Which notes the drone sounds; how loud is the Mixer's. "Voicing", the same word
+            the Chords & Scales group uses for the same decision. */}
         <details className="settings-section" open>
           <summary>Drone</summary>
           <div className="settings-body">
             <div className="session-data-fields">
               <label className="data-field">
-                <span>Sound</span>
+                <span>Voicing</span>
                 <select
                   value={settings.scaleDegreesDrone}
                   onChange={(e) => updateSettings({ scaleDegreesDrone: e.target.value })}

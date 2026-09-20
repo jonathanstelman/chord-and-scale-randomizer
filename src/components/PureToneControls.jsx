@@ -23,7 +23,7 @@ function PureToneControls({
       <div className="controls-column controls-column--player">
         <TimingSection settings={settings} updateSettings={updateSettings} />
         <DisplaySection settings={settings} updateSettings={updateSettings} />
-        <MixerSection settings={settings} updateSettings={updateSettings} />
+        <MixerSection settings={settings} updateSettings={updateSettings} played="Pitch" />
       </div>
 
       <div className="controls-column controls-column--pickers">

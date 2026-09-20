@@ -11,15 +11,18 @@ no versions.
 ## A mixer (2026-09-20)
 
 - **#58** — Every level in one group: a **Mixer** in the player column of every tab, after
-  Display, with a channel strip per sound source — Tone, Drone (Scale Degrees), Metronome
-  — each with a name, a mute and a slider on one grid, so every slider is the same
-  length. Tone is new: the tonal center never had its own level, so the only way to
+  Display, with a channel strip per sound source — what the tab plays (Tonal center /
+  Pitch / Note), Drone (Scale Degrees), Metronome — each with a name, a mute and a slider
+  on one grid, so every slider is the same length. The first is new: the tonal center
+  never had its own level, so the only way to
   balance the drone against the target was to push the drone up. Two layouts were
   prototyped in the app and compared on a phone; the mixer won because balancing is a
   relationship between two levels and the local layout put them a screen apart.
   **Every channel has a mute**, which retired the "No Sound" sound type (a second control
   silencing the same thing; persisted values migrate to "Chord, muted"). The metronome's
-  on/off and level moved here from Timing. `randomizer.md`, "Mixer".
+  on/off and level moved here from Timing. The Chords & Scales "Sound" group became
+  **Voicing** (Play as / Density), the word the Drone group uses for the same decision.
+  `randomizer.md`, "Mixer".
 
 ## The accents mean the practice modes (2026-09-20)
 

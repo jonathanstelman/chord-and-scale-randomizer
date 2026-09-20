@@ -1,8 +1,9 @@
-// Every level in one place, like a mixer: a channel strip per sound source — the tonal
-// center, on Scale Degrees the drone, and the metronome — each with the same three
-// things in the same three columns: name, mute, level. Sound *choice* stays with the
-// settings responsible for it (the Sound and Drone groups); this group is only how
-// loud. See docs/architecture/randomizer.md's "Mixer".
+// Every level in one place, like a mixer: a channel strip per sound source — what the
+// tab plays (`played`: a tonal center, a pitch, a note — the name follows the tab the
+// way its description does), on Scale Degrees the drone, and the metronome — each with
+// the same three things in the same three columns: name, mute, level. *What* plays
+// stays with the settings responsible for it (the Voicing and Drone groups); this group
+// is only how loud. See docs/architecture/randomizer.md's "Mixer".
 function Channel({
   name, on, onToggle, level, onLevel,
 }) {
@@ -27,13 +28,15 @@ function Channel({
   );
 }
 
-export default function MixerSection({ settings, updateSettings, showDrone = false }) {
+export default function MixerSection({
+  settings, updateSettings, played, showDrone = false,
+}) {
   return (
     <details className="settings-section" open>
       <summary>Mixer</summary>
       <div className="settings-body mixer">
         <Channel
-          name="Tone"
+          name={played}
           on={settings.toneAudio}
           onToggle={(toneAudio) => updateSettings({ toneAudio })}
           level={settings.toneVolume}
