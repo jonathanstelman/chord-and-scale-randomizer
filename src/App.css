@@ -191,14 +191,15 @@
    it — see docs/architecture/randomizer.md's "Settings in two columns" for why all
    three matter. The vertical padding reserves the two bands the corner controls occupy
    (they're out of flow): the toggles' 0.6rem + their height at the top, the deck's
-   1.15rem + a 2.1rem key at the bottom. The content is centred *between* the bands,
+   1.15rem + a 2.1rem key + the word beneath it at the bottom. The content is centred
+   *between* the bands,
    and a card that grows to fit its content grows past the deck, never under it. */
 .sleeve-stage {
   position: relative;
   width: 100%;
   max-width: 46rem;
   min-height: 19rem;
-  padding: 2.75rem 2rem 3.9rem;
+  padding: 2.75rem 2rem 4.9rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -692,23 +693,22 @@
   left: 2rem;
   bottom: 1.15rem;
   display: flex;
-  align-items: center;
-  /* Wider than the gap inside a control, so the deck reads as two key+word pairs rather
-     than four evenly-spaced things. */
-  gap: 1.1rem;
+  align-items: flex-start;
+  /* Keys close enough to read as one two-key deck, not two separate controls — a
+     cassette deck's keys sit together. Side-by-side words doubled the deck's width and
+     it read as four things in a row; the word now sits under its key. */
+  gap: 0.6rem;
 }
 
-/* Each key carries its own word, so the pair has to group — otherwise the deck's flex
-   would space keys and labels alternately. */
+/* Key over word, centred, so the pair groups vertically. */
 .deck-control {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
-/* The key sits in the corner, so the word goes to its right — there's no room to its
-   left. Mono and quiet, like a legend printed beside a deck's key rather than a second
-   button. */
+/* Mono and quiet, like a legend printed under a deck's key rather than a second button. */
 .deck-label {
   font-family: var(--font-mono);
   font-size: 0.6rem;

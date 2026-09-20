@@ -505,12 +505,19 @@ bottom edge.
 
 **The stage's vertical padding reserves the corner controls' bands.** They're out of
 flow, so nothing else keeps content off them: the top padding (2.75rem) covers the
-toggles' 0.6rem offset plus their height, and the bottom padding (3.9rem) covers the
-deck's 1.15rem offset plus a 2.1rem key. Before the bottom was reserved, the padding
+toggles' 0.6rem offset plus their height, and the bottom padding (4.9rem) covers the
+deck's 1.15rem offset plus a 2.1rem key and the word under it. Before the bottom was
+reserved, the padding
 was symmetric at 2.75rem — less than the deck is tall — and any content tall enough to
 fill the card ran under the transport: on a phone, Scale Degrees' stacked readout put
 the beat track across the Stop key. The asymmetry is the point: the content is centred
 *between* the bands, and a card that grows to fit its content grows past the deck.
+
+**The deck's words sit under the keys, not beside them.** Beside, the deck was ~200px
+wide and read as four things in a row — key, word, key, word — and on a phone it was
+the widest thing in the card's bottom band. Stacked, the two keys sit 0.6rem apart and
+read as one two-key deck with a legend printed beneath, ~80px wide; the cost is ~1rem
+of band height, which the padding above pays for.
 
 **Those three controls inset to the stage's content edge (2rem), not its border box.** At
 0.7rem they sat 21px inside the text above them — near enough to read as a misalignment

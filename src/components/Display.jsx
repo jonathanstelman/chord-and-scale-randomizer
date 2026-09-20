@@ -3,7 +3,7 @@ import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
 import { scaleDegreesKeyName } from './scaleOptions';
 
-// One key plus the word beside it. `variant` is the only styling difference — Stop is
+// One key plus the word beneath it. `variant` is the only styling difference — Stop is
 // flame, everything else inherits the neutral key.
 //
 // The name is built from the visible word on purpose: it's aria-hidden because the
