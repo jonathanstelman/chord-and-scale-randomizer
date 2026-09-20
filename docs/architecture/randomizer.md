@@ -146,9 +146,11 @@ engine's own snapshot. Two effects keep it live: volume follows the slider, and 
 notes follow Root/Scale/Sound (and the pool toggle, which changes what a tonic chord
 is). That last one is a deliberate departure from "change key
 = stop, change, start": if the drone *didn't* follow, every degree for the rest of the
-session would be labeled against a tonic nobody hears; following it leaves only the
-already-pregenerated queue (at most `queueDepth` segments) labeled against the old key.
-It's suppressed while paused — `startDrone()` would sound over the pause — and applied on
+session would be labeled against a tonic nobody hears. The queue follows too — Root,
+Scale and the pool toggle are in `QUEUE_SETTINGS` ("Settings changes replace the
+queue"), so the moment the drone moves, every queued degree is re-picked against the
+new key; a "fa" in C is not a "fa" in D, and a queue that said otherwise was the first
+thing the listening session flagged. It's suppressed while paused — `startDrone()` would sound over the pause — and applied on
 resume via the `isPaused` dependency. The effect is keyed to the joined note names, not
 the array, because `App` rebuilds that array every render.
 
@@ -327,6 +329,28 @@ discarding an already-generated entry when the depth is lowered would silently s
 chord they typed. Lowering the depth therefore hides entries rather than dropping them —
 `visibleQueue` slices what the display gets, and the queue's own length is not what
 decides whether anything renders. `useRandomizer.test.js` pins this.
+
+**Settings changes replace the queue** (issue #59). A change to anything that decides
+what a segment *is* — `QUEUE_SETTINGS` in the hook: types, roots, pairs, the custom bank,
+the duration range, Pure Tone's mode and key, Scale Degrees' key and pool — throws the pregenerated queue away and
+regrows it at once, running or paused; the segment already sounding finishes, and
+nothing behind it plays under stale settings. Before pause existed this didn't matter
+much: stop → change → play reset the queue anyway. Pause made pause → change → resume
+the natural flow, and then the next `queueDepth` segments were wrong. Three things about
+how it's done:
+
+- **The queue is regrown to its old length, not to `pregenDepth`** — the never-shrinks
+  rule above still holds; this only replaces entries, it doesn't drop them.
+- **The ordered custom bank's cursor is rewound by the number of entries discarded**
+  (clamped at 0 — in random mode the cursor never moved). The cursor has advanced past
+  every queued entry, so regrowing without the rewind would skip a queue's worth of the
+  user's progression — the same hazard the never-shrinks rule guards. `rebuildQueue` is
+  unit-tested for exactly this.
+- **The effect keys on `queueSettingsKey(settings)`, a string, not on `settings`** —
+  that object is new on every edit, and keying on it would re-roll the Next readout
+  on every tempo keystroke. Tempo, gap, metronome, sound type and the display
+  settings are deliberately outside the key. A ref skips the run where `isRunning`
+  flips on, since `start()` has just built a fresh queue.
 
 **Repeat avoidance stays strictly adjacent.** Each queued segment only avoids repeating
 the one immediately before it, exactly as it did when there was a single "next". Widening

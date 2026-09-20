@@ -133,6 +133,36 @@ export function growQueue(queue, depth, tail, gen) {
   }
 }
 
+// The settings that decide what a segment *is* — what gets picked and how long it lasts.
+// A change to any of these mid-session replaces the pregenerated queue (see
+// rebuildQueue); everything else (tempo, gap, metronome, sound type, display) leaves it
+// alone. Serialised to a string so the effect can key on the values, not on `settings`,
+// which is a new object on every keystroke.
+const QUEUE_SETTINGS = [
+  'enabledTypes', 'enabledRoots', 'enabledPairs',
+  'customBankEnabled', 'customBankMode', 'customBankEntries',
+  'minBeats', 'maxBeats',
+  'pureToneMode', 'pureToneScaleRootPc', 'pureToneScaleKey',
+  'scaleDegreesRootPc', 'scaleDegreesScaleKey', 'scaleDegreesPool',
+];
+
+export function queueSettingsKey(s) {
+  return JSON.stringify(QUEUE_SETTINGS.map((k) => s[k]));
+}
+
+// Throw away every pregenerated segment and regrow from the current settings, to the
+// same length as before (never shorter — see "Queue depth"). The one subtlety is the
+// ordered custom bank: its cursor already advanced past every queued entry, so it's
+// rewound by that many first, or the progression would skip ahead by a queue's worth.
+// See docs/architecture/randomizer.md's "Settings changes replace the queue".
+export function rebuildQueue(queue, depth, tail, gen) {
+  const ref = gen.orderedBankIndexRef;
+  ref.current = Math.max(0, ref.current - queue.length);
+  const length = Math.max(depth, queue.length);
+  queue.length = 0;
+  growQueue(queue, length, tail, gen);
+}
+
 // How many segments to keep pregenerated. One is the floor even with the queue switched
 // off: the clock hands the player its next segment a phase early regardless of whether
 // anything is displaying it.
@@ -359,6 +389,26 @@ export function useRandomizer(settings, options = {}) {
     });
     setQueue(visibleQueue(q, s));
   }, [isRunning, settings.queueDepth, pickNextTonalCenter]);
+
+  // A change to what gets picked replaces the queue at once, running or paused — the
+  // segment already sounding finishes, but nothing behind it plays under stale settings.
+  // Pause made this the natural flow (pause → change → resume); before it, stop → play
+  // reset the queue anyway. The ref skips the run where `isRunning` flips on: start()
+  // has just built a fresh queue. See docs/architecture/randomizer.md's "Settings
+  // changes replace the queue".
+  const queueKey = queueSettingsKey(settings);
+  const queueKeyRef = useRef(queueKey);
+  useEffect(() => {
+    const changed = queueKeyRef.current !== queueKey;
+    queueKeyRef.current = queueKey;
+    if (!isRunning || !changed) return;
+    const s = settingsRef.current;
+    const q = queueRef.current;
+    rebuildQueue(q, pregenDepth(s), segmentRef.current, {
+      settings: s, orderedBankIndexRef, pickNextTonalCenter,
+    });
+    setQueue(visibleQueue(q, s));
+  }, [isRunning, queueKey, pickNextTonalCenter]);
 
   // Keep tempo/metronome-volume changes live while running.
   useEffect(() => {
