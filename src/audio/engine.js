@@ -122,8 +122,9 @@ export class TonalCenterPlayer {
 
     // Scale Degrees drone: its own synth and trim, deliberately not shared with the
     // chord path so stopCurrent()/playSegment() can't touch it — see "Drone" in
-    // docs/architecture/audio.md. 6dB under chordBaseVolume so the target reads over it.
-    this.droneBaseVolume = -20;
+    // docs/architecture/audio.md. Same baseline as chordBaseVolume: the drone sits low
+    // in the spectrum and needs to reach the target's level to register against it.
+    this.droneBaseVolume = -14;
     this.droneVolume = new Tone.Volume(0).connect(this.limiter);
     // Slow attack so it fades in rather than thumps; the release is what a stop or pause
     // sounds like, and it's long enough that a replaced drone crossfades.

@@ -85,17 +85,20 @@
   attacks the new ones at the same `time`). That crossfade is the same overlap hazard
   the chord synth's short release avoids — the synth's note-count trim is set for the
   *new* drone while the old one rings out — but a replacement only happens on a
-  settings change, the drone baseline already sits 6dB under the chord's, and the
-  limiter backstops it, so the longer release wins here.
+  settings change and the limiter backstops it, so the longer release wins here.
 
-  *Level*: `droneBaseVolume` is -20dB against `chordBaseVolume`'s -14dB, both calibrated
-  at 4 voices and scaled by the same `noteCountTrimDb`, so whatever the drone's shape
-  (1, 2 or 3 notes) its total sits ~6dB under a target at the slider's ceiling — the
-  target has to read *over* the reference, never the other way round. The slider then
-  only ever pulls the drone further down (see "Volume sliders"). Whether the default
-  slider position (50, i.e. -20dB off the ceiling) leaves the drone present enough is a
-  listening question for the tab's design pass; the two knobs are the default in
-  settings and `droneBaseVolume` here.
+  *Level*: `droneBaseVolume` equals `chordBaseVolume` (-14dB), both calibrated at 4
+  voices and scaled by the same `noteCountTrimDb`, so at the slider's ceiling the drone
+  — whatever its shape, 1 to 3 notes — matches the target's level, and the slider only
+  ever pulls it down from there (see "Volume sliders"). It started 6dB lower on the
+  theory that the target must read *over* the reference; the first listening session
+  reversed that — an octave-3 sine sits low enough in the spectrum that it needs to
+  reach the target's level to register at all, and the ceiling was the problem, not the
+  default. The default slider position (85, ~6dB off the ceiling) came from the same
+  session. Two sines at -8dBFS can sum to -2dBFS, inside the limiter's -1dB threshold
+  but not by much; the 'chord' drone's three voices are trimmed lower, so it isn't the
+  worst case. The one still-open level question is a *target* level independent of the
+  drone (issue #58).
 
   *Pause/resume*: `pause()` snapshots the drone's notes in `suspendedDrone` and releases
   it; `resume()` calls `startDrone` with them, which recomputes the note-count trim, so

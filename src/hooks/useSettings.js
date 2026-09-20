@@ -78,7 +78,9 @@ const DEFAULT_SETTINGS = {
   scaleDegreesScaleKey: 'diatonic:Ionian',
   scaleDegreesPool: 'diatonic', // 'diatonic' | 'chromatic'
   scaleDegreesDrone: 'tonic', // 'tonic' | 'fifth' | 'chord'
-  scaleDegreesDroneVolume: 50, // 0-100, same slider semantics as metronomeVolume
+  // 0-100, same slider semantics as metronomeVolume. High by default: an octave-3 drone
+  // needs to be near the target's level to register — docs/architecture/audio.md, "Drone".
+  scaleDegreesDroneVolume: 85,
   scaleDegreesLabels: 'numbers', // 'numbers' | 'solfege'
 };
 
