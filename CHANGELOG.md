@@ -21,7 +21,9 @@ no versions.
   **Every channel has a mute**, which retired the "No Sound" sound type (a second control
   silencing the same thing; persisted values migrate to "Chord, muted"). The metronome's
   on/off and level moved here from Timing. The Chords & Scales "Sound" group became
-  **Voicing** (Play as / Density), the word the Drone group uses for the same decision.
+  **Voicing** (Play as / Density), the word the Drone group uses for the same decision;
+  Pure Tone's and Scale Degrees' **Notes** groups became **Note bank**, and Scale
+  Degrees' Labels field moved to Display, where how-it's-written belongs.
   `randomizer.md`, "Mixer".
 
 ## The accents mean the practice modes (2026-09-20)

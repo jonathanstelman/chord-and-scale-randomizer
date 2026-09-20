@@ -90,12 +90,16 @@ and how the tab plugs into the clock and the display.
 It's Pure Tone's sibling — same two-column split, `TimingSection` + `DisplaySection` in
 the player column — with two groups in the picker column, both open by default:
 
-- **Notes** — where a target note comes from and how it's named. A two-button
-  **Scale / Chromatic** toggle (`scaleDegreesPool`, the same words and persisted-choice pattern
-  as Pure Tone's Chromatic/Scale, not an `activePresetKey` preset), **Root**
-  (`scaleDegreesRootPc`), **Scale** (`scaleDegreesScaleKey`, the same grouped dropdown
-  and "Ionian (Major)" / "Aeolian (Natural Minor)" overrides Pure Tone uses, shared via
-  `scaleOptions.js`), and **Labels** (`scaleDegreesLabels`: numbers or do-based solfège).
+- **Note bank** — where a target note comes from. A two-button **Chromatic / Scale**
+  toggle (`scaleDegreesPool`, the same words and persisted-choice pattern as Pure Tone's,
+  not an `activePresetKey` preset), **Root** (`scaleDegreesRootPc`) and **Scale**
+  (`scaleDegreesScaleKey`, the same grouped dropdown and "Ionian (Major)" / "Aeolian
+  (Natural Minor)" overrides Pure Tone uses, shared via `scaleOptions.js`). "Bank" is the
+  word the custom chord bank already taught: a stock of things to draw from — and with
+  the Mixer's first channel named *Note* directly above, a group called *Notes* read as
+  the same thing twice. **Labels** (`scaleDegreesLabels`: numbers or do-based solfège) is
+  not in the bank: it's how a degree is *written*, so it sits in the Display group,
+  passed in as `DisplaySection`'s children — the one tab-specific field that group has.
 - **Drone** — what the reference sounds like: **Sound** (`scaleDegreesDrone`: tonic
   alone, tonic + fifth, or the scale's I chord). How loud, and whether at all, is the
   Mixer's Drone channel (`scaleDegreesDroneVolume`, `droneAudio`) — see "Mixer".

@@ -12,7 +12,7 @@ import TriStateCheckbox from './TriStateCheckbox';
 // in Chords & Scales they're the roots chords and scales get built on, while Pure Tone
 // plays them as bare pitches with nothing built on top, so calling them roots there
 // would name something the mode doesn't have. `hideLabel` renders it for assistive tech
-// only — Pure Tone's enclosing Notes header already names the group on screen.
+// only — Pure Tone's enclosing Note bank header already names the group on screen.
 export default function RootsPicker({
   enabledRoots, toggleRoot, setAllRootsEnabled, label, hideLabel = false,
 }) {

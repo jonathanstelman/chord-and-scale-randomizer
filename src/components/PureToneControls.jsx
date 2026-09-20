@@ -10,7 +10,7 @@ import { SCALE_GROUPS, scaleOptionLabel } from './scaleOptions';
 // Pure Tone's settings surface is deliberately smaller than the chord/scale randomizer's
 // — see docs/architecture/randomizer.md's Pure Tone section for what it has and lacks,
 // and why. It has no Advanced panel: Roots was the only thing in it, and Roots now sits
-// inside Notes under the mode it actually applies to.
+// inside Note bank under the mode it actually applies to.
 function PureToneControls({
   settings, updateSettings, toggleRoot, setAllRootsEnabled,
 }) {
@@ -31,7 +31,7 @@ function PureToneControls({
             notes come from, so they share one group. This tab's counterpart to Presets in
             Controls, and starts open for the same reason. */}
         <details className="settings-section" open>
-          <summary>Notes</summary>
+          <summary>Note bank</summary>
           <div className="settings-body">
             <div className="preset-buttons">
               <button
