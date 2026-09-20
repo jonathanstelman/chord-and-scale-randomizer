@@ -24,7 +24,7 @@ const TAB_DESCRIPTIONS = {
   ),
   pureTone: (
     <>
-      A single random pitch, with nothing sounding around it — name it, or find it on
+      A single random note, with nothing sounding around it — name it, or find it on
       your instrument, before the next one comes.
     </>
   ),
@@ -101,7 +101,7 @@ export default function App() {
         </div>
         <p className="masthead-subtitle">
           Each mode below plays something new at random, on a metronome — a chord, a
-          scale, a pitch, or a scale degree — so you can practice reacting when it changes.
+          scale, a note, or a scale degree — so you can practice reacting when it changes.
         </p>
         <TabNav activeTab={settings.activeTab} onSelect={handleSelectTab} />
         <p className="masthead-subtitle">{TAB_DESCRIPTIONS[settings.activeTab]}</p>

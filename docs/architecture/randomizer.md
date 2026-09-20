@@ -214,8 +214,11 @@ with its settings (Voicing → Play as/Density, Drone → Voicing); how loud is 
 
 - **The first channel is named for what the tab plays**, the way each tab's description
   is: *Tonal center* on Chords & Scales (the same noun the picker group uses — what gets
-  picked there, how loud here), *Pitch* on Pure Tone, *Note* on Scale Degrees, where the
-  drone is the actual tonal center and calling the target one would be wrong. The row
+  picked there, how loud here), *Note* on Pure Tone and on Scale Degrees — a single
+  sounding note in both, and on Scale Degrees the drone is the actual tonal center, so
+  calling the target one would be wrong. Pure Tone's was "Pitch" for a day, on the
+  grounds that a note with no key is strictly a pitch; but its bank is the *Note* bank
+  and the display names the note, so one word won. The row
   holds its position; only the word follows the tab. "Tone" was the first draft and
   named the medium, not the thing; so did "Sound" on the group that decides how the
   tonal center is voiced, now **Voicing** (Play as: Chord / Arpeggio; Density) — the

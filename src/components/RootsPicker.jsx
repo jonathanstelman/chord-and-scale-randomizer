@@ -10,7 +10,7 @@ import TriStateCheckbox from './TriStateCheckbox';
 //
 // `label` differs by tab because the twelve pitch classes mean different things in each:
 // in Chords & Scales they're the roots chords and scales get built on, while Pure Tone
-// plays them as bare pitches with nothing built on top, so calling them roots there
+// plays them as bare notes with nothing built on top, so calling them roots there
 // would name something the mode doesn't have. `hideLabel` renders it for assistive tech
 // only — Pure Tone's enclosing Note bank header already names the group on screen.
 export default function RootsPicker({

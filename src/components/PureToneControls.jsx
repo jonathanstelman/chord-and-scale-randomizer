@@ -23,7 +23,7 @@ function PureToneControls({
       <div className="controls-column controls-column--player">
         <TimingSection settings={settings} updateSettings={updateSettings} />
         <DisplaySection settings={settings} updateSettings={updateSettings} />
-        <MixerSection settings={settings} updateSettings={updateSettings} played="Pitch" />
+        <MixerSection settings={settings} updateSettings={updateSettings} played="Note" />
       </div>
 
       <div className="controls-column controls-column--pickers">
@@ -86,7 +86,7 @@ function PureToneControls({
               </div>
             ) : (
               <RootsPicker
-                label="Pitches"
+                label="Notes"
                 hideLabel
                 enabledRoots={settings.enabledRoots}
                 toggleRoot={toggleRoot}

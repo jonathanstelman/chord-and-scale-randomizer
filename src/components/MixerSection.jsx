@@ -1,5 +1,5 @@
 // Every level in one place, like a mixer: a channel strip per sound source — what the
-// tab plays (`played`: a tonal center, a pitch, a note — the name follows the tab the
+// tab plays (`played`: a tonal center or a note — the name follows the tab the
 // way its description does), on Scale Degrees the drone, and the metronome — each with
 // the same three things in the same three columns: name, mute, level. *What* plays
 // stays with the settings responsible for it (the Voicing and Drone groups); this group

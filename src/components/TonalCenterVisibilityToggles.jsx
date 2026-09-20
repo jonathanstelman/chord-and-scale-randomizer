@@ -15,7 +15,7 @@ const HIDDEN = '▨';
 const SIDES = { showCurrent: 'current', showNext: 'next', showNoteName: 'note' };
 // What the accessible name calls the thing veiled; the visible tooltip uses the shorter
 // label passed to toggle(). "Readout", not "tonal center": on Scale Degrees it's a
-// degree and on Pure Tone a pitch, and the name has to be true on every tab.
+// degree and on Pure Tone a note, and the name has to be true on every tab.
 const VEILED_NAMES = {
   showCurrent: 'current readout', showNext: 'next readout', showNoteName: 'note name',
 };

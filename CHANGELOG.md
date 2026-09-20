@@ -11,8 +11,8 @@ no versions.
 ## A mixer (2026-09-20)
 
 - **#58** — Every level in one group: a **Mixer** in the player column of every tab, after
-  Display, with a channel strip per sound source — what the tab plays (Tonal center /
-  Pitch / Note), Drone (Scale Degrees), Metronome — each with a name, a mute and a slider
+  Display, with a channel strip per sound source — what the tab plays (Tonal center on
+  Chords & Scales, Note on the other two), Drone (Scale Degrees), Metronome — each with a name, a mute and a slider
   on one grid, so every slider is the same length. The first is new: the tonal center
   never had its own level, so the only way to
   balance the drone against the target was to push the drone up. Two layouts were
