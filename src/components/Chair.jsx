@@ -27,19 +27,27 @@ const ASPECT = 132 / 100;
  * One chair from the Musical Chairs motif. Artwork is baked path data
  * (`chairArt.js`); nothing is generated at runtime.
  *
- * Each pose ships with its own accent already in the path data — cobalt upright,
- * brass tipping, flame fallen — so a pose is a complete chair, not a shape needing
- * to be coloured. The frame paths use `currentColor`, which means the chair inherits
- * whatever `color` its container has and flips with the theme for free.
+ * Each pose ships with a default accent in the path data — cobalt upright, brass
+ * tipping, flame fallen — so a pose is a complete chair on its own. `accent`
+ * ('cobalt' | 'brass' | 'flame') overrides it: the idle card's chair takes the active
+ * tab's colour, since the accents identify the practice modes (see
+ * docs/architecture/design-language.md, "The accents"). The frame paths use
+ * `currentColor`, which means the chair inherits whatever `color` its container has
+ * and flips with the theme for free.
  *
  * Decorative by default. Pass `label` only where the chair carries meaning no
  * neighbouring text already conveys. `fallRight` mirrors the `fallen` pose.
  */
 export default function Chair({
-  pose = 'upright', size = 34, className, label, fallRight = false,
+  pose = 'upright', size = 34, className, label, fallRight = false, accent,
 }) {
   const art = CHAIR_ART[pose];
   if (!art) return null;
+
+  // Exactly one path per pose carries a var() accent; the rest are currentColor.
+  const fillFor = (part) => (
+    accent && part.fill.startsWith('var(--') ? `var(--${accent})` : part.fill
+  );
 
   const poseStyle = fallRight && pose === 'fallen' ? FALLEN_RIGHT_STYLE : POSE_STYLE[pose];
 
@@ -56,7 +64,7 @@ export default function Chair({
       focusable="false"
     >
       {art.map((part, i) => (
-        <path key={i} d={part.d} fill={part.fill} fillRule={part.fillRule} opacity={part.opacity} />
+        <path key={i} d={part.d} fill={fillFor(part)} fillRule={part.fillRule} opacity={part.opacity} />
       ))}
     </svg>
   );

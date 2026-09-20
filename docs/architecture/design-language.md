@@ -55,11 +55,39 @@ split disappeared when every group became collapsible. Don't reintroduce a secon
 style for a subset of groups — a group that opens is not a different kind of thing from
 one that doesn't, it just starts closed.
 
+## The accents
+
+`--cobalt`, `--brass` and `--flame` identify the three practice modes, in tab order:
+
+| Accent | Mode | Where it shows |
+|---|---|---|
+| cobalt | Chords & Scales | tab underline, masthead divider, idle card's chair |
+| brass | Pure Tone | tab underline, masthead divider, idle card's chair |
+| flame | Scale Degrees | tab underline, masthead divider, idle card's chair |
+
+That's the *code*. Each colour also has a UI job that isn't one — cobalt draws
+structural lines, brass is the attention accent (the "next" sticker, active toggles,
+checkboxes), flame is stop and the downbeat — and those don't change with the tab.
+
+**This reverses an earlier decision.** The accents used to mean Triads / Seventh Chords /
+Scales, on three coloured blocks in the Tonal centers group, and the chair docs said
+"accent colour on a chair means nothing" to keep from loading a second meaning onto
+them. Two things overturned that: the blocks were the only selection surface built as
+big coloured squares rather than the chips, checkboxes and radios everything else uses,
+so they read as out of place; and colouring the tab and the idle chair by mode gives
+switching tabs a visible change of state that the page otherwise lacked. So the blocks
+became plain checkboxes (`.mode-row`, styled like the Roots grid), and the accents
+carry exactly one meaning. `tabs.js` is the single mapping. `App` sets the active
+mode's accent as `--mode-accent` on the root for anything page-level that carries it
+(the masthead divider); `TabNav` sets each button's own as `--tab-accent`, since every
+button has one and only the active one shows; `Display` passes it to the chair as a
+prop, since the chair's accent is a fill on a path, not a CSS colour.
+
 ## The chair motif
 
-Three chairs, each a complete drawing with its accent already baked in:
+Three chairs, each a complete drawing with a default accent baked in:
 
-| Pose | Accent | Meaning |
+| Pose | Default accent | Meaning |
 |---|---|---|
 | `upright` | cobalt | at rest |
 | `tipping` | brass | running |
@@ -68,10 +96,12 @@ Three chairs, each a complete drawing with its accent already baked in:
 Only two poses carry meaning, because the app has two states, not three. `fallen` exists
 for composition; don't invent a state for it.
 
-**Accent colour on a chair means nothing.** `--cobalt`, `--brass` and `--flame` already
-mean triads / sevenths / extended, and flame doubles as "primary action." A chair's
-colour is chosen for the surface it sits on. Loading a third meaning onto those three
-was considered and rejected — it would collide with a code the mode blocks already use.
+**A chair's accent is the mode's, where a mode is in play.** `Chair` takes an `accent`
+prop that overrides the baked one; the idle card passes the active tab's, so the hero
+chair is cobalt on Chords & Scales, brass on Pure Tone, flame on Scale Degrees. Where no
+mode is in play the default stands: the masthead's three run cobalt / brass / flame left
+to right — which happens to be tab order too, so they read as the three modes as much
+as three poses. Pleasant, not load-bearing; don't reorder the tabs to keep it.
 
 ### Rules for placing one
 
@@ -91,7 +121,7 @@ was considered and rejected — it would collide with a code the mode blocks alr
 | Placement | Pose | Note |
 |---|---|---|
 | Masthead lockup | upright, tipping, fallen | The identity mark: at rest, running, and one for composition. |
-| Idle display card | upright | The hero of the idle state (#24). |
+| Idle display card | upright, accent = active tab's | The hero of the idle state (#24); the one chair whose colour changes. |
 | Foot of Advanced settings | fallen (`fallRight`) | Right-aligned inside a panel that starts closed — found rather than presented. |
 
 The last one is deliberately the only chair you have to go looking for, and it only

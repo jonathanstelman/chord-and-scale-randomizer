@@ -34,31 +34,15 @@ whichever hex `--paper` holds in that theme.
 (white, rather than "a shade lighter than ink" the way dark mode's panel is — plain
 white read better against a warm cream page than a tinted-cream card would).
 
-`--cobalt`/`--brass`/`--flame` (the three difficulty-tier accents) keep the same hex in
-both themes, with one exception: `--brass` is darkened for light mode
+`--cobalt`/`--brass`/`--flame` (the three practice-mode accents — see
+`design-language.md`, "The accents") keep the same hex in both themes, with one exception: `--brass` is darkened for light mode
 (`#ce9b2e` → `#8a6412`). At its dark-mode value it's a bright gold that reads as
 washed-out, low-contrast text on a light background — small uppercase labels
 (`TIMING`, `SOUND`, `PRESETS`, …) especially. Cobalt and flame stay unchanged; they're
 dark enough already to hold up as text on a light page.
 
-## `.mode-block.is-on`'s light-mode-only override
-
-The three core-mode blocks' *active* state sets a colored background per mode
-(cobalt/brass/flame) with a text color chosen for contrast against that specific
-background: cobalt and flame are dark enough that cream (`--paper` in dark mode) text
-reads well; brass is bright enough (in dark mode) that dark ink (`--ink` in dark mode)
-text is the one that reads well there instead. That's a real, deliberate,
-per-background choice — not an oversight to unify.
-
-Naively carrying that same `--paper`/`--ink` split into light mode breaks it: `--paper`
-now means "dark text," so triads and extended flip to dark text on their still-medium
-cobalt/flame backgrounds (poor contrast), while sevenths flips to light text on its
-now-darkened brass background (which is now the one combination that actually wants
-light text). The fix isn't to swap which block uses which token — it's that cobalt and
-flame don't change brightness between themes, so their text color shouldn't either.
-`--cream` is a third, fixed-value token (never redefined by any theme block) for exactly
-this: a light neutral for text on a saturated fill, independent of what "foreground
-text color" currently means. A light-mode-only rule (`:root:not([data-theme="dark"])
-.mode-block.is-on` / `:root[data-theme="light"] .mode-block.is-on`) overrides just the
-`color` to `--cream` for all three blocks at once, while dark mode's original
-per-variant rules — genuinely correct there — are left untouched.
+There used to be a third section here about a light-mode-only text-colour override on
+the Tonal centers blocks, and a `--cream` token that existed only for it. The blocks
+became plain checkboxes when the accents were reassigned to the practice modes
+(`design-language.md`, "The accents"), so both are gone; the reasoning is in git history
+if a saturated fill ever needs fixed light text on it again.

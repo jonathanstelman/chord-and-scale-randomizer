@@ -8,6 +8,16 @@ the working material behind visual decisions lives in
 This is a note of what changed, not a release log — the app deploys from `main` and has
 no versions.
 
+## The accents mean the practice modes (2026-09-20)
+
+- Cobalt, brass and flame now identify the three tabs — Chords & Scales, Pure Tone,
+  Scale Degrees — on the tab underline and the idle card's chair, so switching modes
+  visibly changes the page. **This reverses #21's "accent colour on a chair means
+  nothing"**: the colours used to code Triads / Seventh Chords / Scales on three big
+  coloured blocks in the Tonal centers group, the one selection surface not built from
+  chips, checkboxes and radios. Those blocks are plain checkboxes now, in a row like the
+  Roots grid, and the accents carry one meaning. `design-language.md`, "The accents".
+
 ## Roots spelled by their context (2026-09-20)
 
 - **#62** — Every pitch class had one display spelling, chosen for its major key, so

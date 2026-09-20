@@ -31,7 +31,9 @@
 .masthead {
   padding-bottom: 1.25rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid var(--cobalt);
+  /* The divider takes the active mode's accent (set on .app) — with the tab underline
+     and the idle chair, it's what makes switching modes read as a change of state. */
+  border-bottom: 2px solid var(--mode-accent, var(--cobalt));
 }
 
 .masthead-top {
@@ -164,9 +166,11 @@
   color: var(--paper);
 }
 
+/* The underline is the tab's own accent (set per button in TabNav) — cobalt, brass,
+   flame identify the three practice modes; see design-language.md, "The accents". */
 .tab-button.is-active {
   color: var(--paper);
-  border-bottom-color: var(--flame);
+  border-bottom-color: var(--tab-accent, var(--flame));
 }
 
 /* ---------- Sleeve / Display ---------- */
@@ -1189,83 +1193,13 @@
   margin: -0.25rem 0 0;
 }
 
+/* The three tonal-center checkboxes, in a row like the Roots grid — same indent, same
+   wrap. Once coloured blocks; see design-language.md, "The accents", for why not now. */
 .mode-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  gap: 0.75rem;
-}
-
-.mode-block {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /* The label text is a flex item too: space-between only positions its box, so a label
-     short enough to stay on one line (e.g. "Triads") shrinks to fit and sits flush right,
-     while a longer one that wraps (e.g. "Seventh Chords") grows to fill the row and
-     left-aligns by default within it — text-align keeps every label flush right either
-     way. */
-  text-align: right;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.3rem;
-  border: 2px solid var(--paper-faint);
-  color: var(--paper-dim);
-  cursor: pointer;
-  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
-}
-
-/* [type='checkbox'] isn't for specificity over .mode-block input alone — it's needed to
-   match (and, being later in the file, beat) .checkbox-label input[type='checkbox']'s
-   accent-color: var(--brass), which every mode-row checkbox also picks up via its
-   shared .checkbox-label class. Without it, that rule's higher specificity wins and
-   every mode block's checkbox renders brass regardless of which block it's in —
-   including the brass block itself, where a brass-on-brass checkbox nearly disappears. */
-.mode-block input[type='checkbox'] {
-  accent-color: currentColor;
-}
-
-.mode-block--triads.is-on {
-  background: var(--cobalt);
-  border-color: var(--cobalt);
-  color: var(--paper);
-}
-
-.mode-block--sevenths.is-on {
-  background: var(--brass);
-  border-color: var(--brass);
-  color: var(--ink);
-}
-
-.mode-block--extended.is-on {
-  background: var(--flame);
-  border-color: var(--flame);
-  color: var(--paper);
-}
-
-/* Light mode only: cobalt/flame stay the same medium-dark hue in both themes, so text
-   on them wants to stay light — but --paper (triads/extended's text color above) flips
-   to a dark value in light mode, since it means "foreground text" generally, not
-   "light color" specifically. --cream is fixed regardless of theme, so it's the right
-   token here. Dark mode is untouched and keeps its original mixed light/dark text per
-   block (deliberate: brass is a bright gold there, needing dark text for contrast —
-   see docs/architecture/theming.md). Higher specificity than the rules above already
-   gives this the win when it applies; :not([data-theme="dark"])/[data-theme="light"]
-   make sure it only applies in light mode. */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .mode-block.is-on {
-    color: var(--cream);
-  }
-}
-
-:root[data-theme="light"] .mode-block.is-on {
-  color: var(--cream);
-}
-
-.mode-block.is-partial {
-  border-style: dashed;
-  color: var(--paper);
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  padding-left: 0.85rem;
 }
 
 /* ---------- Custom bank ---------- */

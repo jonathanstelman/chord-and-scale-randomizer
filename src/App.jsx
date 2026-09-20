@@ -10,6 +10,7 @@ import PureToneControls from './components/PureToneControls';
 import ScaleDegreesControls from './components/ScaleDegreesControls';
 import Display from './components/Display';
 import PipConsole from './components/PipConsole';
+import { tabAccent } from './components/tabs';
 import './App.css';
 
 // See docs/architecture/randomizer.md's "Tab copy" section for why these are
@@ -81,7 +82,9 @@ export default function App() {
   };
 
   return (
-    <div className="app">
+    /* The active mode's accent, for anything page-level that carries it — today the
+       masthead's divider. The tab underline and the idle chair take theirs directly. */
+    <div className="app" style={{ '--mode-accent': `var(--${tabAccent(settings.activeTab)})` }}>
       <header className="masthead">
         <div className="masthead-top">
           {/* Upright, tipping, fallen — left to right, that's the game. Purely

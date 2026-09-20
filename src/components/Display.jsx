@@ -2,6 +2,7 @@ import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
 import PauseGlyph from './PauseGlyph';
+import { tabAccent } from './tabs';
 import { scaleDegreesKeyName } from './scaleOptions';
 
 // One key plus the word beneath it. `variant` is the only styling difference — Stop is
@@ -51,7 +52,8 @@ export default function Display({
 
         {!isRunning && (
           <div className="sleeve-idle">
-            <Chair pose="upright" size={78} className="sleeve-idle-chair" />
+            {/* Coloured for the tab, so switching modes visibly changes the card. */}
+            <Chair pose="upright" size={78} className="sleeve-idle-chair" accent={tabAccent(settings.activeTab)} />
 
             {/* A worked example of the real thing, built from the same classes so it
                 can't drift from what a session actually looks like. aria-hidden: a
