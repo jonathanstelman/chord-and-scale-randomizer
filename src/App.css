@@ -1078,7 +1078,10 @@
   gap: 1.25rem;
 }
 
-.metronome-volume {
+/* One inline caption-and-slider row for every level control — the metronome's volume
+   and the Scale Degrees drone's level — so a slider looks the same wherever it sits. */
+.metronome-volume,
+.drone-level {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1089,7 +1092,8 @@
   color: var(--paper-dim);
 }
 
-.metronome-volume input[type='range'] {
+.metronome-volume input[type='range'],
+.drone-level input[type='range'] {
   accent-color: var(--brass);
   width: 8rem;
 }

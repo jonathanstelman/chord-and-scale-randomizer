@@ -6,6 +6,7 @@ import ThemeToggle from './components/ThemeToggle';
 import Chair from './components/Chair';
 import Controls from './components/Controls';
 import PureToneControls from './components/PureToneControls';
+import ScaleDegreesControls from './components/ScaleDegreesControls';
 import Display from './components/Display';
 import PipConsole from './components/PipConsole';
 import './App.css';
@@ -25,8 +26,12 @@ const TAB_DESCRIPTIONS = {
       instrument, before the next one comes.
     </>
   ),
-  // Placeholder until the tab's settings UI lands (issue #53), which owns this copy.
-  scaleDegrees: <>Under construction.</>,
+  scaleDegrees: (
+    <>
+      A drone sets the key, then a random note above it — name its scale degree, or find
+      it on your instrument, before the next one comes.
+    </>
+  ),
 };
 
 export default function App() {
@@ -123,10 +128,12 @@ export default function App() {
         onStop={stop}
       />
 
-      {/* Scale Degrees renders no controls yet — its settings UI is issue #53, and its
-          playback (a different picker plus a drone through useRandomizer) is issue #54;
-          until then the tab runs the Randomizer's own source. */}
-      {isScaleDegrees ? null : isPureTone ? (
+      {/* Scale Degrees has its settings UI but no playback yet — wiring its picker and
+          drone through useRandomizer is issue #54; until then the tab runs the
+          Randomizer's own source. */}
+      {isScaleDegrees ? (
+        <ScaleDegreesControls settings={settings} updateSettings={updateSettings} />
+      ) : isPureTone ? (
         <PureToneControls
           settings={settings}
           updateSettings={updateSettings}
