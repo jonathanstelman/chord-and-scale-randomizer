@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { tonalCenterPhrase } from '../music/pool';
+import PauseGlyph from './PauseGlyph';
 
 /**
  * A minimal floating console that docks once the main display has scrolled out of
@@ -58,7 +59,7 @@ export default function PipConsole({
   const transport = (
     <span className="pip-transport">
       {key(
-        playing ? '‖' : '▶',
+        playing ? <PauseGlyph /> : '▶',
         playing ? 'Pause' : 'Play',
         isRunning ? (isPaused ? onResume : onPause) : onStart,
       )}

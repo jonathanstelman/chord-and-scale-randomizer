@@ -519,6 +519,12 @@ the widest thing in the card's bottom band. Stacked, the two keys sit 0.6rem apa
 read as one two-key deck with a legend printed beneath, ~80px wide; the cost is ~1rem
 of band height, which the padding above pays for.
 
+**Pause is drawn, not typed.** The ‖ character's two strokes merge into a rectangle on
+iOS's system face — indistinguishable from ■ at the console's 0.7rem, and not much
+better at the deck's 0.85rem. `PauseGlyph` is two `currentColor` bars sized in em with a
+2px floor, shared by the deck and the console so the mark is the same at both sizes.
+▶ and ■ stay as characters; they hold up.
+
 **Those three controls inset to the stage's content edge (2rem), not its border box.** At
 0.7rem they sat 21px inside the text above them — near enough to read as a misalignment
 rather than a margin — and on a full-width card they were anchored to nothing at all,

@@ -744,6 +744,20 @@
   transition: color 0.15s ease-out, border-color 0.15s ease-out, background 0.15s ease-out;
 }
 
+/* See PauseGlyph.jsx. Inherits the key's colour and scales with its font-size. */
+.glyph-pause {
+  display: inline-flex;
+  gap: max(2px, 0.2em);
+}
+
+.glyph-pause i {
+  display: block;
+  width: max(2px, 0.22em);
+  height: 0.8em;
+  background: currentColor;
+  border-radius: 1px;
+}
+
 .deck-key:hover {
   color: var(--paper);
   border-color: var(--paper-medium);
