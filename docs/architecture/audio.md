@@ -37,3 +37,20 @@
   volume/gain staging. (A separate, still-open built-in-speaker distortion issue this
   doesn't fix is tracked as
   [issue #4](https://github.com/jonathanstelman/chord-and-scale-randomizer/issues/4).)
+- **Pausing mid-segment** (`pause()` / `resume()`, issue #34): `stopCurrent()` is
+  destructive by design — it's what a *new* segment calls — so it can't be reused to
+  suspend one. It mutes the arpeggio with nothing to un-mute it before the next segment
+  boundary, and releases held notes with nothing to re-attack them. `pause()` therefore
+  snapshots what's sounding *before* calling it: the arp notes and whether they were
+  muted, the held notes, and **the chord synth's current volume** — `playSegment()`
+  scales that by note count, so re-attacking at whatever the synth happens to hold would
+  make a resumed chord jump in level. `arpStepIndex` is deliberately left alone by both
+  `stopCurrent()` and `resume()`, so a resumed arpeggio carries on through its sweep
+  instead of snapping back to the root.
+
+  `playSegment()` clears the snapshot, or a segment boundary arriving between pause and
+  resume would re-attack a chord that has already been replaced.
+
+  Resuming needs `Tone.start()` again because the context can be suspended while paused
+  (iOS especially). It does *not* need another `unlockIOSMediaPlayback()` gesture: that
+  helper is idempotent and its silent `<audio>` element is still looping from `start()`.

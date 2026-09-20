@@ -441,6 +441,14 @@
   background: color-mix(in srgb, var(--flame) 12%, transparent);
 }
 
+/* Keys sit together at the console's top-right, tight enough to read as one deck. */
+.pip-transport {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 /* Idle: wordmark and play key on one row, and nothing else. The display one scroll up
    already carries the worked example — see docs/architecture/randomizer.md's "PiP
    console". */
@@ -665,6 +673,16 @@
   bottom: 1.15rem;
   display: flex;
   align-items: center;
+  /* Wider than the gap inside a control, so the deck reads as two key+word pairs rather
+     than four evenly-spaced things. */
+  gap: 1.1rem;
+}
+
+/* Each key carries its own word, so the pair has to group — otherwise the deck's flex
+   would space keys and labels alternately. */
+.deck-control {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -680,7 +698,9 @@
   transition: color 0.15s ease-out;
 }
 
-.transport-deck:hover .deck-label {
+/* Scoped to the control, not the whole deck: hovering Pause shouldn't light Stop's
+   word as well. */
+.deck-control:hover .deck-label {
   color: var(--paper-dim);
 }
 

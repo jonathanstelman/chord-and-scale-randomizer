@@ -17,8 +17,8 @@ import { tonalCenterPhrase } from '../music/pool';
  * `displayRef` points at the in-flow display element this shadows.
  */
 export default function PipConsole({
-  displayRef, current, queue, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap,
-  onStart, onStop,
+  displayRef, current, queue, showCurrent, showNext, isRunning, isPaused, beatIndex, totalBeats,
+  isGap, onStart, onPause, onResume, onStop,
 }) {
   const [displayVisible, setDisplayVisible] = useState(true);
 
@@ -39,19 +39,31 @@ export default function PipConsole({
 
   if (displayVisible) return null;
 
-  // One key that swaps, never a disabled twin — the same rule the display's deck
-  // follows. Why the console has a transport at all: docs/architecture/randomizer.md's
-  // "PiP console".
-  const transport = (
+  // The display's deck in miniature, and it has to mirror it rather than simplify: a
+  // lone ▶ here would call start() on a *paused* session, silently restarting an ordered
+  // bank. See docs/architecture/randomizer.md's "PiP console" and "Pause vs. stop".
+  const key = (glyph, word, onClick, variant) => (
     <button
       type="button"
-      className={`pip-key${isRunning ? ' pip-key--stop' : ''}`}
-      onClick={isRunning ? onStop : onStart}
-      aria-label={isRunning ? 'Stop session' : 'Play session'}
-      title={isRunning ? 'Stop session' : 'Play session'}
+      className={`pip-key${variant ? ` pip-key--${variant}` : ''}`}
+      onClick={onClick}
+      aria-label={`${word} session`}
+      title={`${word} session`}
     >
-      <span aria-hidden="true">{isRunning ? '■' : '▶'}</span>
+      <span aria-hidden="true">{glyph}</span>
     </button>
+  );
+
+  const playing = isRunning && !isPaused;
+  const transport = (
+    <span className="pip-transport">
+      {key(
+        playing ? '‖' : '▶',
+        playing ? 'Pause' : 'Play',
+        isRunning ? (isPaused ? onResume : onPause) : onStart,
+      )}
+      {isRunning && key('■', 'Stop', onStop, 'stop')}
+    </span>
   );
 
   if (!isRunning) {

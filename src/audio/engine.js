@@ -107,6 +107,44 @@ export class TonalCenterPlayer {
 
     this.heldSynth = null;
     this.heldNotes = [];
+    // Non-null only between pause() and resume() — see docs/architecture/audio.md's
+    // "Pausing mid-segment".
+    this.suspended = null;
+  }
+
+  // Silence whatever is sounding, remembering enough to put it back. stopCurrent() is
+  // destructive on purpose (it's what a *new* segment calls), so the snapshot has to be
+  // taken first.
+  pause(time) {
+    this.suspended = {
+      arpNotes: this.arpNotes,
+      arpMuted: this.arpMuted,
+      heldNotes: this.heldNotes,
+      // playSegment scales chord volume by note count; re-attacking at whatever the
+      // synth happens to hold would make a resumed chord jump in level.
+      chordVolume: this.chordSynth.volume.value,
+    };
+    this.stopCurrent(time);
+  }
+
+  resume(time) {
+    const held = this.suspended;
+    if (!held) return;
+    this.suspended = null;
+
+    if (!held.arpMuted) {
+      this.arpNotes = held.arpNotes;
+      // arpStepIndex is deliberately untouched here and by stopCurrent, so the sweep
+      // carries on from where it stopped instead of snapping back to the root.
+      this.arpMuted = false;
+    }
+
+    if (held.heldNotes.length) {
+      this.chordSynth.volume.value = held.chordVolume;
+      this.chordSynth.triggerAttack(held.heldNotes, time);
+      this.heldSynth = this.chordSynth;
+      this.heldNotes = held.heldNotes;
+    }
   }
 
   stopCurrent(time) {
@@ -119,6 +157,9 @@ export class TonalCenterPlayer {
   }
 
   playSegment(soundType, noteNames, time) {
+    // A new segment supersedes anything pause() was holding, or resume() would re-attack
+    // a chord that has already been replaced.
+    this.suspended = null;
     this.stopCurrent(time);
     if (soundType === 'none') {
       // Silent mode: still advances the beat clock and click track (see useRandomizer),

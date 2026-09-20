@@ -108,5 +108,5 @@ again.
 ## Links
 
 - Issue: [#30](https://github.com/jonathanstelman/chord-and-scale-randomizer/issues/30) (closed, won't-do)
-- Build order for the wider initiative: `docs/ui-ux-overhaul.md`
+- What the wider initiative shipped: `CHANGELOG.md`
 - Why the display works the way it does: `docs/architecture/randomizer.md`

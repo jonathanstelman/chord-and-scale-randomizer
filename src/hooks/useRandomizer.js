@@ -109,6 +109,7 @@ export function visibleQueue(queue, s) {
 export function useRandomizer(settings, options = {}) {
   const { pickNextTonalCenter = pickNextForRandomizer, forceSoundType } = options;
   const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [current, setCurrent] = useState(null);
   const [queue, setQueue] = useState([]);
   const [beatIndex, setBeatIndex] = useState(0);
@@ -210,7 +211,11 @@ export function useRandomizer(settings, options = {}) {
     phaseRef.current = null; // no gap before the very first tonal center
     beatsRemainingRef.current = 0;
     stepIndexRef.current = 0;
-    orderedBankIndexRef.current = 0; // every session starts a custom bank from its top
+    // Stop-then-play is a fresh run: an ordered custom bank restarts from its top. Pause
+    // is the operation that keeps your place — see docs/architecture/randomizer.md's
+    // "Pause vs. stop".
+    orderedBankIndexRef.current = 0;
+    setIsPaused(false);
 
     // One clock, not two — see docs/architecture/randomizer.md for why splitting beat and
     // arpeggio timing into separate scheduleRepeats caused the arp to occasionally lag a
@@ -248,6 +253,25 @@ export function useRandomizer(settings, options = {}) {
     setIsRunning(true);
   }, [advanceToNext, beginGap]);
 
+  // Tone.Transport.pause() halts the clock where it stands, so the beat counter, the
+  // segment's remaining beats and the ordered-bank cursor all keep their values; start()
+  // below resumes from that point rather than from zero.
+  const pause = useCallback(() => {
+    Tone.Transport.pause();
+    playerRef.current?.pause();
+    setIsPaused(true);
+  }, []);
+
+  const resume = useCallback(async () => {
+    // The context can be suspended while paused (iOS especially). Tone.start() is a
+    // no-op on an already-running context, and the <audio> unlock is idempotent and
+    // still looping from start(), so this is the whole resume path.
+    await Tone.start();
+    Tone.Transport.start();
+    playerRef.current?.resume();
+    setIsPaused(false);
+  }, []);
+
   const stop = useCallback(() => {
     // Release whatever's still sounding before stopping the Transport.
     playerRef.current?.stopCurrent();
@@ -257,6 +281,7 @@ export function useRandomizer(settings, options = {}) {
       repeatIdRef.current = null;
     }
     setIsRunning(false);
+    setIsPaused(false);
     setCurrent(null);
     queueRef.current = [];
     setQueue([]);
@@ -265,7 +290,7 @@ export function useRandomizer(settings, options = {}) {
     setIsGap(false);
   }, []);
 
-  useWakeLock(isRunning);
+  useWakeLock(isRunning && !isPaused);
 
   // Deepening the queue mid-session fills the new slots straight away rather than
   // leaving them blank until the next segment boundary. Shallowing it only re-slices
@@ -297,5 +322,7 @@ export function useRandomizer(settings, options = {}) {
     playerRef.current?.dispose();
   }, []);
 
-  return { isRunning, current, queue, beatIndex, totalBeats, isGap, start, stop };
+  return {
+    isRunning, isPaused, current, queue, beatIndex, totalBeats, isGap, start, pause, resume, stop,
+  };
 }

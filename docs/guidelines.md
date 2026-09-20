@@ -38,6 +38,16 @@ behind a specific subsystem's design, see [`docs/architecture/`](./architecture/
 - **Git**: one feature/fix per branch off `main`, one PR per branch, with a body
   explaining what changed, why, and how it was verified. Delete the branch after merge
   and sync local `main` before starting the next one.
+- **Stack branches only when a piece genuinely builds on unmerged work.** Two changes
+  touching the same *file* is not a reason — git merges by hunk. A real dependency looks
+  like "this restyles the markup that one just restructured". When you do stack:
+  - **Merge bottom-up**, and delete the base branch after it merges — GitHub retargets
+    the child to `main` and its diff collapses to just its own work.
+  - **Never squash-merge a PR that has children.** Squash puts a *new* commit on `main`
+    that isn't in the children's history, so their diffs re-show the merged work and
+    likely conflict. Merge commits or rebase-merge keep a stack intact.
+  - A change to a base has to be rebased up the whole chain, so a deep stack makes
+    review feedback expensive. Prefer landing the base first.
 
 ## Testing
 
@@ -46,8 +56,11 @@ behind a specific subsystem's design, see [`docs/architecture/`](./architecture/
   this is where automated tests belong, via Vitest (`npm test`). Scaffolded with a first
   pass covering `pool.js`, `chordParser.js`, and `voicing.js`; `chordQualities.js`,
   `notes.js`, and `scaleFamilies.js` are mostly data and covered indirectly through those.
-- Everything else (the audio graph, hooks, components) stays covered by `npm run lint` +
-  `npm run build` + manual or Playwright smoke checks for behavior changes. That's a
+  Pure helpers elsewhere are fair game too when they encode a decision worth pinning —
+  `useRandomizer.js`'s queue helpers are unit-tested for exactly that reason.
+- Everything else (the audio graph, hooks' React behavior, components) stays covered by
+  `npm run lint` + `npm run build` + manual or Playwright smoke checks for behavior
+  changes. That's a
   deliberate choice, not a gap to backfill — the audio graph's actual correctness is live
   timing and real-device behavior that neither unit tests nor Playwright can fully
   exercise anyway (see [`architecture/audio.md`](./architecture/audio.md)'s iOS notes and

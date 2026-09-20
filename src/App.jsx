@@ -47,7 +47,7 @@ export default function App() {
   // section.
   const isPureTone = settings.activeTab === 'pureTone';
   const {
-    isRunning, current, queue, beatIndex, totalBeats, isGap, start, stop,
+    isRunning, isPaused, current, queue, beatIndex, totalBeats, isGap, start, pause, resume, stop,
   } = useRandomizer(settings, isPureTone
     ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
     : {});
@@ -93,10 +93,13 @@ export default function App() {
         current={current}
         queue={queue}
         isRunning={isRunning}
+        isPaused={isPaused}
         beatIndex={beatIndex}
         totalBeats={totalBeats}
         isGap={isGap}
         onStart={start}
+        onPause={pause}
+        onResume={resume}
         onStop={stop}
       />
 
@@ -107,10 +110,13 @@ export default function App() {
         showCurrent={settings.showCurrent}
         showNext={settings.showNext}
         isRunning={isRunning}
+        isPaused={isPaused}
         beatIndex={beatIndex}
         totalBeats={totalBeats}
         isGap={isGap}
         onStart={start}
+        onPause={pause}
+        onResume={resume}
         onStop={stop}
       />
 
