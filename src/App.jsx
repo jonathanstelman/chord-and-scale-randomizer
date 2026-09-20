@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useSettings } from './hooks/useSettings';
 import { useRandomizer, pickNextForPureTone, pickNextForScaleDegrees } from './hooks/useRandomizer';
-import { droneNotes } from './music/scaleDegrees';
+import { droneNotes, scaleDegreesKey } from './music/scaleDegrees';
 import TabNav from './components/TabNav';
 import ThemeToggle from './components/ThemeToggle';
 import Chair from './components/Chair';
@@ -62,7 +62,7 @@ export default function App() {
       pickNextTonalCenter: pickNextForScaleDegrees,
       forceSoundType: 'chord',
       drone: {
-        notes: droneNotes(settings.scaleDegreesRootPc, settings.scaleDegreesScaleKey, settings.scaleDegreesDrone),
+        notes: droneNotes(settings.scaleDegreesRootPc, scaleDegreesKey(settings), settings.scaleDegreesDrone),
         volume: settings.scaleDegreesDroneVolume,
       },
     }

@@ -1,7 +1,7 @@
 import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
-import { keyDisplayName } from './scaleOptions';
+import { scaleDegreesKeyName } from './scaleOptions';
 
 // One key plus the word beside it. `variant` is the only styling difference — Stop is
 // flame, everything else inherits the neutral key.
@@ -101,9 +101,7 @@ export default function Display({
             showNext={settings.showNext}
             showNoteName={settings.showNoteName}
             labelStyle={settings.scaleDegreesLabels}
-            keyName={isScaleDegrees
-              ? keyDisplayName(settings.scaleDegreesRootPc, settings.scaleDegreesScaleKey)
-              : null}
+            keyName={isScaleDegrees ? scaleDegreesKeyName(settings) : null}
             beatIndex={beatIndex}
             totalBeats={totalBeats}
             isGap={isGap}

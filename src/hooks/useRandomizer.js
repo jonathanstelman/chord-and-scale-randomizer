@@ -6,7 +6,7 @@ import {
   pickRandomRootPc, pickRandomScalePc, PURE_TONE_TYPE,
 } from '../music/pool';
 import {
-  SCALE_DEGREE_TYPE, degreeLabel, scaleDegreePool, targetNoteName,
+  SCALE_DEGREE_TYPE, degreeLabel, scaleDegreePool, scaleDegreesKey, targetNoteName,
 } from '../music/scaleDegrees';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
@@ -81,7 +81,7 @@ export function pickNextForPureTone(s, avoid) {
 // for why each rides on the segment. Same repeat avoidance as pickNextForPureTone.
 export function pickNextForScaleDegrees(s, avoid) {
   const rootPc = s.scaleDegreesRootPc;
-  const scaleKey = s.scaleDegreesScaleKey;
+  const scaleKey = scaleDegreesKey(s);
   const pool = scaleDegreePool(rootPc, scaleKey, s.scaleDegreesPool);
   let pc;
   let attempts = 0;

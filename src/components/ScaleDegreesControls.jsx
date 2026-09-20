@@ -41,10 +41,9 @@ function ScaleDegreesControls({ settings, updateSettings }) {
                 Chromatic
               </button>
             </div>
-            {/* Root and Scale stay visible in both pool modes, unlike Pure Tone's: the
-                drone sounds the key and every degree is labeled against it, so Chromatic
-                needs a key as much as Diatonic does — see the Scale Degrees section of
-                docs/architecture/randomizer.md. */}
+            {/* Root stays in both pool modes (the drone sounds it, every degree is
+                labeled against it); Scale only in Diatonic, where it governs the pool —
+                see the Scale Degrees section of docs/architecture/randomizer.md. */}
             <div className="session-data-fields">
               <label className="data-field">
                 <span>Root</span>
@@ -57,21 +56,23 @@ function ScaleDegreesControls({ settings, updateSettings }) {
                   ))}
                 </select>
               </label>
-              <label className="data-field">
-                <span>Scale</span>
-                <select
-                  value={settings.scaleDegreesScaleKey}
-                  onChange={(e) => updateSettings({ scaleDegreesScaleKey: e.target.value })}
-                >
-                  {Array.from(SCALE_GROUPS.entries()).map(([category, types]) => (
-                    <optgroup key={category} label={category}>
-                      {types.map((t) => (
-                        <option key={t.key} value={t.key}>{scaleOptionLabel(t)}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
+              {!isChromatic && (
+                <label className="data-field">
+                  <span>Scale</span>
+                  <select
+                    value={settings.scaleDegreesScaleKey}
+                    onChange={(e) => updateSettings({ scaleDegreesScaleKey: e.target.value })}
+                  >
+                    {Array.from(SCALE_GROUPS.entries()).map(([category, types]) => (
+                      <optgroup key={category} label={category}>
+                        {types.map((t) => (
+                          <option key={t.key} value={t.key}>{scaleOptionLabel(t)}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </label>
+              )}
               <label className="data-field">
                 <span>Labels</span>
                 <select

@@ -103,14 +103,19 @@ the player column — with two groups in the picker column, both open by default
   is the exercise's reference and runs through rests, so there's no "off" for it to be
   greyed out by.
 
-**Root and Scale are always visible, in both pool modes.** This is the one place the tab
-deliberately departs from Pure Tone, where Roots and Scale are mutually exclusive
-because each mode's picker *is* its pool. Here the key does two jobs the pool toggle
-doesn't touch: the drone sounds it, and every target — in-scale or not — is labeled
-against it (a Chromatic ♭3 is only a ♭3 relative to some tonic). Chromatic mode widens
-what can be drawn; it doesn't remove the need for a key to hear it against. Hiding Root
-and Scale in Chromatic would leave the drone playing a key the user couldn't see or
-change.
+**Root is always visible; Scale only in Diatonic mode.** The spec originally kept Scale
+in both modes so that a Chromatic session could spell out-of-scale pitches *relative to*
+the chosen scale. The first real session showed why that's wrong: with Chromatic
+selected, picking "C Major" in a visible Scale dropdown did nothing to the pool, and
+random out-of-key notes read as a bug. A control that looks like it governs what plays,
+and doesn't, is hidden state — the same failure Pure Tone's Roots-in-Advanced had
+(#29). So Chromatic now has no scale at all: it's "all 12 against a tonic", every
+pitch spelled major-relative — the fallback table, `1 ♭2 2 ♭3 3 4 ♯4 5 ♭6 6 ♭7 7`, which
+is also the convention functional ear trainers use — and the tonic-chord drone is the
+major triad. `scaleDegreesKey()` routes Chromatic through Ionian so that "no scale
+means major" lives in one place; the eyebrow reads "in C" rather than "in C Major".
+Root stays in both modes because both need it: the drone sounds it and every degree is
+labeled against it.
 
 There is no Roots picker on this tab, and `enabledRoots` is not read: the target pool is
 "degrees of this key", and filtering *which* degrees is a different exercise (and out of
@@ -136,7 +141,8 @@ The third seam is `options.drone: { notes, volume }`. `useRandomizer` starts it 
 not touch it by design** (`audio.md`), so without the explicit `stopDrone()` the drone
 would outlive Stop and the tab switch that calls it — and leaves pause/resume to the
 engine's own snapshot. Two effects keep it live: volume follows the slider, and the
-notes follow Root/Scale/Sound. That last one is a deliberate departure from "change key
+notes follow Root/Scale/Sound (and the pool toggle, which changes what a tonic chord
+is). That last one is a deliberate departure from "change key
 = stop, change, start": if the drone *didn't* follow, every degree for the rest of the
 session would be labeled against a tonic nobody hears; following it leaves only the
 already-pregenerated queue (at most `queueDepth` segments) labeled against the old key.

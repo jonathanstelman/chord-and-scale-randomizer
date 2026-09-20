@@ -27,6 +27,14 @@ export const SCALE_DEGREE_TYPE = {
   key: 'degree', label: '', intervals: [0],
 };
 
+// Chromatic mode has no scale: every pitch is spelled major-relative (which is exactly
+// the fallback table), and the tonic chord is the major triad. Routing it through
+// Ionian rather than a null key keeps that one fact in one place — see
+// docs/architecture/randomizer.md's Scale Degrees section for why Scale hides.
+export function scaleDegreesKey(s) {
+  return s.scaleDegreesPool === 'chromatic' ? 'diatonic:Ionian' : s.scaleDegreesScaleKey;
+}
+
 const DRONE_OCTAVE = 3; // tonic sounds here; targets sit in the octave above
 export const TARGET_OCTAVE = DRONE_OCTAVE + 1;
 

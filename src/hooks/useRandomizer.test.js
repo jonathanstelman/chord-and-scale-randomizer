@@ -155,6 +155,16 @@ describe('pickNextForScaleDegrees', () => {
     expect(pick.noteNames[0]).toMatch(/[45]$/); // G3 drone: targets G4..F#5
   });
 
+  it('ignores the scale in Chromatic mode: any of the 12, spelled major-relative', () => {
+    const seen = new Set();
+    for (let i = 0; i < 300; i++) {
+      const pick = pickNextForScaleDegrees(s({ scaleDegreesPool: 'chromatic', scaleDegreesScaleKey: 'diatonic:Locrian' }), null);
+      seen.add(pick.rootPc);
+      expect(pick.degree).toEqual(degreeLabel(pick.rootPc, 0, 'diatonic:Ionian'));
+    }
+    expect(seen.size).toBe(12);
+  });
+
   it('avoids repeating the previous pitch class', () => {
     for (let i = 0; i < 50; i++) {
       expect(pickNextForScaleDegrees(s(), { rootPc: 4 }).rootPc).not.toBe(4);

@@ -43,23 +43,23 @@ Two things fall out of measuring against major rather than against the scale's p
   an accidental outside 𝄫..𝄪 — the glyph map assumes that range.
 
 **Everything else uses one fixed chromatic spelling**: `1 ♭2 2 ♭3 3 4 ♯4 5 ♭6 6 ♭7 7`
-(`FALLBACK_DEGREE_LABELS`). That covers an out-of-scale pitch in Chromatic mode and every
-pitch of a non-heptatonic scale (whole tone has 6 tones, the diminished scales 8 — mapping
+(`FALLBACK_DEGREE_LABELS`). That covers every pitch in Chromatic mode (which has no
+scale — `scaleDegreesKey` routes it through Ionian, whose own tones spell identically to
+the table, so the result is the table throughout) and every pitch of a non-heptatonic
+scale (whole tone has 6 tones, the diminished scales 8 — mapping
 them onto 1–7 would either skip a number or double one, so they don't get the heptatonic
 treatment at all). Flats everywhere with ♯4 as the single sharp is the convention
 functional ear-training material generally settles on: the flat degrees read as borrowed
 from the parallel minor modes, while the raised fourth is heard as a leading tone into 5
-rather than a lowered fifth. Don't make the fallback key-aware (e.g. ♯4 in Lydian keys,
-♭5 in Locrian keys) — the scale's own tones already carry the mode-specific spelling, and
-the fallback is deliberately the same in every key so the out-of-scale pitches feel
-familiar when switching scales.
+rather than a lowered fifth. Don't make the fallback key-aware — Chromatic mode has no
+scale to be aware of (docs/architecture/randomizer.md's Scale Degrees section says why),
+and the fallback being the same in every key is what makes it learnable.
 
 The two rules never collide: a label means "major degree *n* shifted by *a* semitones",
 which is a unique interval above the tonic, so in Chromatic mode the twelve pitches always
-get twelve distinct labels whatever the scale (also pinned in the tests). What *can* look
-odd is a mixed run — in Lydian the in-scale ♯4 sits next to a fallback "4"; in Locrian the
-in-scale ♭5 next to a fallback "5" — and that's correct: both pitches are present, and
-each is spelled the way the key hears it.
+get twelve distinct labels whatever the scale (also pinned in the tests). Since Chromatic
+always uses the table, a mixed run of scale-spelled and fallback labels can only occur
+for a non-heptatonic scale in Diatonic mode, where every label is fallback anyway.
 
 **Solfège is do-based in every scale.** `do re mi fa sol la ti`, flats `ra me se le te`,
 sharps `di ri fi si li`. Minor modes therefore run `do re me fa sol le te`, not la-based —
