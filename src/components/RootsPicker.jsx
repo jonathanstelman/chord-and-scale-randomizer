@@ -1,5 +1,5 @@
 import { ALL_ROOTS, rootsCheckState } from '../music/pool';
-import { pitchClassToDisplayName } from '../music/notes';
+import { bothNames } from '../music/spelling';
 import TriStateCheckbox from './TriStateCheckbox';
 
 // The 12-pitch-class filter — shared as-is between the chord/scale randomizer and Pure
@@ -35,7 +35,7 @@ export default function RootsPicker({
               checked={enabledRoots.includes(pc)}
               onChange={() => toggleRoot(pc)}
             />
-            {pitchClassToDisplayName(pc)}
+            {bothNames(pc)}
           </label>
         ))}
       </div>

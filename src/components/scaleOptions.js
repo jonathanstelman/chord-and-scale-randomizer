@@ -1,5 +1,5 @@
 import { SCALE_TYPES } from '../music/scaleFamilies';
-import { pitchClassToDisplayName } from '../music/notes';
+import { spellScaleTonic } from '../music/spelling';
 
 function groupScalesByCategory() {
   const groups = new Map();
@@ -30,15 +30,16 @@ export function scaleOptionLabel(type) {
 
 // The everyday name for the Scale Degrees key, for the display's "in C Major" eyebrow:
 // the familiar word where one exists, the mode name otherwise ("D Dorian"), and the
-// tonic alone in Chromatic mode, which has no scale.
+// tonic alone in Chromatic mode, which has no scale. The tonic is spelled by the scale
+// (spelling.js), so D♭ + Aeolian reads "in C♯ Minor".
 const KEY_NAME_OVERRIDES = {
   'diatonic:Ionian': 'Major',
   'diatonic:Aeolian': 'Minor',
 };
 
 export function scaleDegreesKeyName(s) {
-  const root = pitchClassToDisplayName(s.scaleDegreesRootPc);
-  if (s.scaleDegreesPool === 'chromatic') return root;
+  if (s.scaleDegreesPool === 'chromatic') return spellScaleTonic(s.scaleDegreesRootPc, null);
+  const root = spellScaleTonic(s.scaleDegreesRootPc, s.scaleDegreesScaleKey);
   const type = SCALE_TYPES.find((t) => t.key === s.scaleDegreesScaleKey);
   const scaleName = KEY_NAME_OVERRIDES[s.scaleDegreesScaleKey] ?? type?.label ?? '';
   return `${root} ${scaleName}`.trim();

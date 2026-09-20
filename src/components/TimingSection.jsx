@@ -14,7 +14,7 @@ function beatsUnit(n) {
 // the metronome lives here rather than its own block. Starts open: it's the group most
 // sessions actually adjust.
 export default function TimingSection({ settings, updateSettings }) {
-  // "Randomize beats" / "Rest between tones" only decide which fields are *visible* —
+  // "Randomize beats" / "Rest between changes" only decide which fields are *visible* —
   // the underlying minBeats/maxBeats/gapBeats settings are the source of truth, so these
   // start from whatever was already persisted (a range or a nonzero gap from an earlier
   // session reopens expanded) rather than tracking their own separate stored flag.
@@ -122,7 +122,9 @@ export default function TimingSection({ settings, updateSettings }) {
                 }
               }}
             />
-            Rest between tones
+            {/* "changes", not "tones": what it rests between is a tonal center or a
+                degree, and a tone is a pitch or a whole step. */}
+            Rest between changes
           </label>
           {gapExpanded && (
             <div className="timing-line">

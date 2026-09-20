@@ -10,7 +10,7 @@ import {
   targetNoteName,
 } from '../music/scaleDegrees';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
-import { pitchClassToDisplayName } from '../music/notes';
+import { spellRoot, spellScaleTonic } from '../music/spelling';
 import { useWakeLock } from './useWakeLock';
 
 const MAX_REPEAT_AVOIDANCE_ATTEMPTS = 20;
@@ -20,7 +20,7 @@ function buildSegment(rootPc, type, s) {
     rootPc,
     type,
     duration: pickRandomDuration(s.minBeats, s.maxBeats),
-    rootName: pitchClassToDisplayName(rootPc),
+    rootName: spellRoot(rootPc, type), // a picker may override — see makeSegment
     typeLabel: type.label,
   };
 }
@@ -66,15 +66,20 @@ export function pickNextForRandomizer(s, avoid, orderedBankIndexRef) {
 // section for the chromatic/scale preset split. Same repeat-avoidance idea as
 // pickNextForRandomizer, simplified to just the root pitch class.
 export function pickNextForPureTone(s, avoid) {
+  const inScale = s.pureToneMode === 'scale';
   let rootPc;
   let attempts = 0;
   do {
-    rootPc = s.pureToneMode === 'scale'
+    rootPc = inScale
       ? pickRandomScalePc(s.pureToneScaleRootPc, s.pureToneScaleKey)
       : pickRandomRootPc(s.enabledRoots);
     attempts += 1;
   } while (avoid && rootPc === avoid.rootPc && attempts < MAX_REPEAT_AVOIDANCE_ATTEMPTS);
-  return { rootPc, type: PURE_TONE_TYPE };
+  if (!inScale) return { rootPc, type: PURE_TONE_TYPE }; // a bare pitch: both names
+  // In a scale the pitch has a degree, and the degree fixes its spelling.
+  const tonic = spellScaleTonic(s.pureToneScaleRootPc, s.pureToneScaleKey);
+  const label = degreeLabel(rootPc, s.pureToneScaleRootPc, s.pureToneScaleKey);
+  return { rootPc, type: PURE_TONE_TYPE, rootName: degreeNoteName(label, rootPc, tonic) };
 }
 
 // Scale Degrees tab's "what's next" source. Carries its degree and its exact note name
@@ -96,7 +101,7 @@ export function pickNextForScaleDegrees(s, avoid) {
     rootPc: pc,
     type: SCALE_DEGREE_TYPE,
     degree,
-    rootName: degreeNoteName(degree, pc, rootPc),
+    rootName: degreeNoteName(degree, pc, spellScaleTonic(rootPc, scaleKey)),
     noteNames: [targetNoteName(pc, rootPc)],
   };
 }
@@ -116,7 +121,8 @@ function voicedNoteNames(segment, soundType, s) {
 }
 
 // A picker may return more than { rootPc, type } — Scale Degrees adds `degree` and
-// `noteNames` — and whatever it adds rides along on the segment.
+// `noteNames`, and any picker may add `rootName` to override buildSegment's spelling —
+// and whatever it adds rides along on the segment.
 function makeSegment(s, avoid, orderedBankIndexRef, pickNextTonalCenter) {
   const { rootPc, type, ...extra } = pickNextTonalCenter(s, avoid, orderedBankIndexRef);
   return { ...buildSegment(rootPc, type, s), ...extra };

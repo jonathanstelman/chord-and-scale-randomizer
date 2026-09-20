@@ -14,13 +14,73 @@ Pure data, decoupled from audio/UI. If a function here needs to import from `aud
 - `notes.js` has two spellings per pitch class on purpose: `pitchClassToName`/
   `pitchClassToNoteName` stay ASCII ("Bb4") because that's all Tone.js's note parser
   accepts, while `pitchClassToDisplayName` swaps in the real Unicode glyphs (♭ ♯) for
-  anything shown to the user. Don't collapse these into one function.
+  display. Don't collapse these into one function — and don't call the display one from
+  a component: what the user sees goes through `spelling.js` (below), which picks the
+  spelling by context. `notes.js` only knows the major-key one.
 - `voicing.js` turns a root + interval list into actual voiced notes spread across
   octaves (root low, everything else stacked above), and separately
   `padToSimpleArpeggioLength` pads an arpeggio's note count up to 1/2/4/8 — the set of
   lengths that divide evenly into 8 32nd-notes per beat. This is load-bearing: it's what
   keeps the arpeggiator from drifting out of phase with the beat on chords whose note
   count isn't already a power of two (e.g. a 3-note triad).
+
+## Root spelling (`spelling.js`)
+
+**A pitch is named by the key it's in; a bare pitch class gets both names; what the user
+typed is never re-spelled.** Before #62 every pitch class had one display spelling, the
+major-key one (`D♭ E♭ F♯ A♭ B♭`), so the app showed D♭ Minor (a key nobody spells —
+eight flats), A♭ Phrygian, and "in D♭ Minor" whose ♭7 it then spelled C♭. Accuracy is
+where this app sets itself apart, so the rule is applied everywhere a root is named,
+through one function, `spellRoot(pc, type)`, keyed on a `spelling` field every type
+carries:
+
+- **`'major'`** — Major, Major 7, Dominant 7, Augmented: the root's own major key, i.e.
+  `notes.js`'s table (fewest accidentals as a major tonic). D♭ Major.
+- **`'minor'`** — Minor, Minor 7, Diminished, Half-Diminished, Diminished 7: the root is
+  the 6th degree of its relative major and inherits that key's spelling. C♯ Minor (from
+  E), G♯ Minor 7 (from B). Diminished and half-diminished don't sit in a key, but their
+  third is minor and they function as vii of the key a semitone up (C♯ø7 in D major), so
+  the sharp side is what a student meets on the page.
+- **`'mode'`** — the 21 heptatonic scale types: find the parent scale's tonic (root −
+  `PARENT_SCALE_DEGREES[family][degreeIndex − 1]`), spell *it* by its key (major for the
+  diatonic modes, minor for the melodic- and harmonic-minor families), then read the
+  root off that letter as the `degreeIndex`-th degree — the same letter arithmetic
+  `degreeNoteName` uses for a target. C♯ Dorian (B major), G♭ Lydian (D♭ major), C♯
+  Lydian Dominant (G♯ melodic minor).
+- **`'both'`** — symmetric scales, `PURE_TONE_TYPE`, and no type at all: no key, so both
+  names on a black key, sharp first: C♯ / D♭ Whole Tone. Every picker uses this too
+  (`bothNames`): a pitch class genuinely has both names until a key decides, and it's
+  what a beginner sees on a keyboard diagram. So the Roots grid says "C♯ / D♭" while the
+  display says "C♯ Minor" — that's the point, not a disagreement.
+
+**Roots never carry E♯, B♯, F♭, C♭ or a double accidental.** The mode derivation
+strictly produces them (the 7th mode of F♯ melodic minor is E♯ Altered; the 7th of G♯
+harmonic minor is F𝄪 Super Locrian 𝄫7) and `spellAsDegreeOf` returns null for them, so
+`spellRoot` falls back to the major-key name: F Altered, G Super Locrian 𝄫7. Jazz names
+these modes for the chord they're played over, and no root should appear that isn't a
+key a student has heard of. *Degrees* are different — a ♭3 in D♭ major is F♭, and
+`degreeNoteName` keeps it — because a degree's letter is fixed by its number and the
+accidental is the information.
+
+**The F♯/G♭ tie propagates.** `notes.js` breaks the six-accidental tie toward F♯, so the
+minor rule gives D♯ Minor (relative of F♯ major), not E♭ Minor. Both are six
+accidentals; consistency with the major-key table won, and `spelling.test.js` pins it.
+Flip `PITCH_CLASS_SPELLING[6]` and both move together.
+
+**Scale keys.** `spellScaleTonic(pc, scaleKey)` is the tonic of a key defined by a scale
+type — the Scale Degrees drone and Pure Tone's Scale mode — and `degreeNoteName` takes
+that *spelled* tonic rather than re-deriving a letter from the pitch class, so the two
+rules can't drift: D♭ + Aeolian is "in C♯ Minor" and its degrees run C♯ D♯ E F♯ G♯ A B.
+A symmetric scale, an unknown key, or Chromatic mode has no key to spell from and takes
+the major-key name, since its degrees are labeled major-relative anyway.
+
+**The custom chord bank is exempt.** The parser records the typed root as `rootName`
+(`typedRootName`, glyphs normalised, spelling kept) and it rides on the pair through
+`pairToTonalCenter` to the segment, so "Dbm" is D♭ Minor in the "Parsed …" echo *and* on
+the display when it plays. A student working through a tune that modulates has reasons
+for a spelling the rule would call wrong, and it is not the app's place to fix it.
+App-defined pair lists (Beginner, Guitar) carry no `rootName` and take the rule. Entries
+persisted before #62 have no `rootName` either and fall back the same way.
 
 ## Scale-degree spelling (`scaleDegrees.js`)
 
@@ -81,5 +141,5 @@ letter (tonic letter + degree − 1) and the pitch class then fixes the accident
 what makes the 7th of E major read D♯ rather than the E♭ the key-blind spelling gives —
 the first thing a musician noticed in the first session — and it falls out of the same
 major-relative labeling: E♯ in F♯ major, B𝄫 for Super Locrian's 𝄫7, G for a Chromatic
-♭3 in E. The tonic's own spelling is still the key-blind one (the Root dropdown offers
-D♭, not C♯), and the degrees inherit it.
+♭3 in E. The tonic it reads from is the *spelled* one (`spellScaleTonic`, "Root
+spelling" above), so C♯ minor's degrees start from C, not D♭.

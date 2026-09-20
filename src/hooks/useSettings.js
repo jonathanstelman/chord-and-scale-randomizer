@@ -139,7 +139,7 @@ export function useSettings() {
     }));
   }, []);
 
-  // Enables/disables every type under a core mode (e.g. all four "Extended" scale
+  // Enables/disables every type under a core mode (e.g. all four "Scales" scale
   // families) in one shot, for the top-level mode checkboxes.
   const setModeEnabled = useCallback((mode, enabled) => {
     setSettings((prev) => {

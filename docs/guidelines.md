@@ -74,6 +74,13 @@ state shows and hides controls.
   why it shouldn't (`randomizer.md`, "Scale Degrees tab"). The exception that proves the
   rule: the transport's Play/Pause/Stop keys never render disabled either — a key that
   can't act isn't shown ("one key, never a disabled twin", `randomizer.md`).
+- **A pitch is named by the key it's in.** Never show a root by pitch class alone: a
+  minor chord on pitch class 1 is C♯ Minor, the Dorian mode on it is C♯ Dorian, the
+  major chord is D♭ Major. A pitch with no key — a picker, a symmetric scale, Pure Tone's
+  chromatic mode — gets both names ("C♯ / D♭"). What the user typed is never re-spelled.
+  Every surface that names a pitch goes through `src/music/spelling.js`; the full rule
+  and its edge cases are in `architecture/music-theory.md`'s "Root spelling". Getting
+  this right where other apps don't is a large part of the point (#62).
 
 ## Testing
 

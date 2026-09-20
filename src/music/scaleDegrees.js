@@ -1,5 +1,5 @@
 import { SCALE_TYPES } from './scaleFamilies';
-import { NATURAL_PITCH_CLASS, pitchClassToName, pitchClassToNoteName } from './notes';
+import { NATURAL_PITCH_CLASS, pitchClassToNoteName } from './notes';
 
 // Scale Degrees tab: everything that turns "a pitch class against a drone's tonic" into a
 // labeled scale degree, plus the drone and target note names. Pure — no React, no
@@ -117,13 +117,13 @@ export function droneNotes(rootPc, scaleKey, kind) {
 
 const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
-// (label, pc, rootPc) → the target's *display* name spelled by its degree, so the 7th of
-// E major is D♯, not the key-blind E♭ pitchClassToDisplayName would give. The degree
-// number fixes the letter (tonic letter + number − 1); the pitch class fixes the
-// accidental. See docs/architecture/music-theory.md's "Registers" note.
-export function degreeNoteName(label, pc, rootPc) {
-  const tonicLetter = pitchClassToName(rootPc)[0];
-  const letter = LETTERS[(LETTERS.indexOf(tonicLetter) + label.number - 1) % 7];
+// (label, pc, tonicName) → the target's *display* name spelled by its degree, so the 7th
+// of E major is D♯, not E♭. The degree number fixes the letter (tonic letter + number −
+// 1); the pitch class fixes the accidental. `tonicName` is the *spelled* tonic
+// (spelling.js's spellScaleTonic), so C♯ minor's degrees read from C, not D♭. See
+// docs/architecture/music-theory.md's "Registers" note.
+export function degreeNoteName(label, pc, tonicName) {
+  const letter = LETTERS[(LETTERS.indexOf(tonicName[0]) + label.number - 1) % 7];
   const offset = ((pc - NATURAL_PITCH_CLASS[letter]) % 12 + 18) % 12 - 6; // -6..5
   return `${letter}${ACCIDENTAL_GLYPHS[offset] ?? ''}`;
 }

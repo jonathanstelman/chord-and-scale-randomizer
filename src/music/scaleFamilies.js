@@ -71,12 +71,20 @@ function scaleToChordIntervals(degrees) {
   return chord;
 }
 
+// A rotatable family's parent scale (its first mode), by family key — what the mode rule
+// in spelling.js spells a mode's root from.
+export const PARENT_SCALE_DEGREES = Object.fromEntries(
+  FAMILIES.filter((f) => f.steps).map((f) => [f.key, stepsToDegrees(f.steps)]),
+);
+
 export const SCALE_TYPES = FAMILIES.flatMap((family) => {
   if (family.fixed) {
     return family.fixed.map(({ name, steps }) => {
       const degrees = stepsToDegrees(steps);
       return {
         key: `${family.key}:${name}`,
+        family: family.key,
+        spelling: 'both', // no key — a symmetric scale's root gets both names
         // A non-breaking hyphen (not the plain ASCII "-" from `name`, which stays as-is
         // since it's also the identity key's suffix) — otherwise "(W-H)"/"(H-W)" are
         // fair game for the browser to split right at the hyphen when wrapping, landing
@@ -92,6 +100,8 @@ export const SCALE_TYPES = FAMILIES.flatMap((family) => {
     const degrees = stepsToDegrees(rotate(family.steps, i));
     return {
       key: `${family.key}:${name}`,
+      family: family.key,
+      spelling: 'mode', // spelled from the parent scale's tonic — see spelling.js
       label: name,
       category: family.label,
       degrees,

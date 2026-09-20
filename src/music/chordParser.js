@@ -1,5 +1,6 @@
 import { CHORD_QUALITIES } from './chordQualities';
 import { noteNameToPitchClass } from './notes';
+import { typedRootName } from './spelling';
 
 // Every way we accept spelling a chord quality, folded to a CHORD_QUALITIES key. Matched
 // case-insensitively — there's no real ambiguity once a suffix is 2+ letters ("Maj7" vs
@@ -47,7 +48,9 @@ export function parseChordToken(raw) {
   const rootPc = noteNameToPitchClass(letter, accidental);
   const typeKey = resolveQuality(suffix);
   if (rootPc === null || typeKey === null) return null;
-  return { rootPc, typeKey };
+  // The user's own spelling is never corrected — see docs/architecture/music-theory.md's
+  // "Root spelling" — so the typed root rides along to the display as `rootName`.
+  return { rootPc, typeKey, rootName: typedRootName(letter, accidental) };
 }
 
 // Splits free text into individual chord symbols (comma- or newline-separated, either
