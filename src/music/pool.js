@@ -151,7 +151,7 @@ export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
 // docs/architecture/randomizer.md's Pure Tone section for why each field is shaped this
 // way.
 export const PURE_TONE_TYPE = {
-  key: 'pitch', label: '', intervals: [0], spelling: 'both', // a bare pitch has both names
+  key: 'pitch', label: '', intervals: [0], spelling: 'keyless', // either name, at random
 };
 
 // How a tonal center reads on screen: a Scale Degrees segment reads as its degree ("♭3"

@@ -5,7 +5,8 @@ import { PARENT_SCALE_DEGREES, SCALE_TYPES } from './scaleFamilies';
 // its own — C♯ and D♭ are the same key on the piano — so the thing built on it decides:
 // D♭ Major but C♯ Minor, C♯ Dorian (from B major) but G♭ Lydian (from D♭ major). The
 // full rule, and the cases it deliberately doesn't cover, are in
-// docs/architecture/music-theory.md's "Root spelling". Pure — no React, no Tone.js.
+// docs/architecture/music-theory.md's "Root spelling". No React, no Tone.js; the one
+// impure function is the keyless random pick, and it says so.
 
 const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const GLYPH = { '-1': '♭', 0: '', 1: '♯' };
@@ -14,9 +15,9 @@ const GLYPH = { '-1': '♭', 0: '', 1: '♯' };
 // chord they're played over (F Altered, not E♯ Altered).
 const UNSPELLABLE_ROOTS = new Set(['E♯', 'B♯', 'F♭', 'C♭']);
 
-// Sharp-first, the order the two names sit in on a keyboard diagram.
-const BOTH_NAMES = {
-  1: 'C♯ / D♭', 3: 'D♯ / E♭', 6: 'F♯ / G♭', 8: 'G♯ / A♭', 10: 'A♯ / B♭',
+// The two names a black key has when nothing decides between them.
+const ENHARMONIC_PAIRS = {
+  1: ['C♯', 'D♭'], 3: ['D♯', 'E♭'], 6: ['F♯', 'G♭'], 8: ['G♯', 'A♭'], 10: ['A♯', 'B♭'],
 };
 
 const pcMod = (n) => ((n % 12) + 12) % 12;
@@ -43,9 +44,19 @@ export function minorKeyName(pc) {
   return spellAsDegreeOf(relativeMajor[0], 6, pc) ?? majorKeyName(pc);
 }
 
-// A bare pitch class: both names on a black key, one on a white key.
-export function bothNames(pc) {
-  return BOTH_NAMES[pcMod(pc)] ?? majorKeyName(pc);
+// A pitch with no key to decide its name — a bare pitch, a symmetric scale's root —
+// takes one of its two names at random, per pick. Not both: it looked awkward, and
+// meeting C♯ and D♭ as two separate things is the practice a lead sheet demands.
+export function randomEnharmonicName(pc) {
+  const pair = ENHARMONIC_PAIRS[pcMod(pc)];
+  return pair ? pair[Math.floor(Math.random() * 2)] : majorKeyName(pc);
+}
+
+// A picker's label names a pitch *class*, not a pitch in a key, and a label can't
+// re-roll on every render — so pickers use the one fixed spelling notes.js has always
+// used, and the display re-spells by context once something is built on it.
+export function pitchClassName(pc) {
+  return majorKeyName(pc);
 }
 
 // A mode's root is the degreeIndex-th degree of its parent scale, so find the parent
@@ -60,13 +71,14 @@ function modeRootName(pc, type) {
 
 // (pc, type) → the root's display name for a tonal center of that type. `type` is any
 // object with a `spelling` field (CHORD_QUALITIES, SCALE_TYPES, ALL_TONAL_CENTER_TYPES,
-// PURE_TONE_TYPE); no type at all means a bare pitch.
+// PURE_TONE_TYPE); no type at all means a bare pitch. The keyless case is random, so
+// call this once per pick and keep the result on the segment, never per render.
 export function spellRoot(pc, type) {
   switch (type?.spelling) {
     case 'major': return majorKeyName(pc);
     case 'minor': return minorKeyName(pc);
     case 'mode': return modeRootName(pc, type);
-    default: return bothNames(pc);
+    default: return randomEnharmonicName(pc);
   }
 }
 

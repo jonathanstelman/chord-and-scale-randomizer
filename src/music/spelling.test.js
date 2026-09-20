@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  spellRoot, spellScaleTonic, typedRootName, majorKeyName, minorKeyName, bothNames,
+  spellRoot, spellScaleTonic, typedRootName, majorKeyName, minorKeyName, randomEnharmonicName,
+  pitchClassName,
 } from './spelling';
 import { CHORD_QUALITIES } from './chordQualities';
 import { SCALE_TYPES } from './scaleFamilies';
@@ -53,18 +54,25 @@ describe('mode roots', () => {
     }
   });
 
-  it('gives symmetric scales both names', () => {
-    expect(spellRoot(1, scale('symmetric:Whole Tone'))).toBe('C♯ / D♭');
+  it('gives a symmetric scale either name', () => {
+    expect(['C♯', 'D♭']).toContain(spellRoot(1, scale('symmetric:Whole Tone')));
     expect(spellRoot(0, scale('symmetric:Whole Tone'))).toBe('C');
   });
 });
 
 describe('bare pitches', () => {
-  it('has both names on black keys, one on white', () => {
-    expect(ALL_PCS.map(bothNames))
-      .toEqual(['C', 'C♯ / D♭', 'D', 'D♯ / E♭', 'E', 'F', 'F♯ / G♭', 'G', 'G♯ / A♭', 'A', 'A♯ / B♭', 'B']);
-    expect(spellRoot(6, PURE_TONE_TYPE)).toBe('F♯ / G♭');
-    expect(spellRoot(6)).toBe('F♯ / G♭');
+  it('take either name of a black key, and both turn up', () => {
+    const seen = new Set();
+    for (let i = 0; i < 200; i++) seen.add(randomEnharmonicName(6));
+    expect([...seen].sort()).toEqual(['F♯', 'G♭']);
+    expect(['F♯', 'G♭']).toContain(spellRoot(6, PURE_TONE_TYPE));
+    expect(['F♯', 'G♭']).toContain(spellRoot(6));
+    expect(randomEnharmonicName(0)).toBe('C');
+  });
+
+  it('pickers keep one fixed spelling', () => {
+    expect(ALL_PCS.map(pitchClassName))
+      .toEqual(['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B']);
   });
 });
 

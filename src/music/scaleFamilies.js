@@ -84,7 +84,7 @@ export const SCALE_TYPES = FAMILIES.flatMap((family) => {
       return {
         key: `${family.key}:${name}`,
         family: family.key,
-        spelling: 'both', // no key — a symmetric scale's root gets both names
+        spelling: 'keyless', // a symmetric scale's root takes either name at random
         // A non-breaking hyphen (not the plain ASCII "-" from `name`, which stays as-is
         // since it's also the identity key's suffix) — otherwise "(W-H)"/"(H-W)" are
         // fair game for the browser to split right at the hyphen when wrapping, landing

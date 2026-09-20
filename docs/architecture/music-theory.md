@@ -26,8 +26,8 @@ Pure data, decoupled from audio/UI. If a function here needs to import from `aud
 
 ## Root spelling (`spelling.js`)
 
-**A pitch is named by the key it's in; a bare pitch class gets both names; what the user
-typed is never re-spelled.** Before #62 every pitch class had one display spelling, the
+**A pitch is named by the key it's in; a pitch with no key takes either name at random;
+what the user typed is never re-spelled.** Before #62 every pitch class had one display spelling, the
 major-key one (`D♭ E♭ F♯ A♭ B♭`), so the app showed D♭ Minor (a key nobody spells —
 eight flats), A♭ Phrygian, and "in D♭ Minor" whose ♭7 it then spelled C♭. Accuracy is
 where this app sets itself apart, so the rule is applied everywhere a root is named,
@@ -47,11 +47,17 @@ carries:
   root off that letter as the `degreeIndex`-th degree — the same letter arithmetic
   `degreeNoteName` uses for a target. C♯ Dorian (B major), G♭ Lydian (D♭ major), C♯
   Lydian Dominant (G♯ melodic minor).
-- **`'both'`** — symmetric scales, `PURE_TONE_TYPE`, and no type at all: no key, so both
-  names on a black key, sharp first: C♯ / D♭ Whole Tone. Every picker uses this too
-  (`bothNames`): a pitch class genuinely has both names until a key decides, and it's
-  what a beginner sees on a keyboard diagram. So the Roots grid says "C♯ / D♭" while the
-  display says "C♯ Minor" — that's the point, not a disagreement.
+- **`'keyless'`** — symmetric scales, `PURE_TONE_TYPE`, and no type at all: no key
+  decides, so `randomEnharmonicName` picks one of the two names per pick — F♯ Whole
+  Tone this time, G♭ Whole Tone next. The first cut showed both ("F♯ / G♭") and it
+  looked awkward; and a pitch a student has to *find* is better met as C♯ and as D♭ on
+  separate occasions, the way a lead sheet serves them up, than as one fused label.
+  This is the one impure call in `spelling.js`: `spellRoot` runs once per pick and the
+  result lives on the segment, never per render.
+- **Pickers** (`pitchClassName`) keep the one fixed flat-side spelling the Roots grid
+  always had. A picker names a pitch *class*, not a pitch in a key, and a label can't
+  re-roll on every render. So the grid says "D♭" while the display says "C♯ Minor" —
+  that's the rule working, not a disagreement.
 
 **Roots never carry E♯, B♯, F♭, C♭ or a double accidental.** The mode derivation
 strictly produces them (the 7th mode of F♯ melodic minor is E♯ Altered; the 7th of G♯

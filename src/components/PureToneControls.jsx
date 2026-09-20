@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { ALL_ROOTS } from '../music/pool';
-import { bothNames } from '../music/spelling';
+import { pitchClassName } from '../music/spelling';
 import RootsPicker from './RootsPicker';
 import TimingSection from './TimingSection';
 import DisplaySection from './DisplaySection';
@@ -62,7 +62,7 @@ function PureToneControls({
                     onChange={(e) => updateSettings({ pureToneScaleRootPc: Number(e.target.value) })}
                   >
                     {ALL_ROOTS.map((pc) => (
-                      <option key={pc} value={pc}>{bothNames(pc)}</option>
+                      <option key={pc} value={pc}>{pitchClassName(pc)}</option>
                     ))}
                   </select>
                 </label>

@@ -13,8 +13,10 @@ no versions.
 - **#62** — Every pitch class had one display spelling, chosen for its major key, so
   the app showed D♭ Minor, A♭ Phrygian, and "in D♭ Minor" with a C♭ in it. Now **a
   pitch is named by the key it's in**: C♯ Minor, C♯ Dorian (from B major), G♭ Lydian
-  (from D♭ major), D♭ Major. Pickers, symmetric scales and Pure Tone's chromatic mode
-  — pitches with no key — show **both names** ("C♯ / D♭"). Roots never carry E♯, B♯,
+  (from D♭ major), D♭ Major. Symmetric scales and Pure Tone's chromatic mode —
+  pitches with no key — take **either name at random**, per pick: meeting C♯ and D♭
+  separately is the practice a lead sheet demands, and showing both at once looked
+  awkward. Pickers keep one fixed spelling. Roots never carry E♯, B♯,
   F♭, C♭ or a double accidental (F Altered, not E♯ Altered). **The custom chord bank is
   exempt** — "Dbm" stays D♭ Minor, in the echo and on the display, because a student
   working through a modulating tune has reasons the rule can't see. One function,
