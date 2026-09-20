@@ -8,6 +8,48 @@ the working material behind visual decisions lives in
 This is a note of what changed, not a release log — the app deploys from `main` and has
 no versions.
 
+## Scale Degrees tab (2026-09-20)
+
+A third practice tab, for functional ear training: a tonic **drone** sustains for the
+whole session and each segment strikes one note from the octave above it, which the
+display names as a **scale degree** ("♭3", or "me") rather than an absolute pitch — the
+Functional Ear Trainer idea, on this app's beat clock and passive-reveal model.
+
+Specced in one interrogation session, then built as **three parallel streams against a
+contract** (#51 music helpers, #52 drone engine, #53 settings UI) and integrated in a
+fourth (#54). The contract — settings keys, stubbed helper signatures, engine method
+signatures, segment shape — landed first so the streams couldn't drift.
+
+- **#8** — The tab. Root + scale set the key; the target pool is **Scale** (that
+  scale's tones) or **Chromatic** (all 12 against the tonic); labels are numbers or
+  do-based solfège; the drone is the tonic, tonic + fifth, or the scale's I chord, with
+  its own level. The note name sits beneath the degree behind a **third veil**.
+- **Spelling** falls out of one rule: a 7-note scale's *k*-th tone is degree *k* with its
+  offset from major as the accidental, so mode names reproduce themselves (Locrian ♭5,
+  Lydian ♯4, Super Locrian 𝄫7) and the note name is spelled by its degree (the 7th of E
+  is D♯, never E♭). Anything a scale can't spell uses the fixed `♭2 ♭3 ♯4 ♭6 ♭7` table.
+  `docs/architecture/music-theory.md`.
+- **The drone is independent of `stopCurrent()` by construction** — the engine's
+  "new segment" call can't touch it, so it survives every segment and the rest between
+  them, and `stop()` releases it explicitly. `docs/architecture/audio.md`.
+
+**Decided against the spec, from the first listening session:**
+
+- **Scale hides in Chromatic mode.** The spec kept it visible so out-of-key pitches could
+  be spelled relative to the chosen scale; in practice a "C Major" dropdown that didn't
+  govern the pool read as random wrong notes. Chromatic now has no scale at all.
+- **The drone starts near the target's level** (baseline raised 6 dB, default 85/100).
+  An octave-3 sine has to reach the target's level to register against it.
+- **Key-aware note spelling was a listed non-goal and is done anyway** — "E♭" as the 7th
+  of E major was the first thing a musician noticed.
+
+**Not done, filed:** a tonal-center level independent of the drone (**#58**).
+
+**Prerequisite that shipped separately:** **#59** — settings changes now replace the
+pregenerated queue immediately. Without it, changing the key mid-session moved the
+drone but left the queued degrees labeled against the old key; "fa" in C is not "fa"
+in D.
+
 ## Practice-mode UI/UX overhaul (2026-09-07 – 2026-09-19)
 
 A pass over the Chords & Scales / Pure Tone practice experience. The display competed

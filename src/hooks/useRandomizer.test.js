@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  growQueue, pregenDepth, visibleQueue, pickNextForRandomizer, rebuildQueue, queueSettingsKey,
+  growQueue, pregenDepth, visibleQueue, pickNextForRandomizer, pickNextForScaleDegrees,
+  rebuildQueue, queueSettingsKey,
 } from './useRandomizer';
 import { ALL_ROOTS, DEFAULT_ENABLED_TYPES } from '../music/pool';
+import { SCALE_DEGREE_TYPE, degreeLabel, targetNoteName } from '../music/scaleDegrees';
 
 // A four-chord progression, written out in the order a user would type it — including
 // the repeat that ordered mode is required to honour rather than re-roll.
@@ -130,6 +132,60 @@ describe('visibleQueue', () => {
   });
 });
 
+describe('pickNextForScaleDegrees', () => {
+  const s = (over = {}) => ({
+    scaleDegreesRootPc: 0,
+    scaleDegreesScaleKey: 'diatonic:Ionian',
+    scaleDegreesPool: 'scale',
+    ...over,
+  });
+
+  it('draws from the chosen scale and carries the degree and exact note name', () => {
+    for (let i = 0; i < 50; i++) {
+      const pick = pickNextForScaleDegrees(s(), null);
+      expect([0, 2, 4, 5, 7, 9, 11]).toContain(pick.rootPc);
+      expect(pick.type).toBe(SCALE_DEGREE_TYPE);
+      expect(pick.degree).toEqual(degreeLabel(pick.rootPc, 0, 'diatonic:Ionian'));
+      expect(pick.noteNames).toEqual([targetNoteName(pick.rootPc, 0)]);
+    }
+  });
+
+  it('labels against the tab root, not C', () => {
+    const pick = pickNextForScaleDegrees(s({ scaleDegreesRootPc: 7, scaleDegreesPool: 'chromatic' }), null);
+    expect(pick.degree).toEqual(degreeLabel(pick.rootPc, 7, 'diatonic:Ionian'));
+    expect(pick.noteNames[0]).toMatch(/[45]$/); // G3 drone: targets G4..F#5
+  });
+
+  it('ignores the scale in Chromatic mode: any of the 12, spelled major-relative', () => {
+    const seen = new Set();
+    for (let i = 0; i < 300; i++) {
+      const pick = pickNextForScaleDegrees(s({ scaleDegreesPool: 'chromatic', scaleDegreesScaleKey: 'diatonic:Locrian' }), null);
+      seen.add(pick.rootPc);
+      expect(pick.degree).toEqual(degreeLabel(pick.rootPc, 0, 'diatonic:Ionian'));
+    }
+    expect(seen.size).toBe(12);
+  });
+
+  it('avoids repeating the previous pitch class', () => {
+    for (let i = 0; i < 50; i++) {
+      expect(pickNextForScaleDegrees(s(), { rootPc: 4 }).rootPc).not.toBe(4);
+    }
+  });
+});
+
+describe('visibleQueue with Scale Degrees segments', () => {
+  it('passes the degree through and leaves other segments two-field', () => {
+    const queue = [
+      { rootName: 'E', typeLabel: '', duration: 4, rootPc: 4, degree: { number: 3, accidental: 0 } },
+      { rootName: 'A', typeLabel: 'Minor', duration: 4, rootPc: 9 },
+    ];
+    expect(visibleQueue(queue, settings({ queueDepth: 2 }))).toStrictEqual([
+      { rootName: 'E', typeLabel: '', degree: { number: 3, accidental: 0 } },
+      { rootName: 'A', typeLabel: 'Minor' },
+    ]);
+  });
+});
+
 describe('rebuildQueue', () => {
   const gen = (s, index = 0) => ({
     settings: s, orderedBankIndexRef: { current: index }, pickNextTonalCenter: pickNextForRandomizer,
@@ -179,5 +235,6 @@ describe('queueSettingsKey', () => {
     expect(queueSettingsKey({ ...base, bpm: 200, showNext: true, gapBeats: 2 })).toBe(queueSettingsKey(base));
     expect(queueSettingsKey({ ...base, minBeats: 2 })).not.toBe(queueSettingsKey(base));
     expect(queueSettingsKey({ ...base, enabledRoots: [0] })).not.toBe(queueSettingsKey(base));
+    expect(queueSettingsKey({ ...base, scaleDegreesRootPc: 2 })).not.toBe(queueSettingsKey(base));
   });
 });

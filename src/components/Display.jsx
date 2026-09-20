@@ -1,6 +1,7 @@
 import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
+import { scaleDegreesKeyName } from './scaleOptions';
 
 // One key plus the word beside it. `variant` is the only styling difference — Stop is
 // flame, everything else inherits the neutral key.
@@ -27,7 +28,7 @@ function DeckKey({ glyph, word, onClick, variant }) {
 
 // The example queue the idle card shows. It runs as deep as the user's own queueDepth
 // (sliced below) so the example can't claim a session looks different than it will.
-const IDLE_QUEUE = ['A Minor', 'F Major', 'G Dom 7', 'D Minor'];
+const IDLE_QUEUE = ['A Minor', 'F Major', 'G Dominant 7', 'D Minor'];
 
 // The ref goes on the outer `.sleeve`: the card is what leaves the viewport, and that's
 // what PipConsole observes. `.sleeve-stage` caps the content measure and has to wrap
@@ -37,6 +38,7 @@ export default function Display({
   ref, settings, updateSettings, current, queue, isRunning, isPaused, beatIndex, totalBeats, isGap,
   onStart, onPause, onResume, onStop,
 }) {
+  const isScaleDegrees = settings.activeTab === 'scaleDegrees';
   return (
     <div className="sleeve" ref={ref}>
       <div className="sleeve-stage">
@@ -97,6 +99,9 @@ export default function Display({
             queue={queue}
             showCurrent={settings.showCurrent}
             showNext={settings.showNext}
+            showNoteName={settings.showNoteName}
+            labelStyle={settings.scaleDegreesLabels}
+            keyName={isScaleDegrees ? scaleDegreesKeyName(settings) : null}
             beatIndex={beatIndex}
             totalBeats={totalBeats}
             isGap={isGap}

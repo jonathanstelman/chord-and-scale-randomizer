@@ -13,6 +13,7 @@ export const NUMERIC_LIMITS = {
   gapBeats: { min: 0, max: 16 },
   queueDepth: { min: 0, max: 4 },
   maxChordNotes: { min: 1, max: 7 },
+  scaleDegreesDroneVolume: { min: 0, max: 100 },
 };
 
 function clampNumericSettings(s) {
@@ -27,7 +28,7 @@ function clampNumericSettings(s) {
 const DEFAULT_SETTINGS = {
   // Which practice tab is showing — see docs/architecture/randomizer.md's Pure Tone
   // section for why tabs share this one settings object instead of each owning its own
-  // storage key. 'randomizer' | 'pureTone'.
+  // storage key. 'randomizer' | 'pureTone' | 'scaleDegrees'.
   activeTab: 'randomizer',
   // 'system' follows the OS/browser preference; 'light'/'dark' is an explicit override.
   // See docs/architecture/theming.md.
@@ -39,6 +40,10 @@ const DEFAULT_SETTINGS = {
   soundType: 'chord', // 'chord' | 'arpeggio' | 'none'
   maxChordNotes: 5,
   showCurrent: true,
+  // Scale Degrees tab's third veil, over the absolute note name beneath the degree — a
+  // live veil like showCurrent/showNext, so it lives with them rather than in that tab's
+  // own settings.
+  showNoteName: true,
   // How many upcoming tonal centers the display queues up, 0-4. Orthogonal to showNext,
   // which veils whatever the queue holds — see docs/architecture/randomizer.md's "Queue
   // depth". 1 is what the display showed before the queue existed.
@@ -66,6 +71,17 @@ const DEFAULT_SETTINGS = {
   pureToneMode: 'chromatic', // 'chromatic' | 'scale'
   pureToneScaleRootPc: 0, // C
   pureToneScaleKey: 'diatonic:Ionian', // major scale — the classic solfège "do"
+  // Scale Degrees tab. Root + Scale define the key the drone sounds and the degrees are
+  // labeled against, in both pool modes — see docs/architecture/randomizer.md's Scale
+  // Degrees section.
+  scaleDegreesRootPc: 0, // C
+  scaleDegreesScaleKey: 'diatonic:Ionian',
+  scaleDegreesPool: 'scale', // 'scale' | 'chromatic' — Pure Tone's pureToneMode words
+  scaleDegreesDrone: 'tonic', // 'tonic' | 'fifth' | 'chord'
+  // 0-100, same slider semantics as metronomeVolume. High by default: an octave-3 drone
+  // needs to be near the target's level to register — docs/architecture/audio.md, "Drone".
+  scaleDegreesDroneVolume: 85,
+  scaleDegreesLabels: 'numbers', // 'numbers' | 'solfege'
 };
 
 function loadSettings() {

@@ -1,11 +1,13 @@
 import { useRef } from 'react';
 import { useSettings } from './hooks/useSettings';
-import { useRandomizer, pickNextForPureTone } from './hooks/useRandomizer';
+import { useRandomizer, pickNextForPureTone, pickNextForScaleDegrees } from './hooks/useRandomizer';
+import { droneNotes, scaleDegreesKey } from './music/scaleDegrees';
 import TabNav from './components/TabNav';
 import ThemeToggle from './components/ThemeToggle';
 import Chair from './components/Chair';
 import Controls from './components/Controls';
 import PureToneControls from './components/PureToneControls';
+import ScaleDegreesControls from './components/ScaleDegreesControls';
 import Display from './components/Display';
 import PipConsole from './components/PipConsole';
 import './App.css';
@@ -23,6 +25,12 @@ const TAB_DESCRIPTIONS = {
     <>
       A single random pitch, no chord or scale context — name it, or find it on your
       instrument, before the next one comes.
+    </>
+  ),
+  scaleDegrees: (
+    <>
+      A drone sets the key, then a random note above it — name its scale degree, or find
+      it on your instrument, before the next one comes.
     </>
   ),
 };
@@ -46,11 +54,21 @@ export default function App() {
   // One shared clock across tabs — see docs/architecture/randomizer.md's "Practice tabs"
   // section.
   const isPureTone = settings.activeTab === 'pureTone';
+  const isScaleDegrees = settings.activeTab === 'scaleDegrees';
   const {
     isRunning, isPaused, current, queue, beatIndex, totalBeats, isGap, start, pause, resume, stop,
-  } = useRandomizer(settings, isPureTone
-    ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
-    : {});
+  } = useRandomizer(settings, isScaleDegrees
+    ? {
+      pickNextTonalCenter: pickNextForScaleDegrees,
+      forceSoundType: 'chord',
+      drone: {
+        notes: droneNotes(settings.scaleDegreesRootPc, scaleDegreesKey(settings), settings.scaleDegreesDrone),
+        volume: settings.scaleDegreesDroneVolume,
+      },
+    }
+    : isPureTone
+      ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
+      : {});
 
   // PipConsole watches this element to know when the display has scrolled away.
   const displayRef = useRef(null);
@@ -109,6 +127,7 @@ export default function App() {
         queue={queue}
         showCurrent={settings.showCurrent}
         showNext={settings.showNext}
+        labelStyle={settings.scaleDegreesLabels}
         isRunning={isRunning}
         isPaused={isPaused}
         beatIndex={beatIndex}
@@ -120,7 +139,9 @@ export default function App() {
         onStop={stop}
       />
 
-      {isPureTone ? (
+      {isScaleDegrees ? (
+        <ScaleDegreesControls settings={settings} updateSettings={updateSettings} />
+      ) : isPureTone ? (
         <PureToneControls
           settings={settings}
           updateSettings={updateSettings}

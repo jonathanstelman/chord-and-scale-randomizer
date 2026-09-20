@@ -10,11 +10,10 @@ in the browser (`localStorage`).
 
 It's split into practice-mode tabs (issue #6), aimed at a wider range of skill levels
 than any one mode alone serves — see "Who it's for" below for why that split matters.
-Today: **Chords & Scales**, the original chord/scale identification mode, and **Pure
-Tone** (issue #7), a single-pitch note-finding drill with no chord/scale context. A
-functional-ear-training drone mode (issue #8 on the
-[GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1)) is
-planned as a third tab.
+Today: **Chords & Scales**, the original chord/scale identification mode; **Pure Tone**
+(issue #7), a single-pitch note-finding drill with no chord/scale context; and **Scale
+Degrees** (issue #8), functional ear training — a tonic drone with a note above it,
+identified as a scale degree rather than a pitch.
 
 ## Who it's for
 

@@ -556,6 +556,23 @@
   font-style: italic;
 }
 
+/* A Scale Degrees readout stacks: eyebrow ("in C Major"), the degree, then the absolute
+   note name beneath it in the queue's type size — the degree is the answer, the note name
+   is the hint, and size says which is which. */
+.readout--degree {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.note-name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-readout);
+  font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+  line-height: 1.1;
+  color: var(--paper-dim);
+}
+
 .beat-panel {
   display: flex;
   flex-direction: column;
@@ -748,24 +765,31 @@
    each lines up with the readout it belongs to — see docs/architecture/randomizer.md's
    "Settings in two columns". */
 
-/* Top corners of the display, each above the readout it governs — current is the
-   left-hand readout, next the right-hand one. Rendered in the system face for the same
-   reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
+/* Top corners of the display, each above the readout it governs — current (and, on Scale
+   Degrees, the note name beneath it) on the left, next on the right. Rendered in the
+   system face for the same reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in
+   Work Sans. */
+.tonal-center-veil-corner {
+  position: absolute;
+  top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tonal-center-veil-corner--left { left: 2rem; }
+.tonal-center-veil-corner--right { right: 2rem; }
+
 /* Each toggle pairs a key with a faint word, like the transport. The right-hand group
    reverses so its word sits inboard — the glyph stays pinned to the card's edge and the
    label never runs off it. */
 .tonal-center-veil-group {
-  position: absolute;
-  top: 0.6rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
-.tonal-center-veil-group--current { left: 2rem; }
-
 .tonal-center-veil-group--next {
-  right: 2rem;
   flex-direction: row-reverse;
 }
 
@@ -1078,7 +1102,10 @@
   gap: 1.25rem;
 }
 
-.metronome-volume {
+/* One inline caption-and-slider row for every level control — the metronome's volume
+   and the Scale Degrees drone's level — so a slider looks the same wherever it sits. */
+.metronome-volume,
+.drone-level {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1089,7 +1116,8 @@
   color: var(--paper-dim);
 }
 
-.metronome-volume input[type='range'] {
+.metronome-volume input[type='range'],
+.drone-level input[type='range'] {
   accent-color: var(--brass);
   width: 8rem;
 }
@@ -1432,8 +1460,10 @@
 
   /* Two lines' worth of room whether this name needs it or not, so a name that wraps
      doesn't step the queue below it down a line. `.veilable`, not `.chord-name`, so the
-     absolutely-positioned placeholder keeps its own centring. */
-  .readout--current .veilable {
+     absolutely-positioned placeholder keeps its own centring. Not for a degree stack —
+     a degree is one short line, and the reservation would open a gap above the note
+     name beneath it. */
+  .readout--current:not(.readout--degree) .veilable {
     display: block;
     min-height: 2.2em; /* 2 lines at .chord-name's line-height of 1.1 */
   }

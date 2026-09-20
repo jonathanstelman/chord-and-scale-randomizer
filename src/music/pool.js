@@ -1,5 +1,6 @@
 import { CHORD_QUALITIES } from './chordQualities';
 import { SCALE_TYPES } from './scaleFamilies';
+import { formatDegree } from './scaleDegrees';
 import { pitchClassAccidentals } from './notes';
 
 // "Fewer than 7 sharps or flats" — beyond this a key signature isn't really used in
@@ -148,12 +149,14 @@ export const PURE_TONE_TYPE = {
   key: 'pitch', label: '', intervals: [0],
 };
 
-// How a tonal center reads on screen: root alone when there's no type (Pure Tone's
-// segments, via PURE_TONE_TYPE's empty label above), "root + type" otherwise. Lives
-// here rather than in a component because that empty-label convention is defined
-// immediately above — more than one surface renders a tonal center (the display and
-// the PiP console), and a second copy of this rule would drift from the convention.
-export function tonalCenterPhrase({ rootName, typeLabel }) {
+// How a tonal center reads on screen: a Scale Degrees segment reads as its degree ("♭3"
+// or "me", per `labelStyle`), Pure Tone's as the root alone (via PURE_TONE_TYPE's empty
+// label above), anything else as "root + type". Lives here rather than in a component
+// because that empty-label convention is defined immediately above — more than one
+// surface renders a tonal center (the display and the PiP console), and a second copy
+// of this rule would drift from the convention.
+export function tonalCenterPhrase({ rootName, typeLabel, degree }, labelStyle = 'numbers') {
+  if (degree) return formatDegree(degree, labelStyle);
   return typeLabel ? `${rootName} ${typeLabel}` : rootName;
 }
 
