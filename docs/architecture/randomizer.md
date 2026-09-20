@@ -176,7 +176,8 @@ where they sat about 600px from the readout they govern.
 **Transport** is a single key that swaps between ▶ and ■ rather than two keys with one
 disabled — there are only two states, and a permanently greyed-out twin is noise on a
 card this prominent. `Controls`/`PureToneControls` no longer take `isRunning`/`onStart`/
-`onStop` at all.
+`onStop` at all. The PiP console carries the same swapping key (see "PiP console"); the
+*settings columns* are what hold no transport.
 
 **The veil toggles** (`TonalCenterVisibilityToggles`) sit in the display's top corners,
 each above the readout it governs: current is the left-hand readout, next the right-hand
@@ -355,7 +356,7 @@ borderless glyphs; the transport is a bordered key, and at an equal gap a drawn 
 as crowding the card's border. It's an optical correction, not an inconsistency to
 unify.
 
-### PiP console (`PipConsole.jsx`, issue #22)
+### PiP console (`PipConsole.jsx`, issues #22, #45)
 
 A floating console that docks once the in-flow display scrolls out of the viewport and
 un-docks when it returns — true picture-in-picture, not an always-on widget. `App` holds
@@ -383,9 +384,51 @@ Two rules it has to keep in step with `Display`:
 - **Both read through `tonalCenterPhrase`** (`src/music/pool.js`), so Pure Tone's
   typeless segments can't render one way in the display and another in the console.
 
-It shows current, next and a beat cue — no transport, tempo or volume; those are one
-scroll away. The ✕ stops the session outright rather than just hiding the console:
-dismissing it and leaving audio running would strand a session with no visible controls.
+It shows current, the queue and a beat cue. **No tempo or volume** — those are one
+scroll away, and the console is for staying on the beat rather than being a second
+control surface.
+
+**It does have a transport, and always did.** The ✕ that shipped with #22 was
+`aria-label="Stop session"` calling `onStop` — a stop key wearing a dismiss glyph, since
+dismissing the console and leaving audio running would strand a session with no visible
+controls. #45 made that honest: one `.pip-key` that swaps ▶/■, the same "one key, never
+a disabled twin" rule the display's deck follows. This is a narrowing of #23's "the
+console gets no transport", not a reversal of it — tempo and volume still live only in
+the settings column.
+
+#### Idle state (issue #45)
+
+The console docks whether or not a session is running. Idle it shows the wordmark and a
+play key, and nothing else: the display one scroll up already carries the worked example
+from #24, and reproducing it in a 15rem box would be an example of an example. The play
+key is the *reason* the idle console exists — without it, an idle console is a label you
+can't act on, and you'd scroll back to the display to start, which is the disconnect #22
+built the console to remove.
+
+#### Where this actually docks
+
+Measured before building #45, because #27's two-column settings made the page much
+shorter than it was when #22 built the console. Slack = scroll room past the docking
+point; negative means it can never dock. Idle and running measure the same, since
+`.sleeve`'s `min-height` dominates at 306px either way.
+
+| Viewport | Chords & Scales | Pure Tone |
+|---|---|---|
+| MacBook Pro 14" 1512×982 | −357 | −495 |
+| MacBook Air 1440×900 | −275 | −413 |
+| Laptop 1280×800 | −175 | −313 |
+| iPad portrait 834×1112 | −63 | −445 |
+| Short window 1400×560 | **+65** | −73 |
+| iPad landscape 1024×768 | **+281** | −101 |
+| iPhone Pro Max 430×932 | **+268** | −166 |
+| iPhone 14 390×844 | **+422** | −36 |
+
+**The console is a phone feature now**, and on Pure Tone it never docks at all. Neither
+is a bug: the console exists for when the display isn't visible, and on a laptop — or on
+a tab with almost no settings to scroll past — it always is. Don't "fix" the Pure Tone
+column by padding the page to force a dock. Do re-measure this table before investing
+further here; it has already shifted once under a layout change that had nothing to do
+with the console.
 
 **The width is fixed, the height is free.** Shrink-to-fit made the box resize on every
 segment as names changed length, which reads as the console twitching in the corner. It
@@ -395,6 +438,8 @@ being truncated, because a clipped chord name is worse than a taller card. If a 
 type label is ever added, check it here: the failure mode is silent wrapping, not
 overflow.
 
-*Next* sits below *current* rather than beside it. At a fixed width there isn't room for
-two readouts side by side, and the vertical order is the one #20's stacked queue will
-need anyway.
+The queue sits below *current* rather than beside it. At a fixed width there isn't room
+for two readouts side by side, and it's the order the stacked queue needs anyway. Its
+entries stay **left-aligned** here, unlike the display's right-aligned column: the card
+gives the queue its own right-hand column to align to, and the console — one narrow
+stack — has none, so left-aligning keeps one scan edge with the readout above it.
