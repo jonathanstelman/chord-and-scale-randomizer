@@ -156,8 +156,11 @@ export class TonalCenterPlayer {
       chordVolume: this.chordSynth.volume.value,
     };
     this.stopCurrent(time);
-    this.suspendedDrone = this.droneNotes.length ? this.droneNotes : null;
+    // stopDrone() clears suspendedDrone (an explicit drone call supersedes a pause), so
+    // the snapshot has to be written after it, not before.
+    const droneNotes = this.droneNotes;
     this.stopDrone(time);
+    this.suspendedDrone = droneNotes.length ? droneNotes : null;
   }
 
   resume(time) {
