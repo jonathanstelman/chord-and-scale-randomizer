@@ -172,9 +172,9 @@ describe('formatDegree', () => {
 });
 
 describe('scaleDegreePool', () => {
-  it('is the scale itself for the diatonic pool', () => {
-    expect(scaleDegreePool(0, 'diatonic:Ionian', 'diatonic')).toEqual([0, 2, 4, 5, 7, 9, 11]);
-    expect(scaleDegreePool(7, 'diatonic:Dorian', 'diatonic')).toEqual(scalePitchClasses(7, 'diatonic:Dorian'));
+  it('is the scale itself for the scale pool', () => {
+    expect(scaleDegreePool(0, 'diatonic:Ionian', 'scale')).toEqual([0, 2, 4, 5, 7, 9, 11]);
+    expect(scaleDegreePool(7, 'diatonic:Dorian', 'scale')).toEqual(scalePitchClasses(7, 'diatonic:Dorian'));
   });
 
   it('is all twelve pitch classes for the chromatic pool, whatever the scale', () => {

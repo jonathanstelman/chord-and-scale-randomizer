@@ -20,7 +20,7 @@ contract** (#51 music helpers, #52 drone engine, #53 settings UI) and integrated
 fourth (#54). The contract — settings keys, stubbed helper signatures, engine method
 signatures, segment shape — landed first so the streams couldn't drift.
 
-- **#8** — The tab. Root + scale set the key; the target pool is **Diatonic** (that
+- **#8** — The tab. Root + scale set the key; the target pool is **Scale** (that
   scale's tones) or **Chromatic** (all 12 against the tonic); labels are numbers or
   do-based solfège; the drone is the tonic, tonic + fifth, or the scale's I chord, with
   its own level. The note name sits beneath the degree behind a **third veil**.

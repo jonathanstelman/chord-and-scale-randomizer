@@ -136,7 +136,7 @@ describe('pickNextForScaleDegrees', () => {
   const s = (over = {}) => ({
     scaleDegreesRootPc: 0,
     scaleDegreesScaleKey: 'diatonic:Ionian',
-    scaleDegreesPool: 'diatonic',
+    scaleDegreesPool: 'scale',
     ...over,
   });
 

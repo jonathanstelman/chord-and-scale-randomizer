@@ -59,7 +59,7 @@ The two rules never collide: a label means "major degree *n* shifted by *a* semi
 which is a unique interval above the tonic, so in Chromatic mode the twelve pitches always
 get twelve distinct labels whatever the scale (also pinned in the tests). Since Chromatic
 always uses the table, a mixed run of scale-spelled and fallback labels can only occur
-for a non-heptatonic scale in Diatonic mode, where every label is fallback anyway.
+for a non-heptatonic scale in Scale mode, where every label is fallback anyway.
 
 **Solfège is do-based in every scale.** `do re mi fa sol la ti`, flats `ra me se le te`,
 sharps `di ri fi si li`. Minor modes therefore run `do re me fa sol le te`, not la-based —

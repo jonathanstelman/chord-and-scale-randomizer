@@ -92,8 +92,8 @@ export function formatDegree(label, style) {
   return `${ACCIDENTAL_GLYPHS[accidental]}${number}`;
 }
 
-// (rootPc, scaleKey, 'diatonic' | 'chromatic') → pitch classes the target may be drawn
-// from. Diatonic mirrors pool.js's scalePitchClasses (every scale tone, root alone for an
+// (rootPc, scaleKey, 'scale' | 'chromatic') → pitch classes the target may be drawn
+// from. 'scale' mirrors pool.js's scalePitchClasses (every scale tone, root alone for an
 // unknown key) rather than importing it: pool.js imports formatDegree from here for
 // tonalCenterPhrase, and the cycle isn't worth three lines.
 export function scaleDegreePool(rootPc, scaleKey, pool) {

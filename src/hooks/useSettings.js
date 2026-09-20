@@ -76,7 +76,7 @@ const DEFAULT_SETTINGS = {
   // Degrees section.
   scaleDegreesRootPc: 0, // C
   scaleDegreesScaleKey: 'diatonic:Ionian',
-  scaleDegreesPool: 'diatonic', // 'diatonic' | 'chromatic'
+  scaleDegreesPool: 'scale', // 'scale' | 'chromatic' — Pure Tone's pureToneMode words
   scaleDegreesDrone: 'tonic', // 'tonic' | 'fifth' | 'chord'
   // 0-100, same slider semantics as metronomeVolume. High by default: an octave-3 drone
   // needs to be near the target's level to register — docs/architecture/audio.md, "Drone".

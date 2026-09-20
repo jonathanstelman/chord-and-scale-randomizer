@@ -25,14 +25,8 @@ function ScaleDegreesControls({ settings, updateSettings }) {
         <details className="settings-section" open>
           <summary>Notes</summary>
           <div className="settings-body">
+            {/* Same words, same order as Pure Tone's toggle — it's the same control. */}
             <div className="preset-buttons">
-              <button
-                type="button"
-                className={`preset-button${isChromatic ? '' : ' is-active'}`}
-                onClick={() => updateSettings({ scaleDegreesPool: 'diatonic' })}
-              >
-                Diatonic
-              </button>
               <button
                 type="button"
                 className={`preset-button${isChromatic ? ' is-active' : ''}`}
@@ -40,9 +34,16 @@ function ScaleDegreesControls({ settings, updateSettings }) {
               >
                 Chromatic
               </button>
+              <button
+                type="button"
+                className={`preset-button${isChromatic ? '' : ' is-active'}`}
+                onClick={() => updateSettings({ scaleDegreesPool: 'scale' })}
+              >
+                Scale
+              </button>
             </div>
             {/* Root stays in both pool modes (the drone sounds it, every degree is
-                labeled against it); Scale only in Diatonic, where it governs the pool —
+                labeled against it); the Scale dropdown only in Scale mode, where it governs the pool —
                 see the Scale Degrees section of docs/architecture/randomizer.md. */}
             <div className="session-data-fields">
               <label className="data-field">

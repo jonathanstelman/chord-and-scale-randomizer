@@ -91,7 +91,7 @@ It's Pure Tone's sibling — same two-column split, `TimingSection` + `DisplaySe
 the player column — with two groups in the picker column, both open by default:
 
 - **Notes** — where a target note comes from and how it's named. A two-button
-  **Diatonic / Chromatic** toggle (`scaleDegreesPool`, the same persisted-choice pattern
+  **Scale / Chromatic** toggle (`scaleDegreesPool`, the same words and persisted-choice pattern
   as Pure Tone's Chromatic/Scale, not an `activePresetKey` preset), **Root**
   (`scaleDegreesRootPc`), **Scale** (`scaleDegreesScaleKey`, the same grouped dropdown
   and "Ionian (Major)" / "Aeolian (Natural Minor)" overrides Pure Tone uses, shared via
@@ -103,7 +103,7 @@ the player column — with two groups in the picker column, both open by default
   is the exercise's reference and runs through rests, so there's no "off" for it to be
   greyed out by.
 
-**Root is always visible; Scale only in Diatonic mode.** The spec originally kept Scale
+**Root is always visible; the Scale dropdown only in Scale mode.** The spec originally kept Scale
 in both modes so that a Chromatic session could spell out-of-scale pitches *relative to*
 the chosen scale. The first real session showed why that's wrong: with Chromatic
 selected, picking "C Major" in a visible Scale dropdown did nothing to the pool, and
