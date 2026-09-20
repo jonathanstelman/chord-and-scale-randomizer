@@ -28,26 +28,32 @@ thread.
 
 ## Practice tabs (`App.jsx`, `useRandomizer(settings, options)`)
 
-Per issue #6, tabs are plain in-app state (`settings.activeTab`), not routes — the app
-has no backend or router today, and bookmarking a specific practice mode wasn't a
-requirement worth taking on routing's history/back-button behavior for. Switching tabs
-while a session is running calls `stop()` first (in `App.jsx`'s `handleSelectTab`)
-rather than letting the old tab's segment linger until the next beat boundary and then
-silently start drawing from the new tab's source — two tabs never share a live session.
+Per issue #6, tabs are plain in-app state (`settings.activeTab`: `'randomizer'`,
+`'pureTone'` or `'scaleDegrees'`), not routes — the app has no backend or router today,
+and bookmarking a specific practice mode wasn't a requirement worth taking on routing's
+history/back-button behavior for. Switching tabs while a session is running calls
+`stop()` first (in `App.jsx`'s `handleSelectTab`) rather than letting the old tab's
+segment linger until the next beat boundary and then silently start drawing from the new
+tab's source — two tabs never share a live session.
 
 Tabs share one flat settings object rather than each owning its own storage key (see
 `docs/architecture/settings-and-presets.md`): tempo, duration/gap, the roots filter,
-metronome, and show-current/next all mean the same thing in every tab, so `TimingSection`
-and `RootsPicker` are shared components reading the same settings fields Controls.jsx
-always used — as does `TonalCenterVisibilityToggles`, which reads the same shared
-`showCurrent`/`showNext` from inside the display rather than the settings column. The risk of sharing one object is a
-Randomizer-only field (`soundType`, `maxChordNotes`, `enabledTypes`, `enabledPairs`,
-`customBankEnabled`/`customBankEntries`) leaking into a tab that has no UI for it and
-shouldn't care what it's set to — `useRandomizer` avoids that two ways: `forceSoundType`
-overrides `settings.soundType` outright for a tab (Pure Tone passes `'chord'`, since a
-1-note "arpeggio" would otherwise run `padToSimpleArpeggioLength` pointlessly and
-`'none'` would silently defeat the whole exercise), and `pickNextForPureTone` never reads
-the custom-bank/pairs fields at all rather than special-casing around them.
+metronome, queue depth, and show-current/next all mean the same thing in every tab, so
+`TimingSection`, `DisplaySection` and `RootsPicker` are shared components reading the
+same settings fields Controls.jsx always used — as does `TonalCenterVisibilityToggles`,
+which reads the same shared `showCurrent`/`showNext` from inside the display rather than
+the settings column. Settings that belong to one tab alone carry its prefix
+(`pureTone*`, `scaleDegrees*`) so two tabs' notions of "root" or "scale" never share a
+key: Pure Tone's Scale mode and Scale Degrees both pick a key, but switching tabs
+shouldn't silently carry one tab's choice into the other. The risk of sharing one
+object is a Randomizer-only field (`soundType`, `maxChordNotes`, `enabledTypes`,
+`enabledPairs`, `customBankEnabled`/`customBankEntries`) leaking into a tab that has no
+UI for it and shouldn't care what it's set to — `useRandomizer` avoids that two ways:
+`forceSoundType` overrides `settings.soundType` outright for a tab (Pure Tone passes
+`'chord'`, since a 1-note "arpeggio" would otherwise run `padToSimpleArpeggioLength`
+pointlessly and `'none'` would silently defeat the whole exercise), and
+`pickNextForPureTone` never reads the custom-bank/pairs fields at all rather than
+special-casing around them.
 
 ### Pure Tone tab (issue #7)
 
@@ -72,6 +78,44 @@ away from" since there's no mode/type checkboxes to conflict with it):
   the general filter" precedent as Guitar/Beginner's pairs (see
   settings-and-presets.md) — so the Roots picker only has an effect in Chromatic mode.
 
+### Scale Degrees tab (issue #8)
+
+Functional ear training: a tonic drone sustains for the whole session and each segment
+strikes one note from the octave above it, which the display names as a scale degree
+relative to the drone rather than as an absolute pitch. Full spec, including the music
+helpers (`src/music/scaleDegrees.js`) and the drone's place in the audio graph, is in
+issue #8 until those streams land and write their own sections here; this one covers the
+settings surface, `ScaleDegreesControls.jsx`.
+
+It's Pure Tone's sibling — same two-column split, `TimingSection` + `DisplaySection` in
+the player column — with two groups in the picker column, both open by default:
+
+- **Notes** — where a target note comes from and how it's named. A two-button
+  **Diatonic / Chromatic** toggle (`scaleDegreesPool`, the same persisted-choice pattern
+  as Pure Tone's Chromatic/Scale, not an `activePresetKey` preset), **Root**
+  (`scaleDegreesRootPc`), **Scale** (`scaleDegreesScaleKey`, the same grouped dropdown
+  and "Ionian (Major)" / "Aeolian (Natural Minor)" overrides Pure Tone uses, shared via
+  `scaleOptions.js`), and **Labels** (`scaleDegreesLabels`: numbers or do-based solfège).
+- **Drone** — what the reference sounds like. **Sound** (`scaleDegreesDrone`: tonic
+  alone, tonic + fifth, or the scale's I chord) and **Level** (`scaleDegreesDroneVolume`,
+  0–100 on the metronome-volume slider pattern — `.drone-level` shares the
+  `.metronome-volume` CSS rather than duplicating it). Level is never disabled: the drone
+  is the exercise's reference and runs through rests, so there's no "off" for it to be
+  greyed out by.
+
+**Root and Scale are always visible, in both pool modes.** This is the one place the tab
+deliberately departs from Pure Tone, where Roots and Scale are mutually exclusive
+because each mode's picker *is* its pool. Here the key does two jobs the pool toggle
+doesn't touch: the drone sounds it, and every target — in-scale or not — is labeled
+against it (a Chromatic ♭3 is only a ♭3 relative to some tonic). Chromatic mode widens
+what can be drawn; it doesn't remove the need for a key to hear it against. Hiding Root
+and Scale in Chromatic would leave the drone playing a key the user couldn't see or
+change.
+
+There is no Roots picker on this tab, and `enabledRoots` is not read: the target pool is
+"degrees of this key", and filtering *which* degrees is a different exercise (and out of
+scope in #8).
+
 ### Tab copy (`App.jsx`)
 
 Each tab's description (below the tab row) is comparable in shape on purpose: it names
@@ -81,19 +125,27 @@ the app talks to you. The shared "tonal center" concept (root note, chord, or sc
 lives once, in the app-purpose blurb above the tabs, rather than being repeated or
 redefined per tab.
 
+Scale Degrees stretches the first slot rather than breaking the shape: "A drone sets
+the key, then a random note above it" establishes the reference *before* naming what
+randomizes, because a scale degree only means anything relative to a key — "a random
+note" alone would describe Pure Tone. Its second slot then borrows Pure Tone's "or find
+it on your instrument" verbatim: both are single-note tabs where the physical response
+is identical, and only the naming differs ("name it" versus "name its scale degree"),
+so the copy makes that the one visible difference.
+
 ## Components
 
 `App` → `TabNav` (practice-tab switcher) + `Display` (renders `NowPlaying`, the
-current/next readout + beat-panel visualization) + `Controls` or `PureToneControls` (the
-settings UI for whichever tab is active). The display also owns the **transport** and the
+current/next readout + beat-panel visualization) + `Controls`, `PureToneControls` or
+`ScaleDegreesControls` (the settings UI for whichever tab is active). The display also owns the **transport** and the
 **visibility toggles** — see "The display is the player" below; the settings components
-hold neither. Both settings components share `TimingSection`
+hold neither. All three settings components share `TimingSection`
 (tempo/duration/rest + metronome, boxed as one settings cluster — the metronome lives
 there too since it's timing information, it just keeps the beat rather than setting its
-length) and `RootsPicker`. Both settings components are wrapped in `memo`
-with stable (`useCallback`'d) setters from `useSettings` — without that they'd re-render
-on every single beat tick via `App`'s state, fighting Tone.js's live scheduling for
-main-thread time for no reason.
+length) and `DisplaySection`; the first two also share `RootsPicker`. All three are
+wrapped in `memo` with stable (`useCallback`'d) setters from `useSettings` — without
+that they'd re-render on every single beat tick via `App`'s state, fighting Tone.js's
+live scheduling for main-thread time for no reason.
 
 ### Timing group layout (issue #40)
 
