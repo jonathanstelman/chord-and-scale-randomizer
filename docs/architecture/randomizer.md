@@ -149,8 +149,12 @@ eyebrow naming the key ("in C Major", `keyDisplayName` in `scaleOptions.js` — 
 familiar word for Ionian/Aeolian, the mode name otherwise), the degree in the readout
 size, and the absolute note name beneath in the queue's size behind its own veil,
 `showNoteName`. That veil is the third `TonalCenterVisibilityToggles` toggle, rendered
-only on this tab; its placement (currently trailing the current toggle along the
-top-left) is provisional pending a look in the running app. The PiP console takes
+only on this tab, in the left corner after the current toggle — each corner is one flex
+row the toggles flow inside, because a hand-placed `left:` for the third one collided
+with the right corner at phone width. Its word is "Hide note"/"Show note" where the
+others say just "Hide"/"Show": two bare "Hide"s side by side named nothing. The
+mobile two-line reservation on the current readout skips the degree stack, or it opens
+a gap between the degree and its note name. The PiP console takes
 `labelStyle` for the same `tonalCenterPhrase` call and shows the degree only — no note
 name, no key: the console is for staying on the beat.
 

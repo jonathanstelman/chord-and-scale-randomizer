@@ -765,28 +765,31 @@
    each lines up with the readout it belongs to — see docs/architecture/randomizer.md's
    "Settings in two columns". */
 
-/* Top corners of the display, each above the readout it governs — current is the
-   left-hand readout, next the right-hand one. Rendered in the system face for the same
-   reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in Work Sans. */
+/* Top corners of the display, each above the readout it governs — current (and, on Scale
+   Degrees, the note name beneath it) on the left, next on the right. Rendered in the
+   system face for the same reason ThemeToggle's ☀/☾ are: ▣/▨ are thin and undersized in
+   Work Sans. */
+.tonal-center-veil-corner {
+  position: absolute;
+  top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tonal-center-veil-corner--left { left: 2rem; }
+.tonal-center-veil-corner--right { right: 2rem; }
+
 /* Each toggle pairs a key with a faint word, like the transport. The right-hand group
    reverses so its word sits inboard — the glyph stays pinned to the card's edge and the
    label never runs off it. */
 .tonal-center-veil-group {
-  position: absolute;
-  top: 0.6rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
-.tonal-center-veil-group--current { left: 2rem; }
-
-/* Provisional (issue #54's design pass decides): the note-name veil follows the current
-   one along the top-left, since it governs the line beneath the current readout. */
-.tonal-center-veil-group--note { left: 9rem; }
-
 .tonal-center-veil-group--next {
-  right: 2rem;
   flex-direction: row-reverse;
 }
 
@@ -1457,8 +1460,10 @@
 
   /* Two lines' worth of room whether this name needs it or not, so a name that wraps
      doesn't step the queue below it down a line. `.veilable`, not `.chord-name`, so the
-     absolutely-positioned placeholder keeps its own centring. */
-  .readout--current .veilable {
+     absolutely-positioned placeholder keeps its own centring. Not for a degree stack —
+     a degree is one short line, and the reservation would open a gap above the note
+     name beneath it. */
+  .readout--current:not(.readout--degree) .veilable {
     display: block;
     min-height: 2.2em; /* 2 lines at .chord-name's line-height of 1.1 */
   }
