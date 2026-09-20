@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { ALL_ROOTS } from '../music/pool';
-import { pitchClassToDisplayName } from '../music/notes';
+import { pitchClassName } from '../music/spelling';
 import { NUMERIC_LIMITS } from '../hooks/useSettings';
 import TimingSection from './TimingSection';
 import DisplaySection from './DisplaySection';
@@ -53,7 +53,7 @@ function ScaleDegreesControls({ settings, updateSettings }) {
                   onChange={(e) => updateSettings({ scaleDegreesRootPc: Number(e.target.value) })}
                 >
                   {ALL_ROOTS.map((pc) => (
-                    <option key={pc} value={pc}>{pitchClassToDisplayName(pc)}</option>
+                    <option key={pc} value={pc}>{pitchClassName(pc)}</option>
                   ))}
                 </select>
               </label>

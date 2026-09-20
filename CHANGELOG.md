@@ -8,6 +8,27 @@ the working material behind visual decisions lives in
 This is a note of what changed, not a release log — the app deploys from `main` and has
 no versions.
 
+## Roots spelled by their context (2026-09-20)
+
+- **#62** — Every pitch class had one display spelling, chosen for its major key, so
+  the app showed D♭ Minor, A♭ Phrygian, and "in D♭ Minor" with a C♭ in it. Now **a
+  pitch is named by the key it's in**: C♯ Minor, C♯ Dorian (from B major), G♭ Lydian
+  (from D♭ major), D♭ Major. Symmetric scales and Pure Tone's chromatic mode —
+  pitches with no key — take **either name at random**, per pick: meeting C♯ and D♭
+  separately is the practice a lead sheet demands, and showing both at once looked
+  awkward. Pickers keep one fixed spelling. Roots never carry E♯, B♯,
+  F♭, C♭ or a double accidental (F Altered, not E♯ Altered). **The custom chord bank is
+  exempt** — "Dbm" stays D♭ Minor, in the echo and on the display, because a student
+  working through a modulating tune has reasons the rule can't see. One function,
+  `spelling.js`, feeds every surface; `music-theory.md`, "Root spelling".
+- Four labels made precise: the masthead no longer claims every mode "sets a new tonal
+  center" (Scale Degrees doesn't); **"Rest between changes"**, not "tones"; Pure Tone's
+  description no longer says "no scale context" (its Scale mode has one); and
+  **"Scales"** replaces "Extended (Scale Tones)" / "scale-tone chords" — one name, with
+  the preset description saying how they're sounded.
+- Guidelines gained the rule as a UI convention, so the next surface that names a
+  pitch doesn't re-learn it.
+
 ## Scale Degrees tab (2026-09-20)
 
 A third practice tab, for functional ear training: a tonic **drone** sustains for the

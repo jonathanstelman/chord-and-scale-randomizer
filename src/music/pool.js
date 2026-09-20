@@ -14,11 +14,13 @@ const SIMPLE_KEY_ROOTS = ALL_ROOTS.filter((pc) => pitchClassAccidentals(pc) <= M
 // need: a key, a display label + category (for grouping the settings UI), and the
 // semitone intervals from the root to stack into a voicing.
 export const ALL_TONAL_CENTER_TYPES = [
-  ...CHORD_QUALITIES.map(({ key, label, category, intervals, hasKeySignature }) => (
-    { key, label, category, intervals, hasKeySignature }
+  ...CHORD_QUALITIES.map(({ key, label, category, intervals, hasKeySignature, spelling }) => (
+    { key, label, category, intervals, hasKeySignature, spelling }
   )),
-  ...SCALE_TYPES.map(({ key, label, category, chordIntervals, degreeIndex, hasKeySignature }) => (
-    { key, label, category, intervals: chordIntervals, degreeIndex, hasKeySignature }
+  ...SCALE_TYPES.map(({
+    key, label, category, chordIntervals, degreeIndex, hasKeySignature, family, spelling,
+  }) => (
+    { key, label, category, intervals: chordIntervals, degreeIndex, hasKeySignature, family, spelling }
   )),
 ];
 
@@ -30,7 +32,10 @@ export const CORE_MODES = [
   { key: 'sevenths', label: 'Seventh Chords', categories: ['Seventh Chords'] },
   {
     key: 'extended',
-    label: 'Extended (Scale Tones)',
+    // "Scales", though what sounds is each scale's full stacked-thirds chord: naming the
+    // scale is the exercise, and "Extended" — accurate in the jazz sense — means nothing
+    // to a beginner. The preset description below says how they're sounded.
+    label: 'Scales',
     categories: [
       'Diatonic Modes', 'Melodic Minor Modes', 'Harmonic Minor Modes', 'Symmetric / Nondiatonic',
     ],
@@ -82,13 +87,13 @@ export const PRESETS = [
     key: 'scales',
     label: 'Scales Only',
     categories: CORE_MODES.find((m) => m.key === 'extended').categories,
-    description: 'Randomly selected scale-tone chords, any root',
+    description: 'Randomly selected scales, sounded as stacked chords, any root',
   },
   {
     key: 'everything',
     label: 'Everything',
     categories: CORE_MODES.flatMap((m) => m.categories),
-    description: 'Randomly selected chords and scale-tone chords of every type, any root',
+    description: 'Randomly selected chords and scales of every type, any root',
   },
   {
     key: 'guitar',
@@ -146,7 +151,7 @@ export function pickRandomTonalCenter(enabledKeys, enabledRoots = ALL_ROOTS) {
 // docs/architecture/randomizer.md's Pure Tone section for why each field is shaped this
 // way.
 export const PURE_TONE_TYPE = {
-  key: 'pitch', label: '', intervals: [0],
+  key: 'pitch', label: '', intervals: [0], spelling: 'keyless', // either name, at random
 };
 
 // How a tonal center reads on screen: a Scale Degrees segment reads as its degree ("♭3"
@@ -186,10 +191,16 @@ export function pickRandomScalePc(rootPc, scaleKey) {
 // Guitar mode's alternative to pickRandomTonalCenter: draws uniformly from an explicit
 // {rootPc, typeKey} list (see GUITAR_OPEN_CHORD_PAIRS) instead of crossing enabledTypes
 // with enabledRoots.
-export function pickRandomTonalCenterFromPairs(pairs) {
-  const { rootPc, typeKey } = pairs[Math.floor(Math.random() * pairs.length)];
+// A pair may carry a `rootName` (the custom bank's typed spelling); it's passed through
+// so the segment shows what the user wrote. App-defined pairs (Beginner, Guitar) have
+// none and take the rule's spelling.
+function pairToTonalCenter({ rootPc, typeKey, rootName }) {
   const type = ALL_TONAL_CENTER_TYPES.find((t) => t.key === typeKey);
-  return { rootPc, type };
+  return rootName ? { rootPc, type, rootName } : { rootPc, type };
+}
+
+export function pickRandomTonalCenterFromPairs(pairs) {
+  return pairToTonalCenter(pairs[Math.floor(Math.random() * pairs.length)]);
 }
 
 // "Ordered" custom-bank mode's counterpart to pickRandomTonalCenterFromPairs: walks a
@@ -197,9 +208,7 @@ export function pickRandomTonalCenterFromPairs(pairs) {
 // via modulo, so it stays correct even if the bank was edited (and thus shorter) since
 // the caller's cursor was last incremented.
 export function tonalCenterAtIndex(pairs, index) {
-  const { rootPc, typeKey } = pairs[((index % pairs.length) + pairs.length) % pairs.length];
-  const type = ALL_TONAL_CENTER_TYPES.find((t) => t.key === typeKey);
-  return { rootPc, type };
+  return pairToTonalCenter(pairs[((index % pairs.length) + pairs.length) % pairs.length]);
 }
 
 export function pickRandomDuration(minBeats, maxBeats) {

@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import {
   ALL_TONAL_CENTER_TYPES, CORE_MODES, PRESETS, modeCheckState,
 } from '../music/pool';
-import { pitchClassToDisplayName } from '../music/notes';
+import { spellRoot } from '../music/spelling';
 import { parseCustomBank } from '../music/chordParser';
 import TriStateCheckbox from './TriStateCheckbox';
 import RootsPicker from './RootsPicker';
@@ -12,8 +12,12 @@ import TimingSection from './TimingSection';
 import DisplaySection from './DisplaySection';
 import Chair from './Chair';
 
-function typeLabelForKey(key) {
-  return ALL_TONAL_CENTER_TYPES.find((t) => t.key === key)?.label ?? key;
+// What the bank plays as: the user's own root spelling (never corrected — see
+// docs/architecture/music-theory.md's "Root spelling"), or the rule's for an entry
+// persisted before the parser recorded one.
+function bankEntryName({ rootPc, typeKey, rootName }) {
+  const type = ALL_TONAL_CENTER_TYPES.find((t) => t.key === typeKey);
+  return `${rootName ?? spellRoot(rootPc, type)} ${type?.label ?? typeKey}`;
 }
 
 function groupByCategory(types) {
@@ -145,8 +149,8 @@ function Controls({
         {/* These cards were the one settings group with neither a box nor a legend, so
             nothing on screen said what the three of them collectively were — they read as
             loose buttons between two boxed groups (#29). "Tonal centers" rather than
-            "Types" because the Extended card pulls in scale-tone material, not only
-            chords; it's the vocabulary the masthead already uses. */}
+            "Types" because the Scales card pulls in scales, not only chords; it's the
+            vocabulary the rest of the app uses. */}
         <details className="settings-section" open>
           <summary>Tonal centers</summary>
           <div className="mode-row">
@@ -246,9 +250,7 @@ function Controls({
                 {settings.customBankEntries.length === 1 ? '' : 's'}
                 :
                 {' '}
-                {settings.customBankEntries
-                  .map((e) => `${pitchClassToDisplayName(e.rootPc)} ${typeLabelForKey(e.typeKey)}`)
-                  .join(', ')}
+                {settings.customBankEntries.map(bankEntryName).join(', ')}
               </p>
             )}
           </div>

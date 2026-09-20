@@ -225,7 +225,7 @@ either is fine as long as that holds:
 
 - `Randomize beats` sits **below** its value line, and what it reveals extends that line
   *sideways* (a second number joins the first), so the line never grows taller.
-- `Rest between tones` sits **above** the value it reveals, which appears beneath it.
+- `Rest between changes` sits **above** the value it reveals, which appears beneath it.
 
 Don't "tidy" this by moving a toggle above fields that grow downward, or below fields
 that grow taller — that reintroduces the displacement.

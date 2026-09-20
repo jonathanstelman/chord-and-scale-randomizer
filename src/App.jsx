@@ -17,14 +17,14 @@ import './App.css';
 const TAB_DESCRIPTIONS = {
   randomizer: (
     <>
-      Random triads, seventh chords, and scale-tone chords — identify what&rsquo;s
-      playing, or play along, before the next one comes.
+      Random triads, seventh chords, and scales — identify what&rsquo;s playing, or
+      play along, before the next one comes.
     </>
   ),
   pureTone: (
     <>
-      A single random pitch, no chord or scale context — name it, or find it on your
-      instrument, before the next one comes.
+      A single random pitch, with nothing sounding around it — name it, or find it on
+      your instrument, before the next one comes.
     </>
   ),
   scaleDegrees: (
@@ -97,8 +97,8 @@ export default function App() {
           <ThemeToggle theme={settings.theme} onSelect={(theme) => updateSettings({ theme })} />
         </div>
         <p className="masthead-subtitle">
-          Each mode below sets a new <strong>tonal center</strong> — a root note, chord,
-          or scale — at random, on a metronome, so you can practice reacting when it changes.
+          Each mode below plays something new at random, on a metronome — a chord, a
+          scale, a pitch, or a scale degree — so you can practice reacting when it changes.
         </p>
         <TabNav activeTab={settings.activeTab} onSelect={handleSelectTab} />
         <p className="masthead-subtitle">{TAB_DESCRIPTIONS[settings.activeTab]}</p>

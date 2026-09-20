@@ -13,6 +13,7 @@ import {
 } from './scaleDegrees';
 import { SCALE_TYPES } from './scaleFamilies';
 import { ALL_ROOTS, PURE_TONE_TYPE, scalePitchClasses } from './pool';
+import { spellScaleTonic } from './spelling';
 
 const ALL_PCS = Array.from({ length: 12 }, (_, pc) => pc);
 
@@ -254,7 +255,7 @@ describe('targetNoteName', () => {
 
 describe('degreeNoteName', () => {
   const name = (pc, rootPc, scaleKey = 'diatonic:Ionian') =>
-    degreeNoteName(degreeLabel(pc, rootPc, scaleKey), pc, rootPc);
+    degreeNoteName(degreeLabel(pc, rootPc, scaleKey), pc, spellScaleTonic(rootPc, scaleKey));
 
   it('spells by the degree, not the pitch class', () => {
     expect(name(3, 4)).toBe('D♯'); // 7th of E major, not E♭
@@ -272,5 +273,12 @@ describe('degreeNoteName', () => {
 
   it('carries double alterations', () => {
     expect(name(9, 0, 'harmonicMinor:Super Locrian 𝄫7')).toBe('B𝄫');
+  });
+
+  it('reads from the spelled tonic, so C♯ minor is not D♭ minor', () => {
+    expect(name(11, 1, 'diatonic:Aeolian')).toBe('B'); // ♭7 of C♯ minor, not C♭
+    expect(name(4, 1, 'diatonic:Aeolian')).toBe('E'); // ♭3
+    expect(name(5, 1, 'diatonic:Ionian')).toBe('F'); // 3 of D♭ major
+    expect(name(4, 1, 'diatonic:Ionian')).toBe('F♭'); // its ♭3 — a degree may carry what a root may not
   });
 });
