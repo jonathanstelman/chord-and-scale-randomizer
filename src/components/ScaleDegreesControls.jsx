@@ -43,7 +43,8 @@ function ScaleDegreesControls({ settings, updateSettings }) {
             </div>
             {/* Root and Scale stay visible in both pool modes, unlike Pure Tone's: the
                 drone sounds the key and every degree is labeled against it, so Chromatic
-                needs a key just as much as Diatonic does. */}
+                needs a key as much as Diatonic does — see the Scale Degrees section of
+                docs/architecture/randomizer.md. */}
             <div className="session-data-fields">
               <label className="data-field">
                 <span>Root</span>
