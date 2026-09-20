@@ -1,9 +1,10 @@
 import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
+import PauseGlyph from './PauseGlyph';
 import { scaleDegreesKeyName } from './scaleOptions';
 
-// One key plus the word beside it. `variant` is the only styling difference — Stop is
+// One key plus the word beneath it. `variant` is the only styling difference — Stop is
 // flame, everything else inherits the neutral key.
 //
 // The name is built from the visible word on purpose: it's aria-hidden because the
@@ -112,7 +113,7 @@ export default function Display({
             different things: docs/architecture/randomizer.md's "Pause vs. stop". */}
         <div className="transport-deck">
           <DeckKey
-            glyph={isRunning && !isPaused ? '‖' : '▶'}
+            glyph={isRunning && !isPaused ? <PauseGlyph /> : '▶'}
             word={isRunning && !isPaused ? 'Pause' : 'Play'}
             onClick={isRunning ? (isPaused ? onResume : onPause) : onStart}
           />

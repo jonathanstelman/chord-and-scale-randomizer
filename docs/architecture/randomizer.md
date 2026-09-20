@@ -503,6 +503,28 @@ display to fix. The min-height belongs on the stage rather than the card for a r
 reason — a card taller than its content would leave the transport floating above its own
 bottom edge.
 
+**The stage's vertical padding reserves the corner controls' bands.** They're out of
+flow, so nothing else keeps content off them: the top padding (2.75rem) covers the
+toggles' 0.6rem offset plus their height, and the bottom padding (4.9rem) covers the
+deck's 1.15rem offset plus a 2.1rem key and the word under it. Before the bottom was
+reserved, the padding
+was symmetric at 2.75rem — less than the deck is tall — and any content tall enough to
+fill the card ran under the transport: on a phone, Scale Degrees' stacked readout put
+the beat track across the Stop key. The asymmetry is the point: the content is centred
+*between* the bands, and a card that grows to fit its content grows past the deck.
+
+**The deck's words sit under the keys, not beside them.** Beside, the deck was ~200px
+wide and read as four things in a row — key, word, key, word — and on a phone it was
+the widest thing in the card's bottom band. Stacked, the two keys sit 0.6rem apart and
+read as one two-key deck with a legend printed beneath, ~80px wide; the cost is ~1rem
+of band height, which the padding above pays for.
+
+**Pause is drawn, not typed.** The ‖ character's two strokes merge into a rectangle on
+iOS's system face — indistinguishable from ■ at the console's 0.7rem, and not much
+better at the deck's 0.85rem. `PauseGlyph` is two `currentColor` bars sized in em with a
+2px floor, shared by the deck and the console so the mark is the same at both sizes.
+▶ and ■ stay as characters; they hold up.
+
 **Those three controls inset to the stage's content edge (2rem), not its border box.** At
 0.7rem they sat 21px inside the text above them — near enough to read as a misalignment
 rather than a margin — and on a full-width card they were anchored to nothing at all,
