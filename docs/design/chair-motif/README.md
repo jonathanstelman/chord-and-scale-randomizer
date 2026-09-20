@@ -59,9 +59,13 @@ rules of its own. Accents are passed as `var(--cobalt)` / `var(--brass)` / `var(
 rather than hex — `--brass` has a per-theme value (`#ce9b2e` → `#8a6412`) and a baked hex
 would lose that fork.
 
-**Accent colour carries no meaning.** Those three already mean triads / sevenths /
-extended (and flame doubles as "primary action"). A chair's colour is chosen for the
-surface it sits on; loading a third meaning onto them was rejected deliberately.
+**Accent colour identifies the practice mode** — a reversal. When the motif was
+designed the three accents meant triads / sevenths / extended on the Tonal centers
+blocks, and a chair's colour was deliberately kept meaningless to avoid a second code.
+The blocks later became plain checkboxes and the accents were reassigned to the three
+tabs (cobalt Chords & Scales, brass Pure Tone, flame Scale Degrees), so the idle card's
+chair now takes the active tab's accent via `Chair`'s `accent` prop. The baked accents
+below are each pose's *default*. Spec: `design-language.md`, "The accents".
 
 **Poses.** `upright` = at rest, `tipping` = running. `fallen` is illustration-only — the
 app has two states, not three, so only two poses carry meaning.

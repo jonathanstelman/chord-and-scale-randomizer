@@ -146,26 +146,22 @@ function Controls({
           </div>
         </details>
 
-        {/* These cards were the one settings group with neither a box nor a legend, so
-            nothing on screen said what the three of them collectively were — they read as
-            loose buttons between two boxed groups (#29). "Tonal centers" rather than
-            "Types" because the Scales card pulls in scales, not only chords; it's the
-            vocabulary the rest of the app uses. */}
+        {/* "Tonal centers" rather than "Types" because the Scales entry pulls in scales,
+            not only chords; it's the vocabulary the rest of the app uses. Plain
+            checkboxes, like every other selection surface: these were coloured blocks
+            once, the one control that used the accents as a code of its own — see
+            docs/architecture/design-language.md, "The accents". */}
         <details className="settings-section" open>
           <summary>Tonal centers</summary>
           <div className="mode-row">
-            {CORE_MODES.map((mode) => {
-              const state = modeCheckState(mode, settings.enabledTypes);
-              return (
-                <TriStateCheckbox
-                  key={mode.key}
-                  label={mode.label}
-                  state={state}
-                  onChange={(enabled) => setModeEnabled(mode, enabled)}
-                  className={`mode-block mode-block--${mode.key}${state === 'all' ? ' is-on' : ''}${state === 'some' ? ' is-partial' : ''}`}
-                />
-              );
-            })}
+            {CORE_MODES.map((mode) => (
+              <TriStateCheckbox
+                key={mode.key}
+                label={mode.label}
+                state={modeCheckState(mode, settings.enabledTypes)}
+                onChange={(enabled) => setModeEnabled(mode, enabled)}
+              />
+            ))}
           </div>
         </details>
 
