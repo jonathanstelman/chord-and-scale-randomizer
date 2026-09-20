@@ -1,6 +1,7 @@
 const TABS = [
   { key: 'randomizer', label: 'Chords & Scales' },
   { key: 'pureTone', label: 'Pure Tone' },
+  { key: 'scaleDegrees', label: 'Scale Degrees' },
 ];
 
 // Switches which practice mode is showing — see docs/architecture/randomizer.md's

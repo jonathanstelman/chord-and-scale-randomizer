@@ -25,6 +25,8 @@ const TAB_DESCRIPTIONS = {
       instrument, before the next one comes.
     </>
   ),
+  // Placeholder until the tab's settings UI lands (issue #53), which owns this copy.
+  scaleDegrees: <>Under construction.</>,
 };
 
 export default function App() {
@@ -46,6 +48,7 @@ export default function App() {
   // One shared clock across tabs — see docs/architecture/randomizer.md's "Practice tabs"
   // section.
   const isPureTone = settings.activeTab === 'pureTone';
+  const isScaleDegrees = settings.activeTab === 'scaleDegrees';
   const {
     isRunning, isPaused, current, queue, beatIndex, totalBeats, isGap, start, pause, resume, stop,
   } = useRandomizer(settings, isPureTone
@@ -120,7 +123,10 @@ export default function App() {
         onStop={stop}
       />
 
-      {isPureTone ? (
+      {/* Scale Degrees renders no controls yet — its settings UI is issue #53, and its
+          playback (a different picker plus a drone through useRandomizer) is issue #54;
+          until then the tab runs the Randomizer's own source. */}
+      {isScaleDegrees ? null : isPureTone ? (
         <PureToneControls
           settings={settings}
           updateSettings={updateSettings}

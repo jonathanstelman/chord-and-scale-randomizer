@@ -201,6 +201,17 @@ export class TonalCenterPlayer {
     this.arpSynth.triggerAttackRelease(this.arpNotes[index], '8n', time);
   }
 
+  // Scale Degrees tab's drone (issue #8) — a tonic that sustains for the whole session,
+  // independent of stopCurrent()/playSegment() so it survives every new segment and the
+  // rest/gap. Contract only: no-ops until issue #52 lands; the signatures are what the
+  // integration stream (#54) builds against.
+  startDrone(_noteNames, _time) {}
+
+  stopDrone(_time) {}
+
+  // Same 0-100 slider semantics as setMetronomeVolume below.
+  setDroneVolume(_percent) {}
+
   // `percent` is 0-100 (the UI's slider units) mapped onto a -40dB..0dB range — 0 isn't
   // literal silence, just quiet enough to sit under everything else; use the separate
   // metronome on/off toggle for actual silence.
