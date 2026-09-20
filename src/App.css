@@ -189,13 +189,16 @@
 /* Caps the display's measure, and is the containing block for the three corner
    controls. min-height and padding live here, not on .sleeve, so the card shrink-wraps
    it — see docs/architecture/randomizer.md's "Settings in two columns" for why all
-   three matter. */
+   three matter. The vertical padding reserves the two bands the corner controls occupy
+   (they're out of flow): the toggles' 0.6rem + their height at the top, the deck's
+   1.15rem + a 2.1rem key at the bottom. The content is centred *between* the bands,
+   and a card that grows to fit its content grows past the deck, never under it. */
 .sleeve-stage {
   position: relative;
   width: 100%;
   max-width: 46rem;
   min-height: 19rem;
-  padding: 2.75rem 2rem;
+  padding: 2.75rem 2rem 3.9rem;
   display: flex;
   flex-direction: column;
   align-items: center;
