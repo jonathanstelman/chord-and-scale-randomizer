@@ -47,7 +47,7 @@ export default function App() {
   // section.
   const isPureTone = settings.activeTab === 'pureTone';
   const {
-    isRunning, current, next, beatIndex, totalBeats, isGap, start, stop,
+    isRunning, current, queue, beatIndex, totalBeats, isGap, start, stop,
   } = useRandomizer(settings, isPureTone
     ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
     : {});
@@ -91,7 +91,7 @@ export default function App() {
         settings={settings}
         updateSettings={updateSettings}
         current={current}
-        next={next}
+        queue={queue}
         isRunning={isRunning}
         beatIndex={beatIndex}
         totalBeats={totalBeats}
@@ -103,7 +103,7 @@ export default function App() {
       <PipConsole
         displayRef={displayRef}
         current={current}
-        next={next}
+        queue={queue}
         showCurrent={settings.showCurrent}
         showNext={settings.showNext}
         isRunning={isRunning}

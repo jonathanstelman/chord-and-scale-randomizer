@@ -1,0 +1,589 @@
+<meta charset="utf-8">
+<title>Queue Stack Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+
+<style>
+/* ============================================================
+   SHEET CHROME — deliberately *not* the app's palette, so the
+   instrument never gets mistaken for the thing being measured.
+   Same chrome tokens as docs/design/transition-cue/specimen.html.
+   ============================================================ */
+:root {
+  --sheet-bg: #0d1620;
+  --sheet-panel: #131f2b;
+  --sheet-fg: #e8e2d2;
+  --sheet-dim: rgba(232, 226, 210, 0.58);
+  --sheet-faint: rgba(232, 226, 210, 0.30);
+  --sheet-line: rgba(232, 226, 210, 0.16);
+  --sheet-accent: #4a97c4;
+  --sheet-warn: #ce9b2e;
+  --sheet-ok: #4f9d6a;
+  --sheet-bad: #d8481f;
+
+  /* ---- The app's real tokens (src/index.css), verbatim. ---- */
+  --ink: #12202e;
+  --panel: #17293b;
+  --paper: #f4eedd;
+  --paper-rgb: 244, 238, 221;
+  --cobalt: #2b6e96;
+  --brass: #ce9b2e;
+  --flame: #d8481f;
+  --paper-dim: rgba(244, 238, 221, 0.62);
+  --paper-faint: rgba(244, 238, 221, 0.14);
+  --paper-medium: rgba(244, 238, 221, 0.3);
+
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Work Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, Consolas, monospace;
+  --fvs-readout: 'opsz' 90, 'wght' 300, 'SOFT' 70, 'WONK' 1;
+  --fvs-ui: 'opsz' 40, 'wght' 400, 'SOFT' 50, 'WONK' 1;
+  --fvs-tiny: 'opsz' 14, 'wght' 500, 'SOFT' 50, 'WONK' 1;
+
+  /* Set by the controls. */
+  --queue-size: 1.15rem;
+
+  color-scheme: dark;
+}
+
+/* Three-state theming, same shape the app uses: an explicit choice wins over the OS
+   preference in both directions. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --sheet-bg: #e9e2d0; --sheet-panel: #f7f2e6; --sheet-fg: #14212e;
+    --sheet-dim: rgba(20,33,46,.62); --sheet-faint: rgba(20,33,46,.34);
+    --sheet-line: rgba(20,33,46,.17);
+    --sheet-accent: #235d81; --sheet-warn: #8a6412;
+    --panel: #f4eedd; --paper: #12202e; --paper-rgb: 18, 32, 46;
+    --paper-dim: rgba(18,32,46,.62); --paper-faint: rgba(18,32,46,.14);
+    --paper-medium: rgba(18,32,46,.3);
+    --brass: #6f5410; --cobalt: #2b6e96;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --sheet-bg: #e9e2d0; --sheet-panel: #f7f2e6; --sheet-fg: #14212e;
+  --sheet-dim: rgba(20,33,46,.62); --sheet-faint: rgba(20,33,46,.34);
+  --sheet-line: rgba(20,33,46,.17);
+  --sheet-accent: #235d81; --sheet-warn: #8a6412;
+  --panel: #f4eedd; --paper: #12202e; --paper-rgb: 18, 32, 46;
+  --paper-dim: rgba(18,32,46,.62); --paper-faint: rgba(18,32,46,.14);
+  --paper-medium: rgba(18,32,46,.3);
+  --brass: #6f5410; --cobalt: #2b6e96;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 2rem 1.5rem 5rem;
+  background: var(--sheet-bg);
+  color: var(--sheet-fg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sheet-head { max-width: 62rem; margin: 0 auto 1.75rem; }
+.sheet-head h1 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-ui);
+  font-weight: 400;
+  font-size: 1.7rem;
+  margin: 0 0 .4rem;
+}
+.sheet-head p { margin: 0 0 .5rem; color: var(--sheet-dim); max-width: 46rem; }
+.sheet-head code { font-family: var(--font-mono); font-size: .85em; color: var(--sheet-accent); }
+
+/* ---------- Controls ---------- */
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  max-width: 62rem;
+  margin: 0 auto 2rem;
+  padding: .9rem 1.1rem;
+  background: var(--sheet-panel);
+  border: 1px solid var(--sheet-line);
+  border-radius: .5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.4rem;
+}
+.ctl { display: flex; align-items: center; gap: .5rem; }
+.ctl label, .ctl > span:first-child {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--sheet-faint);
+  white-space: nowrap;
+}
+.ctl input[type="range"] { width: 7rem; accent-color: var(--sheet-accent); }
+.ctl output { font-family: var(--font-mono); font-size: .78rem; min-width: 3.4rem; color: var(--sheet-fg); }
+.ctl select, .ctl button {
+  font-family: var(--font-body);
+  font-size: .8rem;
+  padding: .3rem .6rem;
+  background: var(--sheet-bg);
+  color: var(--sheet-fg);
+  border: 1px solid var(--sheet-line);
+  border-radius: .3rem;
+  cursor: pointer;
+}
+.seg { display: inline-flex; border: 1px solid var(--sheet-line); border-radius: .3rem; overflow: hidden; }
+.seg button {
+  border: 0; border-radius: 0; padding: .3rem .62rem;
+  background: var(--sheet-bg); color: var(--sheet-dim);
+}
+.seg button[aria-pressed="true"] { background: var(--sheet-accent); color: #fff; }
+.toggle { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+.toggle input { accent-color: var(--sheet-accent); }
+
+/* ---------- Variant frames ---------- */
+.grid { max-width: 62rem; margin: 0 auto; display: flex; flex-direction: column; gap: 2.5rem; }
+.variant { }
+.variant-head { display: flex; align-items: baseline; gap: .75rem; margin-bottom: .6rem; }
+.variant-key {
+  font-family: var(--font-mono); font-size: .7rem; letter-spacing: .14em;
+  color: var(--sheet-accent); text-transform: uppercase;
+}
+.variant-name { font-family: var(--font-display); font-variation-settings: var(--fvs-ui); font-size: 1.05rem; }
+.variant-note { color: var(--sheet-dim); font-size: .82rem; margin: 0 0 .7rem; max-width: 46rem; }
+
+/* ============================================================
+   THE APP'S DISPLAY CARD — .sleeve / .sleeve-stage / readouts,
+   reproduced from src/App.css so the queue is judged in place.
+   ============================================================ */
+.sleeve {
+  display: flex;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--paper-medium);
+  border-radius: .5rem;
+}
+.stage-wrap.is-narrow .sleeve { max-width: 24rem; }
+
+.sleeve-stage {
+  position: relative;
+  width: 100%;
+  max-width: 46rem;
+  min-height: 19rem;
+  padding: 2.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+}
+
+.now-playing {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; gap: 1.25rem;
+}
+
+.readout-row {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: nowrap; gap: 1.5rem; width: 100%;
+}
+.is-narrow .readout-row { flex-wrap: wrap; }
+
+.readout { display: flex; align-items: center; gap: .75rem; }
+
+.readout-eyebrow {
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.chord-name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-readout);
+  line-height: 1.1;
+  color: var(--paper);
+  font-size: clamp(2rem, 7vw, 3rem);
+  max-width: 22rem;
+}
+
+/* ---- Shared queue-entry type. Every entry is the SAME size in every variant:
+   size can't encode depth in a stack without becoming a staircase. Depth is
+   carried by saturation — see the "depth ramp" control. ---- */
+.q-name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-readout);
+  font-size: var(--queue-size);
+  line-height: 1.25;
+  color: rgba(var(--paper-rgb), var(--tier));
+}
+.q-ord {
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  letter-spacing: .1em;
+  color: rgba(var(--paper-rgb), calc(var(--tier) * 0.7));
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- A — Column: the existing right-hand slot, grown downward ---------- */
+.q-col { display: flex; flex-direction: column; align-items: flex-end; gap: .3rem; }
+.q-col .q-entries { display: flex; flex-direction: column; align-items: flex-end; gap: .28rem; }
+.q-col .q-row { display: flex; align-items: baseline; gap: .5rem; }
+.q-col .q-name { max-width: 14rem; text-align: right; }
+
+/* ---------- B — Rail: a lane under the readout, reading left to right ----------
+   Entries share the card's width in equal columns, so the queue lines up as stations
+   across the lane rather than as a sentence — that's what separates it from D. */
+.q-rail { display: flex; align-items: baseline; gap: .85rem; width: 100%; }
+.q-rail .q-entries {
+  display: flex; align-items: baseline; gap: .85rem;
+  min-width: 0; flex: 1;
+}
+.q-rail .q-row {
+  display: flex; align-items: baseline; gap: .38rem;
+  flex: 1 1 0; min-width: 0;
+  border-top: 1px solid rgba(var(--paper-rgb), calc(var(--tier) * 0.22));
+  padding-top: .35rem;
+}
+.q-rail .q-name {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+
+/* ---------- C — Chips: the literal Tetris next-piece boxes ---------- */
+.q-chips { display: flex; flex-direction: column; align-items: flex-end; gap: .3rem; }
+.q-chips .q-entries { display: flex; flex-direction: column; align-items: stretch; gap: .3rem; }
+.q-chips .q-row {
+  display: flex; align-items: baseline; justify-content: flex-end; gap: .5rem;
+  padding: .3rem .6rem;
+  border: 1px solid rgba(var(--paper-rgb), calc(var(--tier) * 0.38));
+  border-radius: .3rem;
+  min-width: 9.5rem;
+}
+.q-chips .q-name { max-width: 13rem; text-align: right; }
+
+/* ---------- D — Run-in: one quiet line under the current readout ---------- */
+.q-runin { display: flex; align-items: baseline; gap: .6rem; width: 100%; flex-wrap: wrap; }
+.q-runin .q-entries { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+.q-runin .q-row { display: flex; align-items: baseline; gap: .35rem; }
+.q-runin .q-sep { color: var(--paper-faint); }
+
+/* ---------- Beat panel (verbatim from App.css) ---------- */
+.beat-panel { display: flex; flex-direction: column; align-items: center; gap: .6rem; width: 100%; }
+.beat-numeral {
+  display: flex; align-items: baseline; gap: .35rem;
+  font-family: var(--font-display);
+}
+.beat-numeral-current {
+  font-variation-settings: 'opsz' 14, 'wght' 500, 'SOFT' 50, 'WONK' 1;
+  font-size: 1.1rem; color: var(--paper);
+}
+.beat-numeral-total { font-size: .85rem; color: var(--paper-medium); }
+.beat-track { display: flex; gap: .35rem; width: 100%; }
+.beat-block {
+  flex: 1; height: .5rem; border-radius: .15rem;
+  border: 1px solid var(--paper-faint);
+  transition: background .12s linear, transform .12s linear;
+}
+.beat-block--past { background: var(--paper-medium); }
+.beat-block--current { background: var(--cobalt); border-color: var(--cobalt); transform: scaleY(1.35); }
+
+/* Findings callout */
+.findings {
+  max-width: 62rem; margin: 3rem auto 0; padding: 1.1rem 1.3rem;
+  background: var(--sheet-panel); border: 1px solid var(--sheet-line); border-radius: .5rem;
+}
+.findings h2 { font-family: var(--font-display); font-variation-settings: var(--fvs-ui); font-size: 1.05rem; margin: 0 0 .6rem; }
+.findings ul { margin: 0; padding-left: 1.1rem; color: var(--sheet-dim); }
+.findings li { margin-bottom: .45rem; }
+.findings strong { color: var(--sheet-fg); }
+</style>
+
+<div class="sheet-head">
+  <h1>Queue stack — comparison sheet</h1>
+  <p>
+    Issue #20: replace the single <code>Next</code> readout with a queue of up to four
+    upcoming tonal centers. Four treatments on one shared clock, in the real display card.
+  </p>
+  <p>
+    Fixed across all four, per <code>docs/ui-ux-overhaul.md</code>: the queue is smaller
+    than the current readout, <strong>every entry is the same size</strong>, and depth is
+    carried by <strong>saturation</strong> rather than size.
+  </p>
+</div>
+
+<div class="controls">
+  <div class="ctl">
+    <button id="runBtn" type="button">Pause</button>
+  </div>
+  <div class="ctl">
+    <label for="tempo">Tempo</label>
+    <input id="tempo" type="range" min="30" max="200" value="92">
+    <output id="tempoOut">92 bpm</output>
+  </div>
+  <div class="ctl">
+    <span>Depth</span>
+    <span class="seg" id="depthSeg">
+      <button type="button" data-depth="1">1</button>
+      <button type="button" data-depth="2">2</button>
+      <button type="button" data-depth="3" aria-pressed="true">3</button>
+      <button type="button" data-depth="4">4</button>
+    </span>
+  </div>
+  <div class="ctl">
+    <label for="qsize">Entry size</label>
+    <input id="qsize" type="range" min="0.85" max="1.75" step="0.05" value="1.15">
+    <output id="qsizeOut">1.15rem</output>
+  </div>
+  <div class="ctl">
+    <span>Depth ramp</span>
+    <span class="seg" id="rampSeg">
+      <button type="button" data-ramp="tokens" aria-pressed="true">Tokens</button>
+      <button type="button" data-ramp="compressed">Compressed</button>
+    </span>
+  </div>
+  <div class="ctl">
+    <label class="toggle"><input type="checkbox" id="ords"> <span>Position numerals</span></label>
+  </div>
+  <div class="ctl">
+    <label class="toggle"><input type="checkbox" id="longNames"> <span>Long names</span></label>
+  </div>
+  <div class="ctl">
+    <label class="toggle"><input type="checkbox" id="narrow"> <span>Narrow (mobile)</span></label>
+  </div>
+  <div class="ctl">
+    <label for="theme">Theme</label>
+    <select id="theme">
+      <option value="system">System</option>
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+    </select>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="findings">
+  <h2>What to look for</h2>
+  <ul>
+    <li><strong>Does the current readout stay the focus at depth 4?</strong> That's the
+      constraint the whole feature has to clear. Push Depth to 4 with Long names on.</li>
+    <li><strong>The token ramp runs out.</strong> <code>--paper</code> /
+      <code>--paper-dim</code> / <code>--paper-medium</code> is three tiers; a fourth entry
+      lands near <code>--paper-faint</code> (0.14 alpha), which is decorative, not legible.
+      Compare against <em>Compressed</em>, and check both themes — light mode's dimmed
+      tiers sit on a light ground and fade faster.</li>
+    <li><strong>Long names are the stress case.</strong> "B♭ Half-Diminished (m7♭5)" is a
+      real entry. B (Rail) has the least room for it; A and C wrap instead.</li>
+    <li><strong>Narrow.</strong> Below 560px <code>.readout-row</code> wraps today. A
+      right-hand column landing under the current readout at full width is a different
+      layout, not a smaller one.</li>
+    <li><strong>Position numerals</strong> answer open question 3 — is "how many ahead"
+      worth stating, or does stack position already say it?</li>
+  </ul>
+</div>
+
+<script>
+/* ---------------- Sample data ---------------- */
+const SHORT = [
+  { root: 'C', type: 'Major' }, { root: 'A', type: 'Minor' },
+  { root: 'F', type: 'Major' }, { root: 'G', type: 'Dom 7' },
+  { root: 'E♭', type: 'Major' }, { root: 'D', type: 'Minor' },
+  { root: 'B', type: 'Dim' }, { root: 'A♭', type: 'Major' },
+];
+const LONG = [
+  { root: 'B♭', type: 'Half-Diminished (m7♭5)' },
+  { root: 'F♯', type: 'Melodic Minor' },
+  { root: 'E♭', type: 'Lydian Dominant' },
+  { root: 'C♯', type: 'Harmonic Major' },
+  { root: 'A', type: 'Altered (Super Locrian)' },
+  { root: 'G', type: 'Phrygian ♮6' },
+];
+
+const VARIANTS = [
+  {
+    key: 'A', name: 'Column',
+    note: 'The existing right-hand Next slot, grown downward. Smallest change to the layout '
+        + 'the card already has; the queue keeps its corner and the row keeps its shape.',
+    kind: 'col',
+  },
+  {
+    key: 'B', name: 'Rail',
+    note: 'A lane beneath the current readout, reading left to right like the beat track under it. '
+        + 'Horizontal room is what the 46rem card has spare — but each entry gets ~10rem of it.',
+    kind: 'rail',
+  },
+  {
+    key: 'C', name: 'Chips',
+    note: 'The literal Tetris next-piece queue: each entry in its own box. Borders are the '
+        + 'question — the card is flat by decision (#31), and these are five more rectangles on it.',
+    kind: 'chips',
+  },
+  {
+    key: 'D', name: 'Run-in',
+    note: 'Not a stack at all: one quiet line under the readout. Included as the control — if '
+        + 'four names read fine as a sentence, the stack is costing layout for nothing.',
+    kind: 'runin',
+  },
+];
+
+const RAMPS = {
+  tokens:     [1, 0.62, 0.30, 0.14],
+  compressed: [1, 0.74, 0.55, 0.40],
+};
+
+/* ---------------- State ---------------- */
+const state = {
+  running: true, bpm: 92, depth: 3, ramp: 'tokens',
+  ords: false, long: false, narrow: false,
+  beat: 1, total: 4, queue: [], current: null,
+};
+
+const pool = () => (state.long ? LONG : SHORT);
+
+function draw() {
+  const p = pool();
+  return p[Math.floor(Math.random() * p.length)];
+}
+
+function refill() {
+  state.current = draw();
+  state.queue = Array.from({ length: 4 }, draw);
+}
+refill();
+
+/* ---------------- Render ---------------- */
+const grid = document.getElementById('grid');
+
+grid.innerHTML = VARIANTS.map((v) => `
+  <section class="variant">
+    <div class="variant-head">
+      <span class="variant-key">${v.key}</span>
+      <span class="variant-name">${v.name}</span>
+    </div>
+    <p class="variant-note">${v.note}</p>
+    <div class="stage-wrap" data-kind="${v.kind}">
+      <div class="sleeve"><div class="sleeve-stage">
+        <div class="now-playing" data-np></div>
+      </div></div>
+    </div>
+  </section>
+`).join('');
+
+function entryHtml(item, i, kind) {
+  const tier = RAMPS[state.ramp][i];
+  const ord = state.ords ? `<span class="q-ord">${i + 1}</span>` : '';
+  const sep = kind === 'runin' && i > 0 ? '<span class="q-sep">·</span>' : '';
+  return `${sep}<span class="q-row" style="--tier:${tier}">${ord}<span class="q-name">${item.root} ${item.type}</span></span>`;
+}
+
+function queueHtml(kind) {
+  const items = state.queue.slice(0, state.depth);
+  const entries = items.map((it, i) => entryHtml(it, i, kind)).join('');
+  const eyebrow = '<span class="readout-eyebrow">Next</span>';
+
+  if (kind === 'col') {
+    return `<div class="readout q-col">${eyebrow}<div class="q-entries">${entries}</div></div>`;
+  }
+  if (kind === 'chips') {
+    return `<div class="readout q-chips">${eyebrow}<div class="q-entries">${entries}</div></div>`;
+  }
+  // rail / run-in render below the row, handled by npHtml
+  return `<div class="q-${kind}">${eyebrow}<div class="q-entries">${entries}</div></div>`;
+}
+
+function beatHtml() {
+  const blocks = Array.from({ length: state.total }, (_, i) => {
+    const n = i + 1;
+    const s = n < state.beat ? 'past' : n === state.beat ? 'current' : 'upcoming';
+    return `<span class="beat-block beat-block--${s}"></span>`;
+  }).join('');
+  return `<div class="beat-panel">
+    <div class="beat-numeral">
+      <span class="beat-numeral-current">${state.beat}</span>
+      <span class="beat-numeral-total">/ ${state.total}</span>
+    </div>
+    <div class="beat-track">${blocks}</div>
+  </div>`;
+}
+
+function npHtml(kind) {
+  const cur = `<div class="readout readout--current"><span class="chord-name">${state.current.root} ${state.current.type}</span></div>`;
+  if (kind === 'col' || kind === 'chips') {
+    return `<div class="readout-row">${cur}${queueHtml(kind)}</div>${beatHtml()}`;
+  }
+  return `<div class="readout-row">${cur}</div>${queueHtml(kind)}${beatHtml()}`;
+}
+
+function render() {
+  document.querySelectorAll('.stage-wrap').forEach((wrap) => {
+    wrap.classList.toggle('is-narrow', state.narrow);
+    wrap.querySelector('[data-np]').innerHTML = npHtml(wrap.dataset.kind);
+  });
+}
+
+/* ---------------- Clock ---------------- */
+let timer = null;
+function tick() {
+  state.beat += 1;
+  if (state.beat > state.total) {
+    state.beat = 1;
+    state.current = state.queue.shift();
+    state.queue.push(draw());
+  }
+  render();
+}
+function restartClock() {
+  if (timer) clearInterval(timer);
+  if (state.running) timer = setInterval(tick, (60 / state.bpm) * 1000);
+}
+
+/* ---------------- Controls ---------------- */
+const $ = (id) => document.getElementById(id);
+
+$('runBtn').addEventListener('click', (e) => {
+  state.running = !state.running;
+  e.target.textContent = state.running ? 'Pause' : 'Play';
+  restartClock();
+});
+
+$('tempo').addEventListener('input', (e) => {
+  state.bpm = Number(e.target.value);
+  $('tempoOut').textContent = `${state.bpm} bpm`;
+  restartClock();
+});
+
+$('qsize').addEventListener('input', (e) => {
+  document.documentElement.style.setProperty('--queue-size', `${e.target.value}rem`);
+  $('qsizeOut').textContent = `${e.target.value}rem`;
+});
+
+function segHandler(segId, key, cast = (v) => v) {
+  $(segId).addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    state[key] = cast(btn.dataset[key]);
+    $(segId).querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    render();
+  });
+}
+segHandler('depthSeg', 'depth', Number);
+segHandler('rampSeg', 'ramp');
+
+$('ords').addEventListener('change', (e) => { state.ords = e.target.checked; render(); });
+$('narrow').addEventListener('change', (e) => { state.narrow = e.target.checked; render(); });
+$('longNames').addEventListener('change', (e) => {
+  state.long = e.target.checked;
+  refill();
+  render();
+});
+$('theme').addEventListener('change', (e) => {
+  if (e.target.value === 'system') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.dataset.theme = e.target.value;
+});
+
+render();
+restartClock();
+</script>

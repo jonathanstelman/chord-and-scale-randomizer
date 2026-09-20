@@ -21,11 +21,14 @@ behind it — this doc only tracks sequencing.
 
 ## Status at a glance
 
-**Landed:** #21, #22, #23, #24, #25, #26, #27, #28, #29, #31 (subsumed).
+**Landed:** #20, #21, #22, #23, #24, #25, #26, #27, #28, #29, #31 (subsumed).
 **Dropped:** #30 — closed won't-do, see below.
-**Remaining:** #20 (M) — plus #34 (spun out of #23) and #45 (spun out of #24).
+**Remaining:** nothing in this initiative — #34 (spun out of #23) and #45 (spun out of
+#24) are the only descendants still open, and neither is part of the overhaul.
 
-**Next up:** **#20** is the last item of this initiative.
+**This initiative is complete.** Per the note at the foot of this doc, it has served its
+purpose once everything above ships; fold it into a changelog note or remove it rather
+than letting it sit here looking active.
 
 **Not part of this initiative, but it landed in the middle of it:** #40 rebuilt the
 Timing group's internals (captioned blocks, toggles that hold position when clicked,
@@ -124,22 +127,21 @@ momentum rather than need. Prefer landing the base.
 
 ## Related but separate
 
-- **#20** (stacked queue of upcoming tonal centers, pre-existing backlog item) has the
-  same "control disconnected from display" problem #23 fixed. #23 has landed, so #20 is
-  free to proceed without reintroducing that proximity issue in a new form.
+- ~~**#20** (stacked queue of upcoming tonal centers)~~ — **landed.** The intended
+  hierarchy held: same size for every entry, depth carried by saturation through the
+  `--paper` tiers, `.chord-name--next` re-tuned to `clamp(1.05rem, 3.2vw, 1.4rem)` — the
+  size #22 deliberately left for this issue to decide. Settled from a rendered comparison
+  of four treatments (`docs/design/queue-stack/`); the right-hand column won.
 
-- **#20 also owns how big "next" is.** #22 scaled the current readout up to
-  `clamp(2rem, 7vw, 3rem)` and deliberately left `.chord-name--next` at
-  `clamp(1rem, 3vw, 1.25rem)` — so the gap between them widened from ~1.7x to ~2.4x as a
-  side effect. That was left alone on purpose rather than re-tuned, because #20 replaces
-  a single "next" with a stack and has to re-decide it anyway.
+  Three things it decided that the issue only raised as questions, all recorded in
+  `randomizer.md`'s "Queue depth": depth is a **separate setting from the veil** rather
+  than `showNext` becoming a count, repeat-avoidance stays **strictly adjacent**, and the
+  depth applies **uniformly to both tabs**.
 
-  The intended hierarchy when that lands: the queue renders **smaller than the current
-  readout**, and within the queue every entry is the **same size** — size can't encode
-  depth in a stack without becoming a staircase. Depth is carried by **saturation**
-  instead, so the top of the queue reads stronger than the entries behind it while still
-  clearly sitting below the current tonal center. The `--paper` / `--paper-dim` /
-  `--paper-medium` tiers already exist for exactly this kind of recession.
+  One thing to know before touching it: the token ramp's fourth tier is `--paper-faint`
+  at 0.14 alpha and is **marginal at depth 4**, light mode especially. That was chosen
+  knowingly over a bespoke ramp; the alternative is drawn and waiting in
+  `docs/design/queue-stack/`.
 
 - **#34** (pause a session) spun out of #23. Pause is not just `Transport.pause()` —
   `stopCurrent()` mutes the arpeggio with nothing to un-mute it before the next segment,

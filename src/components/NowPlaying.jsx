@@ -14,8 +14,12 @@ function Readout({ className, veiled, children }) {
   );
 }
 
+// Depth is carried by saturation, not size — see docs/architecture/randomizer.md's
+// "Queue depth".
+const QUEUE_TIERS = ['q1', 'q2', 'q3', 'q4'];
+
 export default function NowPlaying({
-  current, next, showCurrent, showNext, beatIndex, totalBeats, isGap,
+  current, queue, showCurrent, showNext, beatIndex, totalBeats, isGap,
 }) {
   return (
     <div className="now-playing">
@@ -29,11 +33,21 @@ export default function NowPlaying({
           </Readout>
         </div>
 
-        {next && (
+        {/* One veil over the whole queue, not one per entry: showNext is a single
+            listening-mode switch, and four placeholders stacked up would read as four
+            hidden things rather than one hidden queue. */}
+        {queue.length > 0 && (
           <div className="readout readout--next">
             <span className="readout-eyebrow">Next</span>
-            <Readout className="chord-name chord-name--next" veiled={!showNext}>
-              {tonalCenterPhrase(next)}
+            <Readout className="chord-queue" veiled={!showNext}>
+              {queue.map((item, i) => (
+                <span
+                  key={`${item.rootName}-${item.typeLabel}-${i}`}
+                  className={`chord-name chord-name--next chord-name--${QUEUE_TIERS[i]}`}
+                >
+                  {tonalCenterPhrase(item)}
+                </span>
+              ))}
             </Readout>
           </div>
         )}

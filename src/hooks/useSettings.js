@@ -11,6 +11,7 @@ export const NUMERIC_LIMITS = {
   minBeats: { min: 1, max: 30 },
   maxBeats: { min: 1, max: 32 },
   gapBeats: { min: 0, max: 16 },
+  queueDepth: { min: 0, max: 4 },
   maxChordNotes: { min: 1, max: 7 },
 };
 
@@ -38,6 +39,10 @@ const DEFAULT_SETTINGS = {
   soundType: 'chord', // 'chord' | 'arpeggio' | 'none'
   maxChordNotes: 5,
   showCurrent: true,
+  // How many upcoming tonal centers the display queues up, 0-4. Orthogonal to showNext,
+  // which veils whatever the queue holds — see docs/architecture/randomizer.md's "Queue
+  // depth". 1 is what the display showed before the queue existed.
+  queueDepth: 1,
   showNext: false,
   metronomeAudio: true,
   metronomeVolume: 50, // 0-100, independent of the tonal-center sound (or its absence)

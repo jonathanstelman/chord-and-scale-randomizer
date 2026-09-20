@@ -12,7 +12,8 @@ and [`../product.md`](../product.md) for vision.
 - [`randomizer.md`](./randomizer.md) — `src/hooks/useRandomizer.js` + top-level
   components: the beat clock, phase pregeneration, pluggable chord sources — and, since
   the practice-mode overhaul, the display and settings layout too: the two-column split,
-  the idle state, the veil toggles, the PiP console, the wake lock
+  the idle state, the veil toggles, the queue of upcoming tonal centers, the PiP console,
+  the wake lock
 - [`settings-and-presets.md`](./settings-and-presets.md) — `src/hooks/useSettings.js` +
   `src/music/pool.js`: presets, Guitar mode, the roots filter
 - [`theming.md`](./theming.md) — `src/index.css` + `src/hooks/useSettings.js`: the

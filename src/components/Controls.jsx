@@ -9,6 +9,7 @@ import RootsPicker from './RootsPicker';
 import NumberField from './NumberField';
 import { NUMERIC_LIMITS } from '../hooks/useSettings';
 import TimingSection from './TimingSection';
+import DisplaySection from './DisplaySection';
 import Chair from './Chair';
 
 function typeLabelForKey(key) {
@@ -77,6 +78,8 @@ function Controls({
           are load-bearing. */}
       <div className="controls-column controls-column--player">
         <TimingSection settings={settings} updateSettings={updateSettings} />
+
+        <DisplaySection settings={settings} updateSettings={updateSettings} />
 
         <details className="settings-section" open>
           <summary>Sound</summary>

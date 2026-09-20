@@ -4,6 +4,7 @@ import { SCALE_TYPES } from '../music/scaleFamilies';
 import { pitchClassToDisplayName } from '../music/notes';
 import RootsPicker from './RootsPicker';
 import TimingSection from './TimingSection';
+import DisplaySection from './DisplaySection';
 
 function groupScalesByCategory() {
   const groups = new Map();
@@ -45,6 +46,7 @@ function PureToneControls({
           settings surface is deliberately smaller. */}
       <div className="controls-column controls-column--player">
         <TimingSection settings={settings} updateSettings={updateSettings} />
+        <DisplaySection settings={settings} updateSettings={updateSettings} />
       </div>
 
       <div className="controls-column controls-column--pickers">
