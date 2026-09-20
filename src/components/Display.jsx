@@ -28,7 +28,7 @@ function DeckKey({ glyph, word, onClick, variant }) {
 
 // The example queue the idle card shows. It runs as deep as the user's own queueDepth
 // (sliced below) so the example can't claim a session looks different than it will.
-const IDLE_QUEUE = ['A Minor', 'F Major', 'G Dom 7', 'D Minor'];
+const IDLE_QUEUE = ['A Minor', 'F Major', 'G Dominant 7', 'D Minor'];
 
 // The ref goes on the outer `.sleeve`: the card is what leaves the viewport, and that's
 // what PipConsole observes. `.sleeve-stage` caps the content measure and has to wrap
