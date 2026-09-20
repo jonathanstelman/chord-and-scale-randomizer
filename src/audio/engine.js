@@ -60,10 +60,25 @@ export function unlockIOSMediaPlayback() {
   audioEl.play().catch(() => {});
 }
 
-// Owns the actual synths and whatever is currently sounding (held chord notes, or a
-// running arpeggio sequence), plus a separate click synth for the metronome. One instance
-// lives for the life of a randomizer session. All playback methods take an optional Tone
-// transport `time` so callers can schedule sample-accurately instead of firing "now".
+// PolySynth doesn't reduce per-voice level as notes stack; this power-sum estimate keeps
+// a chord's total roughly constant. Calibrated at 4 notes — see docs/architecture/audio.md.
+function noteCountTrimDb(noteCount) {
+  return -10 * Math.log10(Math.max(1, noteCount) / 4);
+}
+
+// The UI's 0-100 volume sliders map onto a -40dB..0dB trim — 0 isn't literal silence,
+// just quiet enough to sit under everything else. See "Volume sliders" in
+// docs/architecture/audio.md for the drone's version of this.
+function sliderPercentToDb(percent) {
+  const clamped = Math.max(0, Math.min(100, percent));
+  return (clamped - 100) * 0.4;
+}
+
+// Owns the actual synths and whatever is currently sounding (held chord notes, a running
+// arpeggio sequence, the Scale Degrees drone), plus a separate click synth for the
+// metronome. One instance lives for the life of a randomizer session. All playback
+// methods take an optional Tone transport `time` so callers can schedule
+// sample-accurately instead of firing "now".
 export class TonalCenterPlayer {
   constructor() {
     // Brick-wall safety net against PolySynth clipping — see docs/architecture/audio.md's
@@ -105,11 +120,27 @@ export class TonalCenterPlayer {
     }).connect(this.limiter);
     this.setMetronomeVolume(50); // overwritten immediately by the caller's own setting
 
+    // Scale Degrees drone: its own synth and trim, deliberately not shared with the
+    // chord path so stopCurrent()/playSegment() can't touch it — see "Drone" in
+    // docs/architecture/audio.md. 6dB under chordBaseVolume so the target reads over it.
+    this.droneBaseVolume = -20;
+    this.droneVolume = new Tone.Volume(0).connect(this.limiter);
+    // Slow attack so it fades in rather than thumps; the release is what a stop or pause
+    // sounds like, and it's long enough that a replaced drone crossfades.
+    this.droneSynth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'sine' },
+      envelope: { attack: 1, decay: 0.1, sustain: 1, release: 1.5 },
+    }).connect(this.droneVolume);
+    this.droneNotes = [];
+    this.setDroneVolume(50); // overwritten immediately by the caller's own setting
+
     this.heldSynth = null;
     this.heldNotes = [];
-    // Non-null only between pause() and resume() — see docs/architecture/audio.md's
-    // "Pausing mid-segment".
+    // Both non-null only between pause() and resume() — see docs/architecture/audio.md's
+    // "Pausing mid-segment". The drone's is a separate field on purpose: playSegment()
+    // clears `suspended` and must not take the drone with it (see "Drone" there).
     this.suspended = null;
+    this.suspendedDrone = null;
   }
 
   // Silence whatever is sounding, remembering enough to put it back. stopCurrent() is
@@ -125,9 +156,15 @@ export class TonalCenterPlayer {
       chordVolume: this.chordSynth.volume.value,
     };
     this.stopCurrent(time);
+    this.suspendedDrone = this.droneNotes.length ? this.droneNotes : null;
+    this.stopDrone(time);
   }
 
   resume(time) {
+    // startDrone recomputes the note-count trim, so only the notes need remembering.
+    const drone = this.suspendedDrone;
+    if (drone) this.startDrone(drone, time);
+
     const held = this.suspended;
     if (!held) return;
     this.suspended = null;
@@ -175,8 +212,7 @@ export class TonalCenterPlayer {
       this.arpStepIndex = 0;
       return;
     }
-    this.chordSynth.volume.value =
-      this.chordBaseVolume - 10 * Math.log10(Math.max(1, noteNames.length) / 4);
+    this.chordSynth.volume.value = this.chordBaseVolume + noteCountTrimDb(noteNames.length);
     this.chordSynth.triggerAttack(noteNames, time);
     this.heldSynth = this.chordSynth;
     this.heldNotes = noteNames;
@@ -201,30 +237,46 @@ export class TonalCenterPlayer {
     this.arpSynth.triggerAttackRelease(this.arpNotes[index], '8n', time);
   }
 
-  // Scale Degrees tab's drone (issue #8) — a tonic that sustains for the whole session,
-  // independent of stopCurrent()/playSegment() so it survives every new segment and the
-  // rest/gap. Contract only: no-ops until issue #52 lands; the signatures are what the
-  // integration stream (#54) builds against.
-  startDrone(_noteNames, _time) {}
+  // Scale Degrees tab's drone: sustains until stopDrone(), untouched by stopCurrent() and
+  // playSegment() by construction — see "Drone" in docs/architecture/audio.md. Calling it
+  // over a sounding drone releases the old notes and attacks the new ones (a crossfade).
+  startDrone(noteNames, time) {
+    this.stopDrone(time);
+    if (!noteNames?.length) return;
+    this.droneSynth.volume.value = this.droneBaseVolume + noteCountTrimDb(noteNames.length);
+    this.droneSynth.triggerAttack(noteNames, time);
+    this.droneNotes = noteNames;
+  }
 
-  stopDrone(_time) {}
+  stopDrone(time) {
+    // An explicit drone call supersedes a pause() snapshot, as playSegment() does for the
+    // segment's.
+    this.suspendedDrone = null;
+    if (!this.droneNotes.length) return;
+    this.droneSynth.triggerRelease(this.droneNotes, time);
+    this.droneNotes = [];
+  }
 
-  // Same 0-100 slider semantics as setMetronomeVolume below.
-  setDroneVolume(_percent) {}
+  // Same 0-100 slider semantics as setMetronomeVolume. Lives on the drone's own Volume
+  // node so it never interacts with the per-note-count trim startDrone() puts on the
+  // synth — see "Volume sliders" in docs/architecture/audio.md.
+  setDroneVolume(percent) {
+    this.droneVolume.volume.value = sliderPercentToDb(percent);
+  }
 
-  // `percent` is 0-100 (the UI's slider units) mapped onto a -40dB..0dB range — 0 isn't
-  // literal silence, just quiet enough to sit under everything else; use the separate
-  // metronome on/off toggle for actual silence.
+  // Use the separate metronome on/off toggle for actual silence — see sliderPercentToDb.
   setMetronomeVolume(percent) {
-    const clamped = Math.max(0, Math.min(100, percent));
-    this.clickSynth.volume.value = (clamped - 100) * 0.4;
+    this.clickSynth.volume.value = sliderPercentToDb(percent);
   }
 
   dispose() {
     this.stopCurrent();
+    this.stopDrone();
     this.chordSynth.dispose();
     this.arpSynth.dispose();
     this.clickSynth.dispose();
+    this.droneSynth.dispose();
+    this.droneVolume.dispose();
     this.limiter.dispose();
   }
 }
