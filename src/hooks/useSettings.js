@@ -14,6 +14,7 @@ export const NUMERIC_LIMITS = {
   queueDepth: { min: 0, max: 4 },
   maxChordNotes: { min: 1, max: 7 },
   scaleDegreesDroneVolume: { min: 0, max: 100 },
+  toneVolume: { min: 0, max: 100 },
 };
 
 function clampNumericSettings(s) {
@@ -37,7 +38,7 @@ const DEFAULT_SETTINGS = {
   minBeats: 4,
   maxBeats: 4, // equal by default: a single "Duration", not a range, until the user opts in
   gapBeats: 0, // silent beats inserted between tonal centers, 0 = no gap
-  soundType: 'chord', // 'chord' | 'arpeggio' | 'none'
+  soundType: 'chord', // 'chord' | 'arpeggio'
   maxChordNotes: 5,
   showCurrent: true,
   // Scale Degrees tab's third veil, over the absolute note name beneath the degree — a
@@ -49,8 +50,14 @@ const DEFAULT_SETTINGS = {
   // depth". 1 is what the display showed before the queue existed.
   queueDepth: 1,
   showNext: false,
+  // The mixer (#58): each sound source has an on/off and a 0-100 level. Tone's level
+  // defaults to 100 — the calibrated level the app always played at, so an existing
+  // user hears no change. The drone's level is scaleDegreesDroneVolume below.
   metronomeAudio: true,
-  metronomeVolume: 50, // 0-100, independent of the tonal-center sound (or its absence)
+  metronomeVolume: 50,
+  toneAudio: true,
+  toneVolume: 100,
+  droneAudio: true,
   enabledTypes: DEFAULT_ENABLED_TYPES,
   enabledRoots: [...ALL_ROOTS], // which of the 12 pitch classes are fair game as a root
   // Non-null = draw only from this explicit {rootPc, typeKey} list (see Guitar in
@@ -92,8 +99,15 @@ function loadSettings() {
     // 'pad' was retired as its own sound (its synth is now just what 'chord' plays) —
     // remap a persisted 'pad' choice so the sound select shows a valid option instead of
     // going blank. The engine would already play it correctly either way (anything that
-    // isn't 'arpeggio'/'none' hits the same code path), this is purely a UI nicety.
+    // isn't 'arpeggio' hits the same code path), this is purely a UI nicety.
     if (loaded.soundType === 'pad') loaded.soundType = 'chord';
+    // 'none' was retired when the mixer's Tone mute arrived (#58) — two controls that
+    // silence the same thing. A persisted 'none' becomes exactly what it meant: the
+    // chord sound, muted.
+    if (loaded.soundType === 'none') {
+      loaded.soundType = 'chord';
+      loaded.toneAudio = false;
+    }
     return clampNumericSettings(loaded);
   } catch {
     return DEFAULT_SETTINGS;

@@ -51,7 +51,7 @@ object is a Randomizer-only field (`soundType`, `maxChordNotes`, `enabledTypes`,
 UI for it and shouldn't care what it's set to — `useRandomizer` avoids that two ways:
 `forceSoundType` overrides `settings.soundType` outright for a tab (Pure Tone passes
 `'chord'`, since a 1-note "arpeggio" would otherwise run `padToSimpleArpeggioLength`
-pointlessly and `'none'` would silently defeat the whole exercise), and
+pointlessly), and
 `pickNextForPureTone` never reads the custom-bank/pairs fields at all rather than
 special-casing around them.
 
@@ -90,18 +90,19 @@ and how the tab plugs into the clock and the display.
 It's Pure Tone's sibling — same two-column split, `TimingSection` + `DisplaySection` in
 the player column — with two groups in the picker column, both open by default:
 
-- **Notes** — where a target note comes from and how it's named. A two-button
-  **Scale / Chromatic** toggle (`scaleDegreesPool`, the same words and persisted-choice pattern
-  as Pure Tone's Chromatic/Scale, not an `activePresetKey` preset), **Root**
-  (`scaleDegreesRootPc`), **Scale** (`scaleDegreesScaleKey`, the same grouped dropdown
-  and "Ionian (Major)" / "Aeolian (Natural Minor)" overrides Pure Tone uses, shared via
-  `scaleOptions.js`), and **Labels** (`scaleDegreesLabels`: numbers or do-based solfège).
-- **Drone** — what the reference sounds like. **Sound** (`scaleDegreesDrone`: tonic
-  alone, tonic + fifth, or the scale's I chord) and **Level** (`scaleDegreesDroneVolume`,
-  0–100 on the metronome-volume slider pattern — `.drone-level` shares the
-  `.metronome-volume` CSS rather than duplicating it). Level is never disabled: the drone
-  is the exercise's reference and runs through rests, so there's no "off" for it to be
-  greyed out by.
+- **Note bank** — where a target note comes from. A two-button **Chromatic / Scale**
+  toggle (`scaleDegreesPool`, the same words and persisted-choice pattern as Pure Tone's,
+  not an `activePresetKey` preset), **Root** (`scaleDegreesRootPc`) and **Scale**
+  (`scaleDegreesScaleKey`, the same grouped dropdown and "Ionian (Major)" / "Aeolian
+  (Natural Minor)" overrides Pure Tone uses, shared via `scaleOptions.js`). "Bank" is the
+  word the custom chord bank already taught: a stock of things to draw from — and with
+  the Mixer's first channel named *Note* directly above, a group called *Notes* read as
+  the same thing twice. **Labels** (`scaleDegreesLabels`: numbers or do-based solfège) is
+  not in the bank: it's how a degree is *written*, so it sits in the Display group,
+  passed in as `DisplaySection`'s children — the one tab-specific field that group has.
+- **Drone** — what the reference sounds like: **Sound** (`scaleDegreesDrone`: tonic
+  alone, tonic + fifth, or the scale's I chord). How loud, and whether at all, is the
+  Mixer's Drone channel (`scaleDegreesDroneVolume`, `droneAudio`) — see "Mixer".
 
 **Root is always visible; the Scale dropdown only in Scale mode.** The spec originally kept Scale
 in both modes so that a Chromatic session could spell out-of-scale pitches *relative to*
@@ -191,13 +192,55 @@ so the copy makes that the one visible difference.
 current/next readout + beat-panel visualization) + `Controls`, `PureToneControls` or
 `ScaleDegreesControls` (the settings UI for whichever tab is active). The display also owns the **transport** and the
 **visibility toggles** — see "The display is the player" below; the settings components
-hold neither. All three settings components share `TimingSection`
-(tempo/duration/rest + metronome, boxed as one settings cluster — the metronome lives
-there too since it's timing information, it just keeps the beat rather than setting its
-length) and `DisplaySection`; the first two also share `RootsPicker`. All three are
+hold neither. All three settings components share `TimingSection` (tempo/duration/rest),
+`DisplaySection` and `MixerSection` (every level, see "Mixer"); the first two also share
+`RootsPicker`. All three are
 wrapped in `memo` with stable (`useCallback`'d) setters from `useSettings` — without
 that they'd re-render on every single beat tick via `App`'s state, fighting Tone.js's
 live scheduling for main-thread time for no reason.
+
+### Mixer (issue #58)
+
+**Every level in one group, in the player column of every tab, after Display.** A
+channel strip per sound source — what the tab plays, Drone (Scale Degrees only),
+Metronome — each with the same three things in the same three grid columns: name, mute,
+slider. The alternative, each level beside the settings responsible for its sound, was
+prototyped in the app and compared on a phone (both layouts behind a `?layout=` switch,
+since deleted). The mixer won on the task that motivated the slider: *balancing* the
+drone against the target is a relationship between two levels, and on a phone the
+local layout put them a screen apart. The split it leaves is clean — what sounds stays
+with its settings (Voicing → Play as/Density, Drone → Voicing); how loud is the Mixer's
+— and a future sound source adds a channel, not a group.
+
+- **The first channel is named for what the tab plays**, the way each tab's description
+  is: *Tonal center* on Chords & Scales (the same noun the picker group uses — what gets
+  picked there, how loud here), *Note* on Pure Tone and on Scale Degrees — a single
+  sounding note in both, and on Scale Degrees the drone is the actual tonal center, so
+  calling the target one would be wrong. Pure Tone's was "Pitch" for a day, on the
+  grounds that a note with no key is strictly a pitch; but its bank is the *Note* bank
+  and the display names the note, so one word won. The row
+  holds its position; only the word follows the tab. "Tone" was the first draft and
+  named the medium, not the thing; so did "Sound" on the group that decides how the
+  tonal center is voiced, now **Voicing** (Play as: Chord / Arpeggio; Density) — the
+  same word the Drone group uses for the same decision.
+
+- **Every channel has a mute, or none would.** A mixer with a mute on one strip is a
+  mixer with a broken strip. The played channel's mute (`toneAudio` — the setting keeps
+  the engine's name) replaced the "No Sound" sound
+  type, which would otherwise have been a second control silencing the same thing; a
+  persisted `'none'` is migrated to "Chord, muted" in `loadSettings`. The drone's mute
+  (`droneAudio`) is new. The metronome's on/off moved here from Timing with its level —
+  #40 put it in Timing because it "keeps the beat", which was the best available home
+  then, not a claim that a checkbox is timing information.
+- **The grid is the point.** `display: contents` on each channel lets its three parts
+  be grid items of the `.mixer` grid, so the name column is one width (sized to
+  "Metronome"), the mute column is one width, and every slider is exactly the same
+  length. Rows are `align-items: center`, which is safe here for the reason the Timing
+  rows aren't: nothing in a channel reveals anything.
+- **Order is foreground to background**: what plays, Drone, Metronome.
+- **Mute is a mute, not a stop.** The tone and drone mutes flip a `Tone.Volume` node's
+  `mute`; the metronome's just stops `click()`. The clock, the queue and the other
+  channels carry on — see `audio.md`, "Volume sliders".
 
 ### Timing group layout (issue #40)
 
@@ -234,8 +277,9 @@ Two more things not to redo:
 
 - **Rows are top-aligned, not centred.** The Rest block's height changes when its field
   appears, and `align-items: center` re-centres the toggle inside the taller row — a 23px
-  drop at the moment of the click. Smaller than the original bug, same bug. The metronome
-  is the one thing safe to centre, since it reveals nothing.
+  drop at the moment of the click. Smaller than the original bug, same bug. (The
+  metronome row used to sit in Tempo's line and was the one thing safe to centre, since
+  it revealed nothing; it moved to the Mixer in #58.)
 - **A grid aligning the value columns across blocks was tried and rejected.** `display:
   contents` on the rows let each toggle and its fields flow as independent grid items,
   landing them on separate grid rows and breaking the pairing entirely. Explicit
@@ -468,12 +512,14 @@ what a setting *governs* — how it plays versus what gets picked — not by siz
 
 **The even split is a measurement, not a preference.** It was 1fr 2fr first, which read
 as the right emphasis — the pickers carry the mode row, the presets and the whole
-Advanced breakdown — and broke Timing. Its Tempo row needs 394px to keep the bpm field,
-the metronome checkbox and the volume slider on one line, which is how #40 built it; a
-third of the page is 333px, so the slider wrapped under the checkbox and separated a
-control from the thing it controls. The player column can't go below ~426px with the
-group's padding. Don't narrow it back on the grounds that the right column looks busier
-— at the breakpoint itself, halves leave the Tempo row 54px of slack and 45/55 leaves 6.
+Advanced breakdown — and broke Timing. Its Tempo row then needed 394px to keep the bpm
+field, the metronome checkbox and the volume slider on one line, which is how #40 built
+it; a third of the page is 333px, so the slider wrapped under the checkbox and separated
+a control from the thing it controls. The player column couldn't go below ~426px with
+the group's padding. The metronome has since moved to the Mixer (#58), which relieves
+that row — but the Mixer's own rows want width for their sliders, and nothing has
+re-measured the split since: that's an **open question, tracked as #67**, not a settled
+one. Don't narrow it back on a hunch; measure.
 
 **This replaced a gatefold.** #22 had seated the sleeve and the controls side by side as
 two columns. That read well in the abstract and badly in practice: the display is about
@@ -609,7 +655,8 @@ is a bug: the console exists for when the display isn't visible, and on a laptop
 a tab with almost no settings to scroll past — it always is. Don't "fix" the Pure Tone
 column by padding the page to force a dock. Do re-measure this table before investing
 further here; it has already shifted once under a layout change that had nothing to do
-with the console.
+with the console, and the Mixer (#58) changed the player column's height on every tab
+since it was last measured — **the table is stale, tracked as #67**.
 
 **The width is fixed, the height is free.** Shrink-to-fit made the box resize on every
 segment as names changed length, which reads as the console twitching in the corner. It

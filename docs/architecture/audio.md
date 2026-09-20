@@ -1,7 +1,8 @@
 # Audio (`src/audio/engine.js`)
 
 `TonalCenterPlayer` owns every Tone.js node and exposes a small imperative surface
-(`playSegment`, `click`, `tickArpeggio`, `setMetronomeVolume`, `stopCurrent`, `pause`,
+(`playSegment`, `click`, `tickArpeggio`, `setMetronomeVolume`, `setToneVolume`,
+`setToneMuted`, `setDroneMuted`, `stopCurrent`, `pause`,
 `resume`, `startDrone`, `stopDrone`, `setDroneVolume`, `dispose`).
 
 - **Gain staging**: `PolySynth` doesn't reduce per-voice volume as more notes stack, so
@@ -56,11 +57,18 @@
   Resuming needs `Tone.start()` again because the context can be suspended while paused
   (iOS especially). It does *not* need another `unlockIOSMediaPlayback()` gesture: that
   helper is idempotent and its silent `<audio>` element is still looping from `start()`.
-- **Volume sliders**: the UI's 0–100 volume sliders (`setMetronomeVolume`,
+- **Volume sliders**: the mixer's 0–100 sliders (`setMetronomeVolume`, `setToneVolume`,
   `setDroneVolume`) share one mapping, `sliderPercentToDb`: linear in dB, 0.4dB per
   step, so 100 is the trim ceiling (0dB) and 0 is -40dB — quiet enough to sit under
-  everything else but *not* literal silence, which is what the metronome's on/off toggle
-  (or `stopDrone`) is for. The drone's slider trim lives on its own `Tone.Volume` node
+  everything else but *not* literal silence, which is what each channel's mute is for
+  (`setToneMuted`/`setDroneMuted` flip the node's `mute`; the metronome's mute is the
+  hook simply not calling `click()`). Muting a node rather than stopping its synth
+  keeps the clock, the queue and the other channels exactly as they were — a muted tone
+  is for singing the answer before checking it, which is what the retired "No Sound"
+  sound type was for. The tone's slider trim lives on `toneVolume`, one node both the
+  chord and arpeggio synths feed, *after* the chord's per-note-count trim and the arp's
+  fixed -8dB timbre trim — so the user's level scales what they hear without touching
+  the calibration. The drone's slider trim lives on its own `Tone.Volume` node
   and its per-note-count scaling lives on the synth's `volume`, so the two never have to
   be recombined: `setDroneVolume` can't disturb the note-count trim and `startDrone`
   can't disturb the user's setting. Don't collapse them onto one node and store the

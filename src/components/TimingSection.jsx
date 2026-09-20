@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import MetronomeControl from './MetronomeControl';
 import NumberField from './NumberField';
 import { NUMERIC_LIMITS } from '../hooks/useSettings';
 
@@ -9,10 +8,9 @@ function beatsUnit(n) {
   return n === 1 ? 'beat' : 'beats';
 }
 
-// Tempo/duration/rest/metronome, boxed as one collapsible group and shared between
-// both practice tabs — see docs/architecture/randomizer.md's Components section for why
-// the metronome lives here rather than its own block. Starts open: it's the group most
-// sessions actually adjust.
+// Tempo/duration/rest, boxed as one collapsible group and shared by every practice tab.
+// The metronome's on/off and level live in the Mixer (#58), with every other level.
+// Starts open: it's the group most sessions actually adjust.
 export default function TimingSection({ settings, updateSettings }) {
   // "Randomize beats" / "Rest between changes" only decide which fields are *visible* —
   // the underlying minBeats/maxBeats/gapBeats settings are the source of truth, so these
@@ -40,7 +38,6 @@ export default function TimingSection({ settings, updateSettings }) {
               />
               <span className="data-unit">bpm</span>
             </span>
-            <MetronomeControl settings={settings} updateSettings={updateSettings} />
           </div>
         </div>
 
