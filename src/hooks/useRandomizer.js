@@ -287,6 +287,7 @@ export function useRandomizer(settings, options = {}) {
     Tone.Transport.bpm.value = settingsRef.current.bpm;
     if (!playerRef.current) playerRef.current = new TonalCenterPlayer();
     playerRef.current.setMetronomeVolume(settingsRef.current.metronomeVolume);
+    playerRef.current.setToneVolume(settingsRef.current.toneVolume);
     if (droneRef.current) {
       playerRef.current.setDroneVolume(droneRef.current.volume);
       playerRef.current.startDrone(droneRef.current.notes);
@@ -424,6 +425,10 @@ export function useRandomizer(settings, options = {}) {
   useEffect(() => {
     if (isRunning) playerRef.current?.setMetronomeVolume(settings.metronomeVolume);
   }, [isRunning, settings.metronomeVolume]);
+
+  useEffect(() => {
+    if (isRunning) playerRef.current?.setToneVolume(settings.toneVolume);
+  }, [isRunning, settings.toneVolume]);
 
   // The drone follows Root/Scale/Sound live, but not while paused — see
   // docs/architecture/randomizer.md's Scale Degrees section for both halves of that.

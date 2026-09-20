@@ -36,6 +36,11 @@ const TAB_DESCRIPTIONS = {
   ),
 };
 
+// PROTOTYPE (#58): `?layout=mixer` shows layout B (one Mixer group for every level);
+// the default is layout A (each level with the settings responsible for its sound).
+// Removed, along with the loser, once the comparison is made.
+const LAYOUT = new URLSearchParams(window.location.search).get('layout') === 'mixer' ? 'mixer' : 'local';
+
 export default function App() {
   const {
     settings,
@@ -143,13 +148,14 @@ export default function App() {
       />
 
       {isScaleDegrees ? (
-        <ScaleDegreesControls settings={settings} updateSettings={updateSettings} />
+        <ScaleDegreesControls settings={settings} updateSettings={updateSettings} layout={LAYOUT} />
       ) : isPureTone ? (
         <PureToneControls
           settings={settings}
           updateSettings={updateSettings}
           toggleRoot={toggleRoot}
           setAllRootsEnabled={setAllRootsEnabled}
+          layout={LAYOUT}
         />
       ) : (
         <Controls
@@ -164,6 +170,7 @@ export default function App() {
           commitCustomBank={commitCustomBank}
           setCustomBankMode={setCustomBankMode}
           setCustomBankEnabled={setCustomBankEnabled}
+          layout={LAYOUT}
         />
       )}
     </div>

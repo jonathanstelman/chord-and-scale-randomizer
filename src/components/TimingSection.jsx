@@ -13,7 +13,9 @@ function beatsUnit(n) {
 // both practice tabs — see docs/architecture/randomizer.md's Components section for why
 // the metronome lives here rather than its own block. Starts open: it's the group most
 // sessions actually adjust.
-export default function TimingSection({ settings, updateSettings }) {
+// `showMetronome` is the #58 prototype switch: layout B moves the metronome into the
+// Mixer group, layout A leaves it here.
+export default function TimingSection({ settings, updateSettings, showMetronome = true }) {
   // "Randomize beats" / "Rest between changes" only decide which fields are *visible* —
   // the underlying minBeats/maxBeats/gapBeats settings are the source of truth, so these
   // start from whatever was already persisted (a range or a nonzero gap from an earlier
@@ -40,7 +42,7 @@ export default function TimingSection({ settings, updateSettings }) {
               />
               <span className="data-unit">bpm</span>
             </span>
-            <MetronomeControl settings={settings} updateSettings={updateSettings} />
+            {showMetronome && <MetronomeControl settings={settings} updateSettings={updateSettings} />}
           </div>
         </div>
 

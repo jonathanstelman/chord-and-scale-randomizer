@@ -10,6 +10,8 @@ import NumberField from './NumberField';
 import { NUMERIC_LIMITS } from '../hooks/useSettings';
 import TimingSection from './TimingSection';
 import DisplaySection from './DisplaySection';
+import LevelSlider from './LevelSlider';
+import MixerSection from './MixerSection';
 import Chair from './Chair';
 
 // What the bank plays as: the user's own root spelling (never corrected — see
@@ -36,8 +38,9 @@ const CATEGORY_GROUPS = groupByCategory(ALL_TONAL_CENTER_TYPES);
 // main-thread time for no reason.
 function Controls({
   settings, updateSettings, toggleType, setModeEnabled, toggleRoot, setAllRootsEnabled, applyPreset,
-  setCustomBankText, commitCustomBank, setCustomBankMode, setCustomBankEnabled,
+  setCustomBankText, commitCustomBank, setCustomBankMode, setCustomBankEnabled, layout,
 }) {
+  const mixer = layout === 'mixer';
   // Transient — cleared on every successful parse, never persisted. A parse failure
   // keeps whatever customBankEntries was last committed (see commitCustomBank), so a
   // typo mid-edit doesn't blow away a bank that's actively playing.
@@ -81,7 +84,9 @@ function Controls({
           see docs/architecture/randomizer.md's "Settings in two columns" for why both
           are load-bearing. */}
       <div className="controls-column controls-column--player">
-        <TimingSection settings={settings} updateSettings={updateSettings} />
+        <TimingSection settings={settings} updateSettings={updateSettings} showMetronome={!mixer} />
+
+        {mixer && <MixerSection settings={settings} updateSettings={updateSettings} />}
 
         <DisplaySection settings={settings} updateSettings={updateSettings} />
 
@@ -113,6 +118,13 @@ function Controls({
                 <span className="data-unit">notes</span>
               </label>
             </div>
+            {!mixer && (
+              <LevelSlider
+                label="Level"
+                value={settings.toneVolume}
+                onChange={(toneVolume) => updateSettings({ toneVolume })}
+              />
+            )}
           </div>
         </details>
       </div>

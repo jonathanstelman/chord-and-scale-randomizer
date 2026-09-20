@@ -1123,10 +1123,10 @@
   gap: 1.25rem;
 }
 
-/* One inline caption-and-slider row for every level control — the metronome's volume
-   and the Scale Degrees drone's level — so a slider looks the same wherever it sits. */
-.metronome-volume,
-.drone-level {
+/* One inline caption-and-slider row for every level control (LevelSlider) — the
+   metronome's, the tonal center's, the drone's — so a slider looks the same wherever
+   it sits. */
+.level-slider {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1137,14 +1137,43 @@
   color: var(--paper-dim);
 }
 
-.metronome-volume input[type='range'],
-.drone-level input[type='range'] {
+.level-slider input[type='range'] {
   accent-color: var(--brass);
   width: 8rem;
 }
 
-.metronome-volume input[type='range']:disabled {
+.level-slider input[type='range']:disabled {
   opacity: 0.4;
+}
+
+/* PROTOTYPE (#58, layout B): a channel strip — captions in a column, sliders filling
+   the width, the metronome's on/off in the gutter before its slider. */
+.mixer .level-slider {
+  width: 100%;
+}
+
+.mixer .level-slider span {
+  width: 6rem;
+  flex: none;
+}
+
+.mixer .level-slider input[type='range'] {
+  width: auto;
+  flex: 1;
+}
+
+.mixer-channel {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mixer-channel .checkbox-label {
+  gap: 0;
+}
+
+.mixer-channel .level-slider {
+  flex: 1;
 }
 
 /* ---------- Mode blocks ---------- */

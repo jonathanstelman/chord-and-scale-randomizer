@@ -14,6 +14,7 @@ export const NUMERIC_LIMITS = {
   queueDepth: { min: 0, max: 4 },
   maxChordNotes: { min: 1, max: 7 },
   scaleDegreesDroneVolume: { min: 0, max: 100 },
+  toneVolume: { min: 0, max: 100 },
 };
 
 function clampNumericSettings(s) {
@@ -51,6 +52,9 @@ const DEFAULT_SETTINGS = {
   showNext: false,
   metronomeAudio: true,
   metronomeVolume: 50, // 0-100, independent of the tonal-center sound (or its absence)
+  // 0-100, the tonal center's own level (#58) — 100 is the calibrated level the app
+  // always played at, so an existing user hears no change.
+  toneVolume: 100,
   enabledTypes: DEFAULT_ENABLED_TYPES,
   enabledRoots: [...ALL_ROOTS], // which of the 12 pitch classes are fair game as a root
   // Non-null = draw only from this explicit {rootPc, typeKey} list (see Guitar in

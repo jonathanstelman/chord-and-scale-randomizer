@@ -91,11 +91,17 @@ export class TonalCenterPlayer {
     // crossfade below — see docs/architecture/audio.md's Gain staging note for why.
     this.chordBaseVolume = -14;
 
+    // The tonal center's own level slider (#58): one Volume node the chord and arpeggio
+    // synths both feed, sitting *after* their per-note-count and timbre trims so it
+    // scales what the user hears without touching the calibration — the drone's slider
+    // works the same way. See "Volume sliders" in docs/architecture/audio.md.
+    this.toneVolume = new Tone.Volume(0).connect(this.limiter);
+
     // Sine — harmonic-free, so no filter is needed to soften it.
     this.chordSynth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: 'sine' },
       envelope: { attack: 0.5, decay: 0.2, sustain: 0.7, release: 0.35 },
-    }).connect(this.limiter);
+    }).connect(this.toneVolume);
 
     // Harp-like: a sine oscillator (no filter needed, same reasoning as chordSynth above)
     // with a soft attack and a long decay/release so each plucked note rings well past
@@ -104,9 +110,9 @@ export class TonalCenterPlayer {
     // staccato, video-game-arpeggio stepping through notes.
     this.arpSynth = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: 'sine' },
-      volume: -8,
+      volume: -8, // timbre trim, not the user's level — that's toneVolume, after this
       envelope: { attack: 0.03, decay: 0.35, sustain: 0.15, release: 0.4 },
-    }).connect(this.limiter);
+    }).connect(this.toneVolume);
 
     // Driven by an explicit tickArpeggio() call, not a Tone.Sequence — see
     // docs/architecture/audio.md for why (don't "simplify" this back to a Sequence).
@@ -268,6 +274,12 @@ export class TonalCenterPlayer {
     this.droneVolume.volume.value = sliderPercentToDb(percent);
   }
 
+  // Same 0-100 slider semantics as setMetronomeVolume, on the node both tonal-center
+  // synths feed. Use the Sound type "No Sound" for actual silence.
+  setToneVolume(percent) {
+    this.toneVolume.volume.value = sliderPercentToDb(percent);
+  }
+
   // Use the separate metronome on/off toggle for actual silence — see sliderPercentToDb.
   setMetronomeVolume(percent) {
     this.clickSynth.volume.value = sliderPercentToDb(percent);
@@ -281,6 +293,7 @@ export class TonalCenterPlayer {
     this.clickSynth.dispose();
     this.droneSynth.dispose();
     this.droneVolume.dispose();
+    this.toneVolume.dispose();
     this.limiter.dispose();
   }
 }

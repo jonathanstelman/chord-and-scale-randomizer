@@ -1,22 +1,38 @@
 import { memo } from 'react';
 import { ALL_ROOTS } from '../music/pool';
 import { pitchClassName } from '../music/spelling';
-import { NUMERIC_LIMITS } from '../hooks/useSettings';
 import TimingSection from './TimingSection';
 import DisplaySection from './DisplaySection';
+import LevelSlider from './LevelSlider';
+import MixerSection from './MixerSection';
 import { SCALE_GROUPS, scaleOptionLabel } from './scaleOptions';
 
 // Pure Tone's sibling: same two-column split, with this tab's key and drone settings in
 // the picker column. What it has and why is in docs/architecture/randomizer.md's Scale
 // Degrees section.
-function ScaleDegreesControls({ settings, updateSettings }) {
+function ScaleDegreesControls({ settings, updateSettings, layout }) {
+  const mixer = layout === 'mixer';
   const isChromatic = settings.scaleDegreesPool === 'chromatic';
 
   return (
     <div className="controls">
       <div className="controls-column controls-column--player">
-        <TimingSection settings={settings} updateSettings={updateSettings} />
+        <TimingSection settings={settings} updateSettings={updateSettings} showMetronome={!mixer} />
+        {mixer && <MixerSection settings={settings} updateSettings={updateSettings} showDrone />}
         <DisplaySection settings={settings} updateSettings={updateSettings} />
+        {/* Layout A: the same Sound group, in the same column, as the other tabs. */}
+        {!mixer && (
+          <details className="settings-section" open>
+            <summary>Sound</summary>
+            <div className="settings-body">
+              <LevelSlider
+                label="Level"
+                value={settings.toneVolume}
+                onChange={(toneVolume) => updateSettings({ toneVolume })}
+              />
+            </div>
+          </details>
+        )}
       </div>
 
       <div className="controls-column controls-column--pickers">
@@ -92,6 +108,7 @@ function ScaleDegreesControls({ settings, updateSettings }) {
           </div>
         </details>
 
+        {/* Layout B moves the drone's level into the Mixer; the group keeps its sound. */}
         <details className="settings-section" open>
           <summary>Drone</summary>
           <div className="settings-body">
@@ -107,17 +124,14 @@ function ScaleDegreesControls({ settings, updateSettings }) {
                   <option value="chord">Tonic chord</option>
                 </select>
               </label>
-              {/* Same inline caption-and-slider row as the metronome's volume. Never
-                  disabled: the drone runs for the whole session by design. */}
-              <label className="drone-level">
-                <span>Level</span>
-                <input
-                  type="range"
-                  {...NUMERIC_LIMITS.scaleDegreesDroneVolume}
+              {/* Never disabled: the drone runs for the whole session by design. */}
+              {!mixer && (
+                <LevelSlider
+                  label="Level"
                   value={settings.scaleDegreesDroneVolume}
-                  onChange={(e) => updateSettings({ scaleDegreesDroneVolume: Number(e.target.value) })}
+                  onChange={(scaleDegreesDroneVolume) => updateSettings({ scaleDegreesDroneVolume })}
                 />
-              </label>
+              )}
             </div>
           </div>
         </details>
