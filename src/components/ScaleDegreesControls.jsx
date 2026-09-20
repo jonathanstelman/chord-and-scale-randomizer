@@ -73,6 +73,11 @@ function ScaleDegreesControls({ settings, updateSettings }) {
                   </select>
                 </label>
               )}
+            </div>
+            {/* Its own row, so it stays put whether or not Scale is beside Root above —
+                in one wrapping row it sat beside Root in Chromatic and dropped a line in
+                Diatonic. */}
+            <div className="session-data-fields">
               <label className="data-field">
                 <span>Labels</span>
                 <select
