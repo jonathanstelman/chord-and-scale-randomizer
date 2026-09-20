@@ -518,7 +518,8 @@ it; a third of the page is 333px, so the slider wrapped under the checkbox and s
 a control from the thing it controls. The player column couldn't go below ~426px with
 the group's padding. The metronome has since moved to the Mixer (#58), which relieves
 that row — but the Mixer's own rows want width for their sliders, and nothing has
-re-measured the split since. Don't narrow it back on a hunch; measure.
+re-measured the split since: that's an **open question, tracked as #67**, not a settled
+one. Don't narrow it back on a hunch; measure.
 
 **This replaced a gatefold.** #22 had seated the sleeve and the controls side by side as
 two columns. That read well in the abstract and badly in practice: the display is about
@@ -654,7 +655,8 @@ is a bug: the console exists for when the display isn't visible, and on a laptop
 a tab with almost no settings to scroll past — it always is. Don't "fix" the Pure Tone
 column by padding the page to force a dock. Do re-measure this table before investing
 further here; it has already shifted once under a layout change that had nothing to do
-with the console.
+with the console, and the Mixer (#58) changed the player column's height on every tab
+since it was last measured — **the table is stale, tracked as #67**.
 
 **The width is fixed, the height is free.** Shrink-to-fit made the box resize on every
 segment as names changed length, which reads as the console twitching in the corner. It
