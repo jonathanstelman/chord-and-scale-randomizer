@@ -49,6 +49,32 @@ behind a specific subsystem's design, see [`docs/architecture/`](./architecture/
   - A change to a base has to be rebased up the whole chain, so a deep stack makes
     review feedback expensive. Prefer landing the base first.
 
+## UI conventions
+
+Two rules the practice-mode overhaul (#20–#31, #40, #45) and the Scale Degrees tab (#8)
+each had to re-learn. Both are about the settings surface, where a change of mode or
+state shows and hides controls.
+
+- **Controls hold their position.** Toggling a mode, revealing a field, or a value
+  changing length may only add or remove *the thing that changed* — nothing else on the
+  surface moves. In practice: never let a wrapping flex row decide layout from content
+  width when its contents can change. A row whose members are fixed (`TimingSection`,
+  `DisplaySection`) can wrap freely; a row that gains or loses a member with state gets
+  one row per thing that can appear or disappear. Instances: Timing's toggles that hold
+  position (#40); the PiP console's fixed width, sized to the longest phrase rather than
+  shrink-to-fit (`randomizer.md`, "PiP console"); Scale Degrees' Labels row, which sat
+  beside Root in one mode and beneath it in the other until it got its own row.
+- **No control governs nothing.** If a setting has no effect in the current mode, it
+  isn't shown in that mode — it isn't greyed out, and it isn't left visible with a note
+  explaining it does nothing. A visible control that looks like it governs what plays,
+  and doesn't, is hidden state: the user sets it and hears what reads as a bug.
+  Instances: Pure Tone's Roots picker, which lived in Advanced and was silently ignored
+  in Scale mode until #29 moved it under the mode it applies to; Scale Degrees' Scale
+  dropdown, which stayed visible in Chromatic mode until the first real session showed
+  why it shouldn't (`randomizer.md`, "Scale Degrees tab"). The exception that proves the
+  rule: the transport's Play/Pause/Stop keys never render disabled either — a key that
+  can't act isn't shown ("one key, never a disabled twin", `randomizer.md`).
+
 ## Testing
 
 - `src/music/` (`pool.js`, `chordQualities.js`, `voicing.js`, `notes.js`,

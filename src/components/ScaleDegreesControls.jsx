@@ -75,8 +75,7 @@ function ScaleDegreesControls({ settings, updateSettings }) {
               )}
             </div>
             {/* Its own row, so it stays put whether or not Scale is beside Root above —
-                in one wrapping row it sat beside Root in Chromatic and dropped a line in
-                Diatonic. */}
+                "controls hold their position", docs/guidelines.md's UI conventions. */}
             <div className="session-data-fields">
               <label className="data-field">
                 <span>Labels</span>
