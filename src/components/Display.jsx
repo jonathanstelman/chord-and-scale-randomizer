@@ -2,6 +2,29 @@ import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
 
+// One key plus the word beside it. `variant` is the only styling difference — Stop is
+// flame, everything else inherits the neutral key.
+//
+// The name is built from the visible word on purpose: it's aria-hidden because the
+// button is already named, but that name has to *contain* the word ("Play session", not
+// "Start session") or speech-input users saying "click Play" won't match it (WCAG 2.5.3).
+function DeckKey({ glyph, word, onClick, variant }) {
+  return (
+    <span className="deck-control">
+      <button
+        type="button"
+        className={`deck-key${variant ? ` deck-key--${variant}` : ''}`}
+        onClick={onClick}
+        aria-label={`${word} session`}
+        title={`${word} session`}
+      >
+        <span aria-hidden="true">{glyph}</span>
+      </button>
+      <span className="deck-label" aria-hidden="true">{word}</span>
+    </span>
+  );
+}
+
 // The example queue the idle card shows. It runs as deep as the user's own queueDepth
 // (sliced below) so the example can't claim a session looks different than it will.
 const IDLE_QUEUE = ['A Minor', 'F Major', 'G Dom 7', 'D Minor'];
@@ -11,8 +34,8 @@ const IDLE_QUEUE = ['A Minor', 'F Major', 'G Dom 7', 'D Minor'];
 // everything, corner controls included — see docs/architecture/randomizer.md's "Settings
 // in two columns".
 export default function Display({
-  ref, settings, updateSettings, current, queue, isRunning, beatIndex, totalBeats, isGap,
-  onStart, onStop,
+  ref, settings, updateSettings, current, queue, isRunning, isPaused, beatIndex, totalBeats, isGap,
+  onStart, onPause, onResume, onStop,
 }) {
   return (
     <div className="sleeve" ref={ref}>
@@ -80,24 +103,17 @@ export default function Display({
           />
         )}
 
-        {/* One key, swapped — never a disabled twin. There are only two states, and a
-            permanently greyed-out button is noise on a card this prominent.
-
-            The word beside it is for anyone who doesn't already read ▶/■ as transport
-            controls. It's aria-hidden because the button is already named — but the name
-            has to *contain* the visible word ("Play session", not "Start session"), or
-            speech-input users saying "click Play" won't match the control (WCAG 2.5.3). */}
+        {/* A cassette deck — why both keys are always here, and why stop and pause mean
+            different things: docs/architecture/randomizer.md's "Pause vs. stop". */}
         <div className="transport-deck">
-          <button
-            type="button"
-            className={`deck-key${isRunning ? ' deck-key--stop' : ''}`}
-            onClick={isRunning ? onStop : onStart}
-            aria-label={isRunning ? 'Stop session' : 'Play session'}
-            title={isRunning ? 'Stop session' : 'Play session'}
-          >
-            <span aria-hidden="true">{isRunning ? '■' : '▶'}</span>
-          </button>
-          <span className="deck-label" aria-hidden="true">{isRunning ? 'Stop' : 'Play'}</span>
+          <DeckKey
+            glyph={isRunning && !isPaused ? '‖' : '▶'}
+            word={isRunning && !isPaused ? 'Pause' : 'Play'}
+            onClick={isRunning ? (isPaused ? onResume : onPause) : onStart}
+          />
+          {isRunning && (
+            <DeckKey glyph="■" word="Stop" onClick={onStop} variant="stop" />
+          )}
         </div>
       </div>
     </div>

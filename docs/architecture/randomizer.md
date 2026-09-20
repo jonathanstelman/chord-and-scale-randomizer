@@ -173,9 +173,10 @@ its content.
 The transport and the two visibility toggles live in `Display`, not the settings column,
 where they sat about 600px from the readout they govern.
 
-**Transport** is a single key that swaps between ▶ and ■ rather than two keys with one
-disabled — there are only two states, and a permanently greyed-out twin is noise on a
-card this prominent. `Controls`/`PureToneControls` no longer take `isRunning`/`onStart`/
+**Transport** is a cassette deck: a primary key that swaps between ▶ and ‖ rather than
+going disabled, plus ■ for as long as a session exists (#34 added pause; before it, the
+primary key swapped ▶/■). A permanently greyed-out twin would be noise on a card this
+prominent, so no key is ever shown disabled. `Controls`/`PureToneControls` no longer take `isRunning`/`onStart`/
 `onStop` at all. The PiP console carries the same swapping key (see "PiP console"); the
 *settings columns* are what hold no transport.
 
@@ -270,6 +271,38 @@ of the edge.
 the player column of both tabs — it governs how the session is presented back to you, not
 what gets picked. Both tabs use the same depth: Pure Tone's single note names are shorter
 than a chord name, not longer, so nothing argued for a per-tab allowance.
+
+### Pause vs. stop (issue #34)
+
+**They mean different things, deliberately.** `start()` resets `orderedBankIndexRef` to
+0, so stopping and playing again walks an ordered custom bank from its top — that's
+"start the progression over". Pause is the operation that keeps your place. Before #34
+there was only one of the two, so anyone working through a written progression lost
+their position every time they stopped to adjust something.
+
+For a **random** pool the distinction barely exists: the stream is memoryless, so
+stop-then-play hands you a tonal center exactly as valid as the one you left. An ordered
+custom bank is the case pause was built for. The key is still shown for every mode
+anyway — a deck that changes shape depending on a setting three groups down the page is
+harder to learn than one extra key, and pause is independently useful for silencing the
+room without losing the segment.
+
+`Tone.Transport.pause()` halts the clock where it stands, so the beat counter, the
+segment's remaining beats and the bank cursor all keep their values and
+`Tone.Transport.start()` carries on from that point. The audio side is the part that
+isn't free — see `audio.md`'s "Pausing mid-segment".
+
+**The wake lock follows `isRunning && !isPaused`.** A paused session isn't being watched,
+so the screen is allowed to sleep; see "Keeping the screen awake".
+
+**The deck is play/pause + stop, and the PiP console mirrors it.** The console can't
+simplify to a single key here: a lone ▶ would call `start()` on a paused session and
+silently restart an ordered bank, which is precisely the bug pause exists to prevent.
+
+Paused, the card looks like a running one whose beat track has stopped — no badge, no
+dimming. The deck reading **PLAY / STOP** and a frozen beat track are the indication.
+This follows #30's finding that the card resists extra state decoration; if it turns out
+to read as "stuck" rather than "paused" in real use, that's the thing to revisit.
 
 ### Anything that animates per beat (issue #22)
 
