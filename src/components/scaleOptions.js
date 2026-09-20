@@ -1,4 +1,5 @@
 import { SCALE_TYPES } from '../music/scaleFamilies';
+import { pitchClassToDisplayName } from '../music/notes';
 
 function groupScalesByCategory() {
   const groups = new Map();
@@ -25,4 +26,17 @@ const SCALE_OPTION_LABEL_OVERRIDES = {
 
 export function scaleOptionLabel(type) {
   return SCALE_OPTION_LABEL_OVERRIDES[type.key] ?? type.label;
+}
+
+// The everyday name for a key, for the Scale Degrees display's "in C Major" eyebrow: the
+// familiar word where one exists, the mode name otherwise ("D Dorian").
+const KEY_NAME_OVERRIDES = {
+  'diatonic:Ionian': 'Major',
+  'diatonic:Aeolian': 'Minor',
+};
+
+export function keyDisplayName(rootPc, scaleKey) {
+  const type = SCALE_TYPES.find((t) => t.key === scaleKey);
+  const scaleName = KEY_NAME_OVERRIDES[scaleKey] ?? type?.label ?? '';
+  return `${pitchClassToDisplayName(rootPc)} ${scaleName}`.trim();
 }

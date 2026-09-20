@@ -1,6 +1,5 @@
 import { SCALE_TYPES } from './scaleFamilies';
 import { pitchClassToNoteName } from './notes';
-import { scalePitchClasses } from './pool';
 
 // Scale Degrees tab: everything that turns "a pitch class against a drone's tonic" into a
 // labeled scale degree, plus the drone and target note names. Pure — no React, no
@@ -86,10 +85,13 @@ export function formatDegree(label, style) {
 }
 
 // (rootPc, scaleKey, 'diatonic' | 'chromatic') → pitch classes the target may be drawn
-// from. Diatonic is scalePitchClasses (pool.js); chromatic is all twelve.
+// from. Diatonic mirrors pool.js's scalePitchClasses (every scale tone, root alone for an
+// unknown key) rather than importing it: pool.js imports formatDegree from here for
+// tonalCenterPhrase, and the cycle isn't worth three lines.
 export function scaleDegreePool(rootPc, scaleKey, pool) {
   if (pool === 'chromatic') return [...CHROMATIC_PCS];
-  return scalePitchClasses(rootPc, scaleKey);
+  const scale = findScale(scaleKey);
+  return (scale ? scale.degrees : [0]).map((d) => intervalAbove(0, rootPc + d));
 }
 
 // (rootPc, scaleKey, 'tonic' | 'fifth' | 'chord') → note names for the drone, in

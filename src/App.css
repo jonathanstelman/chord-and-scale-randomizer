@@ -556,6 +556,23 @@
   font-style: italic;
 }
 
+/* A Scale Degrees readout stacks: eyebrow ("in C Major"), the degree, then the absolute
+   note name beneath it in the queue's type size — the degree is the answer, the note name
+   is the hint, and size says which is which. */
+.readout--degree {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.note-name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-readout);
+  font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+  line-height: 1.1;
+  color: var(--paper-dim);
+}
+
 .beat-panel {
   display: flex;
   flex-direction: column;
@@ -763,6 +780,10 @@
 }
 
 .tonal-center-veil-group--current { left: 2rem; }
+
+/* Provisional (issue #54's design pass decides): the note-name veil follows the current
+   one along the top-left, since it governs the line beneath the current readout. */
+.tonal-center-veil-group--note { left: 9rem; }
 
 .tonal-center-veil-group--next {
   right: 2rem;

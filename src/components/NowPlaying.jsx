@@ -18,19 +18,29 @@ function Readout({ className, veiled, children }) {
 // "Queue depth".
 const QUEUE_TIERS = ['q1', 'q2', 'q3', 'q4'];
 
+// `labelStyle`, `showNoteName` and `keyName` only matter for segments carrying a
+// `degree` (Scale Degrees) — see docs/architecture/randomizer.md's Scale Degrees section.
 export default function NowPlaying({
-  current, queue, showCurrent, showNext, beatIndex, totalBeats, isGap,
+  current, queue, showCurrent, showNext, showNoteName, labelStyle, keyName, beatIndex, totalBeats,
+  isGap,
 }) {
+  const isDegree = Boolean(current?.degree);
   return (
     <div className="now-playing">
       <div className="readout-row">
-        <div className="readout readout--current">
+        <div className={`readout readout--current${isDegree ? ' readout--degree' : ''}`}>
+          {keyName && !isGap && <span className="readout-eyebrow">in {keyName}</span>}
           <Readout
             className={`chord-name${isGap ? ' chord-name--gap' : ''}`}
             veiled={!showCurrent}
           >
-            {isGap ? 'Get ready…' : current ? tonalCenterPhrase(current) : '—'}
+            {isGap ? 'Get ready…' : current ? tonalCenterPhrase(current, labelStyle) : '—'}
           </Readout>
+          {isDegree && !isGap && (
+            <Readout className="note-name" veiled={!showNoteName}>
+              {current.rootName}
+            </Readout>
+          )}
         </div>
 
         {/* One veil over the whole queue, not one per entry: showNext is a single
@@ -45,7 +55,7 @@ export default function NowPlaying({
                   key={`${item.rootName}-${item.typeLabel}-${i}`}
                   className={`chord-name chord-name--next chord-name--${QUEUE_TIERS[i]}`}
                 >
-                  {tonalCenterPhrase(item)}
+                  {tonalCenterPhrase(item, labelStyle)}
                 </span>
               ))}
             </Readout>

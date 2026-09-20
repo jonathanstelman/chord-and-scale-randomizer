@@ -82,10 +82,10 @@ away from" since there's no mode/type checkboxes to conflict with it):
 
 Functional ear training: a tonic drone sustains for the whole session and each segment
 strikes one note from the octave above it, which the display names as a scale degree
-relative to the drone rather than as an absolute pitch. Full spec, including the music
-helpers (`src/music/scaleDegrees.js`) and the drone's place in the audio graph, is in
-issue #8 until those streams land and write their own sections here; this one covers the
-settings surface, `ScaleDegreesControls.jsx`.
+relative to the drone rather than as an absolute pitch. The spelling rule lives in
+`music-theory.md` ("Scale-degree spelling"), the drone's place in the audio graph in
+`audio.md` ("Drone"); this section covers the settings surface (`ScaleDegreesControls.jsx`)
+and how the tab plugs into the clock and the display.
 
 It's Pure Tone's sibling — same two-column split, `TimingSection` + `DisplaySection` in
 the player column — with two groups in the picker column, both open by default:
@@ -115,6 +115,44 @@ change.
 There is no Roots picker on this tab, and `enabledRoots` is not read: the target pool is
 "degrees of this key", and filtering *which* degrees is a different exercise (and out of
 scope in #8).
+
+**Playback plugs in through the same two seams as Pure Tone, plus one.**
+`pickNextForScaleDegrees` is the tab's `pickNextTonalCenter`; `forceSoundType` is
+`'chord'` for the same reasons as Pure Tone's. What's new is that a picker's result may
+carry more than `{ rootPc, type }` — `makeSegment` spreads any extra fields onto the
+segment — and this one carries two:
+
+- `degree: { number, accidental }`, the raw label. It's formatted at *render* time
+  (`tonalCenterPhrase(item, labelStyle)`), not when the segment is generated, so flipping
+  Numbers ↔ Solfège mid-session relabels the current readout and the whole queue at
+  once. `visibleQueue`/`setCurrent` pass `degree` through only when present, so the
+  other tabs' readout shape is unchanged.
+- `noteNames`, the exact note to play. `playSegment` uses it instead of voicing the
+  segment when present: `voiceChord` would put the target at `rootOctave: 3`, on top of
+  the drone, and the exercise needs it in the octave above (`targetNoteName`).
+
+The third seam is `options.drone: { notes, volume }`. `useRandomizer` starts it in
+`start()` right after the player exists, stops it in `stop()` — **`stopCurrent()` does
+not touch it by design** (`audio.md`), so without the explicit `stopDrone()` the drone
+would outlive Stop and the tab switch that calls it — and leaves pause/resume to the
+engine's own snapshot. Two effects keep it live: volume follows the slider, and the
+notes follow Root/Scale/Sound. That last one is a deliberate departure from "change key
+= stop, change, start": if the drone *didn't* follow, every degree for the rest of the
+session would be labeled against a tonic nobody hears; following it leaves only the
+already-pregenerated queue (at most `queueDepth` segments) labeled against the old key.
+It's suppressed while paused — `startDrone()` would sound over the pause — and applied on
+resume via the `isPaused` dependency. The effect is keyed to the joined note names, not
+the array, because `App` rebuilds that array every render.
+
+**The display.** A segment with a `degree` renders as a stack (`.readout--degree`): an
+eyebrow naming the key ("in C Major", `keyDisplayName` in `scaleOptions.js` — the
+familiar word for Ionian/Aeolian, the mode name otherwise), the degree in the readout
+size, and the absolute note name beneath in the queue's size behind its own veil,
+`showNoteName`. That veil is the third `TonalCenterVisibilityToggles` toggle, rendered
+only on this tab; its placement (currently trailing the current toggle along the
+top-left) is provisional pending a look in the running app. The PiP console takes
+`labelStyle` for the same `tonalCenterPhrase` call and shows the degree only — no note
+name, no key: the console is for staying on the beat.
 
 ### Tab copy (`App.jsx`)
 

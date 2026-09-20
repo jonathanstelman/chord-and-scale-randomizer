@@ -1,6 +1,7 @@
 import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
+import { keyDisplayName } from './scaleOptions';
 
 // One key plus the word beside it. `variant` is the only styling difference — Stop is
 // flame, everything else inherits the neutral key.
@@ -37,6 +38,7 @@ export default function Display({
   ref, settings, updateSettings, current, queue, isRunning, isPaused, beatIndex, totalBeats, isGap,
   onStart, onPause, onResume, onStop,
 }) {
+  const isScaleDegrees = settings.activeTab === 'scaleDegrees';
   return (
     <div className="sleeve" ref={ref}>
       <div className="sleeve-stage">
@@ -97,6 +99,11 @@ export default function Display({
             queue={queue}
             showCurrent={settings.showCurrent}
             showNext={settings.showNext}
+            showNoteName={settings.showNoteName}
+            labelStyle={settings.scaleDegreesLabels}
+            keyName={isScaleDegrees
+              ? keyDisplayName(settings.scaleDegreesRootPc, settings.scaleDegreesScaleKey)
+              : null}
             beatIndex={beatIndex}
             totalBeats={totalBeats}
             isGap={isGap}

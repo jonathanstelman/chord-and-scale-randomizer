@@ -6,7 +6,8 @@ not all of them. See [`../guidelines.md`](../guidelines.md) for stack/convention
 and [`../product.md`](../product.md) for vision.
 
 - [`music-theory.md`](./music-theory.md) — `src/music/`: chord/scale vocabulary,
-  key-signature filtering, note spelling, voicing/arpeggio-length padding
+  key-signature filtering, note spelling, voicing/arpeggio-length padding, scale-degree
+  spelling and solfège
 - [`audio.md`](./audio.md) — `src/audio/engine.js`: gain staging, the arpeggiator, the
   iOS mute-switch workaround
 - [`randomizer.md`](./randomizer.md) — `src/hooks/useRandomizer.js` + top-level

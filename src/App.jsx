@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useSettings } from './hooks/useSettings';
-import { useRandomizer, pickNextForPureTone } from './hooks/useRandomizer';
+import { useRandomizer, pickNextForPureTone, pickNextForScaleDegrees } from './hooks/useRandomizer';
+import { droneNotes } from './music/scaleDegrees';
 import TabNav from './components/TabNav';
 import ThemeToggle from './components/ThemeToggle';
 import Chair from './components/Chair';
@@ -56,9 +57,18 @@ export default function App() {
   const isScaleDegrees = settings.activeTab === 'scaleDegrees';
   const {
     isRunning, isPaused, current, queue, beatIndex, totalBeats, isGap, start, pause, resume, stop,
-  } = useRandomizer(settings, isPureTone
-    ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
-    : {});
+  } = useRandomizer(settings, isScaleDegrees
+    ? {
+      pickNextTonalCenter: pickNextForScaleDegrees,
+      forceSoundType: 'chord',
+      drone: {
+        notes: droneNotes(settings.scaleDegreesRootPc, settings.scaleDegreesScaleKey, settings.scaleDegreesDrone),
+        volume: settings.scaleDegreesDroneVolume,
+      },
+    }
+    : isPureTone
+      ? { pickNextTonalCenter: pickNextForPureTone, forceSoundType: 'chord' }
+      : {});
 
   // PipConsole watches this element to know when the display has scrolled away.
   const displayRef = useRef(null);
@@ -117,6 +127,7 @@ export default function App() {
         queue={queue}
         showCurrent={settings.showCurrent}
         showNext={settings.showNext}
+        labelStyle={settings.scaleDegreesLabels}
         isRunning={isRunning}
         isPaused={isPaused}
         beatIndex={beatIndex}
@@ -128,9 +139,6 @@ export default function App() {
         onStop={stop}
       />
 
-      {/* Scale Degrees has its settings UI but no playback yet — wiring its picker and
-          drone through useRandomizer is issue #54; until then the tab runs the
-          Randomizer's own source. */}
       {isScaleDegrees ? (
         <ScaleDegreesControls settings={settings} updateSettings={updateSettings} />
       ) : isPureTone ? (

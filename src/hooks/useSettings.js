@@ -42,7 +42,7 @@ const DEFAULT_SETTINGS = {
   showCurrent: true,
   // Scale Degrees tab's third veil, over the absolute note name beneath the degree — a
   // live veil like showCurrent/showNext, so it lives with them rather than in that tab's
-  // own settings (issue #8).
+  // own settings.
   showNoteName: true,
   // How many upcoming tonal centers the display queues up, 0-4. Orthogonal to showNext,
   // which veils whatever the queue holds — see docs/architecture/randomizer.md's "Queue
@@ -71,9 +71,9 @@ const DEFAULT_SETTINGS = {
   pureToneMode: 'chromatic', // 'chromatic' | 'scale'
   pureToneScaleRootPc: 0, // C
   pureToneScaleKey: 'diatonic:Ionian', // major scale — the classic solfège "do"
-  // Scale Degrees tab (issue #8). Root + Scale define the key the drone sounds and the
-  // degrees are labeled against, in both pool modes — see that issue's spec until the
-  // tab ships and docs/architecture/randomizer.md gets its section.
+  // Scale Degrees tab. Root + Scale define the key the drone sounds and the degrees are
+  // labeled against, in both pool modes — see docs/architecture/randomizer.md's Scale
+  // Degrees section.
   scaleDegreesRootPc: 0, // C
   scaleDegreesScaleKey: 'diatonic:Ionian',
   scaleDegreesPool: 'diatonic', // 'diatonic' | 'chromatic'

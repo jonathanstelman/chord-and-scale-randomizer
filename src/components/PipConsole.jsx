@@ -17,8 +17,8 @@ import { tonalCenterPhrase } from '../music/pool';
  * `displayRef` points at the in-flow display element this shadows.
  */
 export default function PipConsole({
-  displayRef, current, queue, showCurrent, showNext, isRunning, isPaused, beatIndex, totalBeats,
-  isGap, onStart, onPause, onResume, onStop,
+  displayRef, current, queue, showCurrent, showNext, labelStyle, isRunning, isPaused, beatIndex,
+  totalBeats, isGap, onStart, onPause, onResume, onStop,
 }) {
   const [displayVisible, setDisplayVisible] = useState(true);
 
@@ -81,7 +81,7 @@ export default function PipConsole({
   const readout = isGap
     ? 'Get ready…'
     : showCurrent && current
-      ? tonalCenterPhrase(current)
+      ? tonalCenterPhrase(current, labelStyle)
       : '—';
 
   return (
@@ -114,7 +114,7 @@ export default function PipConsole({
                 key={`${item.rootName}-${item.typeLabel}-${i}`}
                 className={`pip-next-name chord-name--q${i + 1}`}
               >
-                {tonalCenterPhrase(item)}
+                {tonalCenterPhrase(item, labelStyle)}
               </span>
             ))}
           </span>

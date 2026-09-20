@@ -5,6 +5,9 @@ import {
   pickRandomTonalCenter, pickRandomTonalCenterFromPairs, tonalCenterAtIndex, pickRandomDuration,
   pickRandomRootPc, pickRandomScalePc, PURE_TONE_TYPE,
 } from '../music/pool';
+import {
+  SCALE_DEGREE_TYPE, degreeLabel, scaleDegreePool, targetNoteName,
+} from '../music/scaleDegrees';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
 import { useWakeLock } from './useWakeLock';
@@ -73,9 +76,46 @@ export function pickNextForPureTone(s, avoid) {
   return { rootPc, type: PURE_TONE_TYPE };
 }
 
+// Scale Degrees tab's "what's next" source. Carries its degree and its exact note name
+// alongside the usual pair — see docs/architecture/randomizer.md's Scale Degrees section
+// for why each rides on the segment. Same repeat avoidance as pickNextForPureTone.
+export function pickNextForScaleDegrees(s, avoid) {
+  const rootPc = s.scaleDegreesRootPc;
+  const scaleKey = s.scaleDegreesScaleKey;
+  const pool = scaleDegreePool(rootPc, scaleKey, s.scaleDegreesPool);
+  let pc;
+  let attempts = 0;
+  do {
+    pc = pool[Math.floor(Math.random() * pool.length)];
+    attempts += 1;
+  } while (avoid && pc === avoid.rootPc && attempts < MAX_REPEAT_AVOIDANCE_ATTEMPTS);
+  return {
+    rootPc: pc,
+    type: SCALE_DEGREE_TYPE,
+    degree: degreeLabel(pc, rootPc, scaleKey),
+    noteNames: [targetNoteName(pc, rootPc)],
+  };
+}
+
+function voicedNoteNames(segment, soundType, s) {
+  const voiced = voiceChord(segment.rootPc, segment.type.intervals, {
+    rootOctave: 3,
+    upperOctave: 4,
+    maxNotes: s.maxChordNotes,
+  });
+  // Arpeggio mode needs its pattern length itself to be beat-friendly (see
+  // padToSimpleArpeggioLength) — chord/pad just sound every voiced note at once, so
+  // pattern length doesn't apply to them.
+  return soundType === 'arpeggio'
+    ? padToSimpleArpeggioLength(voiced)
+    : voiced.map((v) => v.noteName);
+}
+
+// A picker may return more than { rootPc, type } — Scale Degrees adds `degree` and
+// `noteNames` — and whatever it adds rides along on the segment.
 function makeSegment(s, avoid, orderedBankIndexRef, pickNextTonalCenter) {
-  const { rootPc, type } = pickNextTonalCenter(s, avoid, orderedBankIndexRef);
-  return buildSegment(rootPc, type, s);
+  const { rootPc, type, ...extra } = pickNextTonalCenter(s, avoid, orderedBankIndexRef);
+  return { ...buildSegment(rootPc, type, s), ...extra };
 }
 
 // Grow `queue` in place until it holds `depth` segments, each avoiding the one before it
@@ -100,14 +140,20 @@ export function pregenDepth(s) {
 // readout draws. This slice — not the queue's own length, which never drops below one —
 // is what decides whether anything renders.
 export function visibleQueue(queue, s) {
-  return queue.slice(0, s.queueDepth).map(({ rootName, typeLabel }) => ({ rootName, typeLabel }));
+  return queue.slice(0, s.queueDepth).map(readoutFields);
+}
+
+// The fields a readout draws (see tonalCenterPhrase). `degree` only when the segment has
+// one, so tab-agnostic consumers and tests see the same two-field shape they always did.
+function readoutFields({ rootName, typeLabel, degree }) {
+  return degree ? { rootName, typeLabel, degree } : { rootName, typeLabel };
 }
 
 // Drives the "slot machine" — a phase is either a tonal center playing or a silent gap;
 // see docs/architecture/randomizer.md for the phase/pregeneration model, and its
-// "Practice tabs" section for what `pickNextTonalCenter`/`forceSoundType` are for.
+// "Practice tabs" section for what `pickNextTonalCenter`/`forceSoundType`/`drone` are for.
 export function useRandomizer(settings, options = {}) {
-  const { pickNextTonalCenter = pickNextForRandomizer, forceSoundType } = options;
+  const { pickNextTonalCenter = pickNextForRandomizer, forceSoundType, drone } = options;
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [current, setCurrent] = useState(null);
@@ -131,20 +177,16 @@ export function useRandomizer(settings, options = {}) {
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
+  // Read at start() time, like settingsRef, so start() needn't be rebuilt per edit.
+  const droneRef = useRef(drone);
+  useEffect(() => {
+    droneRef.current = drone;
+  }, [drone]);
 
   const playSegment = useCallback((segment, time) => {
-    const voiced = voiceChord(segment.rootPc, segment.type.intervals, {
-      rootOctave: 3,
-      upperOctave: 4,
-      maxNotes: settingsRef.current.maxChordNotes,
-    });
     const soundType = forceSoundType ?? settingsRef.current.soundType;
-    // Arpeggio mode needs its pattern length itself to be beat-friendly (see
-    // padToSimpleArpeggioLength) — chord/pad just sound every voiced note at once, so
-    // pattern length doesn't apply to them.
-    const noteNames = soundType === 'arpeggio'
-      ? padToSimpleArpeggioLength(voiced)
-      : voiced.map((v) => v.noteName);
+    // A segment that names its own notes (Scale Degrees) skips voicing entirely.
+    const noteNames = segment.noteNames ?? voicedNoteNames(segment, soundType, settingsRef.current);
     playerRef.current.playSegment(soundType, noteNames, time);
   }, [forceSoundType]);
 
@@ -168,7 +210,7 @@ export function useRandomizer(settings, options = {}) {
 
     const upcoming = visibleQueue(q, s);
     Tone.Draw.schedule(() => {
-      setCurrent({ rootName: seg.rootName, typeLabel: seg.typeLabel, durationBeats: seg.duration });
+      setCurrent({ ...readoutFields(seg), durationBeats: seg.duration });
       setQueue(upcoming);
       setTotalBeats(seg.duration);
       setIsGap(false);
@@ -205,6 +247,10 @@ export function useRandomizer(settings, options = {}) {
     Tone.Transport.bpm.value = settingsRef.current.bpm;
     if (!playerRef.current) playerRef.current = new TonalCenterPlayer();
     playerRef.current.setMetronomeVolume(settingsRef.current.metronomeVolume);
+    if (droneRef.current) {
+      playerRef.current.setDroneVolume(droneRef.current.volume);
+      playerRef.current.startDrone(droneRef.current.notes);
+    }
 
     segmentRef.current = null;
     queueRef.current = [];
@@ -273,8 +319,11 @@ export function useRandomizer(settings, options = {}) {
   }, []);
 
   const stop = useCallback(() => {
-    // Release whatever's still sounding before stopping the Transport.
+    // Release whatever's still sounding before stopping the Transport. The drone isn't
+    // part of stopCurrent() by design (docs/architecture/audio.md's "Drone"), so it needs
+    // its own call here or it outlives the session — and the tab switch that stops it.
     playerRef.current?.stopCurrent();
+    playerRef.current?.stopDrone();
     Tone.Transport.stop();
     if (repeatIdRef.current !== null) {
       Tone.Transport.clear(repeatIdRef.current);
@@ -315,6 +364,18 @@ export function useRandomizer(settings, options = {}) {
   useEffect(() => {
     if (isRunning) playerRef.current?.setMetronomeVolume(settings.metronomeVolume);
   }, [isRunning, settings.metronomeVolume]);
+
+  // The drone follows Root/Scale/Sound live, but not while paused — see
+  // docs/architecture/randomizer.md's Scale Degrees section for both halves of that.
+  const droneNotesKey = drone?.notes.join(' ');
+  useEffect(() => {
+    if (isRunning && !isPaused && droneNotesKey) playerRef.current?.startDrone(droneNotesKey.split(' '));
+  }, [isRunning, isPaused, droneNotesKey]);
+
+  const droneVolume = drone?.volume;
+  useEffect(() => {
+    if (isRunning && droneVolume !== undefined) playerRef.current?.setDroneVolume(droneVolume);
+  }, [isRunning, droneVolume]);
 
   useEffect(() => () => {
     if (repeatIdRef.current !== null) Tone.Transport.clear(repeatIdRef.current);

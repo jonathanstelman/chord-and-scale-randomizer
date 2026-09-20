@@ -7,11 +7,20 @@ const SHOWN = '▣';
 const HIDDEN = '▨';
 
 // Sits in the display's top corners, each above the readout it governs: current is the
-// left-hand readout, next is the right-hand one, so the toggles mirror that order.
+// left-hand readout, next is the right-hand one, so the toggles mirror that order. The
+// Scale Degrees tab adds a third, over the note name beneath the current readout — it
+// follows the current toggle on the left for that reason.
+const SIDES = { showCurrent: 'current', showNext: 'next', showNoteName: 'note' };
+// What the accessible name calls the thing veiled; the visible tooltip uses the shorter
+// label passed to toggle().
+const VEILED_NAMES = {
+  showCurrent: 'current tonal center', showNext: 'next tonal center', showNoteName: 'note name',
+};
+
 export default function TonalCenterVisibilityToggles({ settings, updateSettings }) {
   const toggle = (key, label) => {
     const isShown = settings[key];
-    const side = key === 'showCurrent' ? 'current' : 'next';
+    const side = SIDES[key];
     // The word names the *action*, matching how the transport's label reads ("Play"
     // does the playing). It's aria-hidden because the button is already named — and
     // that name has to contain the visible word, or a speech-input user saying "click
@@ -24,7 +33,7 @@ export default function TonalCenterVisibilityToggles({ settings, updateSettings 
           type="button"
           className={`tonal-center-veil tonal-center-veil--${side}`}
           aria-pressed={isShown}
-          aria-label={`${action} ${label} tonal center`}
+          aria-label={`${action} ${VEILED_NAMES[key]}`}
           title={`${action} ${label}`}
           onClick={() => updateSettings({ [key]: !isShown })}
         >
@@ -38,6 +47,7 @@ export default function TonalCenterVisibilityToggles({ settings, updateSettings 
   return (
     <>
       {toggle('showCurrent', 'current')}
+      {settings.activeTab === 'scaleDegrees' && toggle('showNoteName', 'note name')}
       {/* Nothing to veil when the queue is switched off entirely. */}
       {settings.queueDepth > 0 && toggle('showNext', 'next')}
     </>
