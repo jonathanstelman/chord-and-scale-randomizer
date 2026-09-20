@@ -383,12 +383,22 @@
   color: var(--brass);
 }
 
+/* The console mirrors the display's queue at whatever depth it's set to. It stacks
+   here too, so the console grows downward rather than pushing its own width out. */
+.pip-next-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+/* Colour comes from the shared .chord-name--q* tiers, so the console recedes exactly
+   the way the display does. */
 .pip-next-name {
   font-family: var(--font-display);
   font-variation-settings: var(--fvs-tiny);
   font-size: 0.85rem;
   line-height: 1.2;
-  color: var(--paper-dim);
   min-width: 0;
 }
 
@@ -451,7 +461,15 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0.3rem;
-  opacity: 0.85;
+}
+
+/* The queue column itself. Entries are right-aligned under their eyebrow so the ragged
+   edge falls away from the current readout rather than towards it. */
+.chord-queue {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
 }
 
 .readout-eyebrow {
@@ -473,12 +491,22 @@
   max-width: 22rem;
 }
 
+/* Every queue entry is the same size — size can't encode depth in a stack without
+   becoming a staircase, so the colour tiers below carry it instead. Where the number
+   came from: docs/architecture/randomizer.md's "Queue depth". */
 .chord-name--next {
-  font-size: clamp(1rem, 3vw, 1.25rem);
-  color: var(--paper-dim);
-  max-width: 12rem;
+  font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+  max-width: 14rem;
   text-align: right;
 }
+
+/* The recession, soonest to furthest. These are the existing --paper tiers rather than a
+   bespoke ramp; see docs/architecture/randomizer.md's "Queue depth" for what that costs
+   at depth 4. */
+.chord-name--q1 { color: var(--paper); }
+.chord-name--q2 { color: var(--paper-dim); }
+.chord-name--q3 { color: var(--paper-medium); }
+.chord-name--q4 { color: var(--paper-faint); }
 
 .chord-name--gap {
   color: var(--paper-dim);
@@ -759,6 +787,15 @@
 
 .readout--next .veil-placeholder {
   justify-content: flex-end;
+}
+
+/* The queue's placeholder anchors to the head of the column, not its middle: at four
+   deep the column is tall enough that a centred dash floats away from the eyebrow
+   labelling it, and the veil should mark where the queue starts. */
+.chord-queue.veil-placeholder {
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
 }
 
 .session-data-fields {
@@ -1327,8 +1364,23 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 560px) {
+  /* An explicit column, never `flex-wrap: wrap` — wrapping let the queue's position
+     depend on how long the current tonal center's name was. See
+     docs/architecture/randomizer.md's "Queue depth". */
   .readout-row {
-    flex-wrap: wrap;
+    flex-direction: column;
+    /* Overrides the base rule's `center`, which flips from "centre vertically" to
+       "shrink-wrap and centre horizontally" once this is a column. */
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  /* Two lines' worth of room whether this name needs it or not, so a name that wraps
+     doesn't step the queue below it down a line. `.veilable`, not `.chord-name`, so the
+     absolutely-positioned placeholder keeps its own centring. */
+  .readout--current .veilable {
+    display: block;
+    min-height: 2.2em; /* 2 lines at .chord-name's line-height of 1.1 */
   }
 }
 

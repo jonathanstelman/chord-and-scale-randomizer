@@ -2,12 +2,16 @@ import NowPlaying from './NowPlaying';
 import Chair from './Chair';
 import TonalCenterVisibilityToggles from './TonalCenterVisibilityToggles';
 
+// The example queue the idle card shows. It runs as deep as the user's own queueDepth
+// (sliced below) so the example can't claim a session looks different than it will.
+const IDLE_QUEUE = ['A Minor', 'F Major', 'G Dom 7', 'D Minor'];
+
 // The ref goes on the outer `.sleeve`: the card is what leaves the viewport, and that's
 // what PipConsole observes. `.sleeve-stage` caps the content measure and has to wrap
 // everything, corner controls included — see docs/architecture/randomizer.md's "Settings
 // in two columns".
 export default function Display({
-  ref, settings, updateSettings, current, next, isRunning, beatIndex, totalBeats, isGap,
+  ref, settings, updateSettings, current, queue, isRunning, beatIndex, totalBeats, isGap,
   onStart, onStop,
 }) {
   return (
@@ -33,10 +37,18 @@ export default function Display({
                 <div className="readout readout--current">
                   <span className="chord-name">C Major</span>
                 </div>
-                <div className="readout readout--next">
-                  <span className="readout-eyebrow">Next</span>
-                  <span className="chord-name chord-name--next">A Minor</span>
-                </div>
+                {settings.queueDepth > 0 && (
+                  <div className="readout readout--next">
+                    <span className="readout-eyebrow">Next</span>
+                    <span className="chord-queue">
+                      {IDLE_QUEUE.slice(0, settings.queueDepth).map((name, i) => (
+                        <span key={name} className={`chord-name chord-name--next chord-name--q${i + 1}`}>
+                          {name}
+                        </span>
+                      ))}
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="beat-panel">
                 <div className="beat-numeral">
@@ -59,7 +71,7 @@ export default function Display({
         {isRunning && (
           <NowPlaying
             current={current}
-            next={next}
+            queue={queue}
             showCurrent={settings.showCurrent}
             showNext={settings.showNext}
             beatIndex={beatIndex}

@@ -6,14 +6,14 @@ import { tonalCenterPhrase } from '../music/pool';
  * view, and un-docks when it scrolls back — true picture-in-picture, not an always-on
  * widget.
  *
- * Shows the current tonal center, the next one, and a metronome cue. Still no
+ * Shows the current tonal center, the queue behind it, and a metronome cue. Still no
  * transport, tempo or volume: those are one scroll away, and the console is for
  * staying on the beat rather than being a second control surface.
  *
  * `displayRef` points at the in-flow display element this shadows.
  */
 export default function PipConsole({
-  displayRef, current, next, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap, onStop,
+  displayRef, current, queue, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap, onStop,
 }) {
   const [displayVisible, setDisplayVisible] = useState(true);
 
@@ -74,10 +74,19 @@ export default function PipConsole({
 
       <span className={`pip-readout${isGap ? ' pip-readout--gap' : ''}`}>{readout}</span>
 
-      {showNext && next && (
+      {showNext && queue.length > 0 && (
         <span className="pip-next">
           <span className="pip-next-eyebrow">Next</span>
-          <span className="pip-next-name">{tonalCenterPhrase(next)}</span>
+          <span className="pip-next-queue">
+            {queue.map((item, i) => (
+              <span
+                key={`${item.rootName}-${item.typeLabel}-${i}`}
+                className={`pip-next-name chord-name--q${i + 1}`}
+              >
+                {tonalCenterPhrase(item)}
+              </span>
+            ))}
+          </span>
         </span>
       )}
     </div>

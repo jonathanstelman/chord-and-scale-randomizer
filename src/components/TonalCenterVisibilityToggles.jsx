@@ -38,7 +38,8 @@ export default function TonalCenterVisibilityToggles({ settings, updateSettings 
   return (
     <>
       {toggle('showCurrent', 'current')}
-      {toggle('showNext', 'next')}
+      {/* Nothing to veil when the queue is switched off entirely. */}
+      {settings.queueDepth > 0 && toggle('showNext', 'next')}
     </>
   );
 }
