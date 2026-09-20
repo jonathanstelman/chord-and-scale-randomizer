@@ -7,6 +7,7 @@ import {
   degreeLabel,
   formatDegree,
   scaleDegreePool,
+  degreeNoteName,
   droneNotes,
   targetNoteName,
 } from './scaleDegrees';
@@ -248,5 +249,28 @@ describe('targetNoteName', () => {
     expect(targetNoteName(7, 7)).toBe('G4');
     expect(targetNoteName(0, 7)).toBe('C5'); // a fourth above G4
     expect(targetNoteName(6, 7)).toBe('F#5'); // a major seventh above G4
+  });
+});
+
+describe('degreeNoteName', () => {
+  const name = (pc, rootPc, scaleKey = 'diatonic:Ionian') =>
+    degreeNoteName(degreeLabel(pc, rootPc, scaleKey), pc, rootPc);
+
+  it('spells by the degree, not the pitch class', () => {
+    expect(name(3, 4)).toBe('D♯'); // 7th of E major, not E♭
+    expect(name(10, 5)).toBe('B♭'); // 4th of F major
+    expect(name(5, 6)).toBe('E♯'); // 7th of F♯ major
+    expect(name(11, 0)).toBe('B');
+  });
+
+  it('spells chromatic fallbacks against the tonic letter', () => {
+    expect(name(7, 4)).toBe('G'); // ♭3 in E
+    expect(name(10, 4)).toBe('A♯'); // ♯4 in E
+    expect(name(1, 0)).toBe('D♭'); // ♭2 in C
+    expect(name(6, 0)).toBe('F♯'); // ♯4 in C
+  });
+
+  it('carries double alterations', () => {
+    expect(name(9, 0, 'harmonicMinor:Super Locrian 𝄫7')).toBe('B𝄫');
   });
 });

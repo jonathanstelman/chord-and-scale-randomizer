@@ -131,7 +131,9 @@ segment — and this one carries two:
   (`tonalCenterPhrase(item, labelStyle)`), not when the segment is generated, so flipping
   Numbers ↔ Solfège mid-session relabels the current readout and the whole queue at
   once. `visibleQueue`/`setCurrent` pass `degree` through only when present, so the
-  other tabs' readout shape is unchanged.
+  other tabs' readout shape is unchanged. The picker also overrides `rootName` with
+  `degreeNoteName` — the note name beneath the degree is spelled by the degree (D♯ as
+  the 7th of E, not E♭), which `buildSegment`'s key-blind default can't do.
 - `noteNames`, the exact note to play. `playSegment` uses it instead of voicing the
   segment when present: `voiceChord` would put the target at `rootOctave: 3`, on top of
   the drone, and the exercise needs it in the octave above (`targetNoteName`).

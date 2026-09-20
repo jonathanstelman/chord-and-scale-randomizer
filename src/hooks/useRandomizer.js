@@ -6,7 +6,8 @@ import {
   pickRandomRootPc, pickRandomScalePc, PURE_TONE_TYPE,
 } from '../music/pool';
 import {
-  SCALE_DEGREE_TYPE, degreeLabel, scaleDegreePool, scaleDegreesKey, targetNoteName,
+  SCALE_DEGREE_TYPE, degreeLabel, degreeNoteName, scaleDegreePool, scaleDegreesKey,
+  targetNoteName,
 } from '../music/scaleDegrees';
 import { voiceChord, padToSimpleArpeggioLength } from '../music/voicing';
 import { pitchClassToDisplayName } from '../music/notes';
@@ -77,8 +78,9 @@ export function pickNextForPureTone(s, avoid) {
 }
 
 // Scale Degrees tab's "what's next" source. Carries its degree and its exact note name
-// alongside the usual pair — see docs/architecture/randomizer.md's Scale Degrees section
-// for why each rides on the segment. Same repeat avoidance as pickNextForPureTone.
+// alongside the usual pair, and a rootName spelled by the degree rather than the
+// key-blind default — see docs/architecture/randomizer.md's Scale Degrees section for
+// why each rides on the segment. Same repeat avoidance as pickNextForPureTone.
 export function pickNextForScaleDegrees(s, avoid) {
   const rootPc = s.scaleDegreesRootPc;
   const scaleKey = scaleDegreesKey(s);
@@ -89,10 +91,12 @@ export function pickNextForScaleDegrees(s, avoid) {
     pc = pool[Math.floor(Math.random() * pool.length)];
     attempts += 1;
   } while (avoid && pc === avoid.rootPc && attempts < MAX_REPEAT_AVOIDANCE_ATTEMPTS);
+  const degree = degreeLabel(pc, rootPc, scaleKey);
   return {
     rootPc: pc,
     type: SCALE_DEGREE_TYPE,
-    degree: degreeLabel(pc, rootPc, scaleKey),
+    degree,
+    rootName: degreeNoteName(degree, pc, rootPc),
     noteNames: [targetNoteName(pc, rootPc)],
   };
 }

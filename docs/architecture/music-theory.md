@@ -74,5 +74,12 @@ above it, so degree 1 is the octave above the drone, never a unison with it. Bot
 `droneNotes` and `targetNoteName` carry into the next octave when a pitch class wraps past
 B instead of folding back down: a fifth above B3 is F♯4, and a B3 drone's targets run
 B4 … B♭5. `TARGET_OCTAVE` is the octave the *tonic* target lands in, not a ceiling on
-every target. Note names come from `pitchClassToNoteName`, which is key-blind (F♯, never
-G♭) — key-aware spelling of the absolute note name is another listed non-goal in #8.
+every target. The *played* note names come from `pitchClassToNoteName`, which is
+key-blind (F♯, never G♭) — Tone.js only needs a pitch. The *displayed* note name does
+not: `degreeNoteName` spells it from the degree, because the degree already fixes the
+letter (tonic letter + degree − 1) and the pitch class then fixes the accidental. That's
+what makes the 7th of E major read D♯ rather than the E♭ the key-blind spelling gives —
+the first thing a musician noticed in the first session — and it falls out of the same
+major-relative labeling: E♯ in F♯ major, B𝄫 for Super Locrian's 𝄫7, G for a Chromatic
+♭3 in E. The tonic's own spelling is still the key-blind one (the Root dropdown offers
+D♭, not C♯), and the degrees inherit it.
