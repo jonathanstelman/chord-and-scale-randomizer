@@ -1,41 +1,60 @@
-import LevelSlider from './LevelSlider';
+// Every level in one place, like a mixer: a channel strip per sound source — the tonal
+// center, on Scale Degrees the drone, and the metronome — each with the same three
+// things in the same three columns: name, mute, level. Sound *choice* stays with the
+// settings responsible for it (the Sound and Drone groups); this group is only how
+// loud. See docs/architecture/randomizer.md's "Mixer".
+function Channel({
+  name, on, onToggle, level, onLevel,
+}) {
+  return (
+    <div className="mixer-channel">
+      <span className="mixer-channel-name">{name}</span>
+      <input
+        type="checkbox"
+        checked={on}
+        onChange={(e) => onToggle(e.target.checked)}
+        aria-label={`${name} on`}
+        title={on ? `Mute ${name.toLowerCase()}` : `Unmute ${name.toLowerCase()}`}
+      />
+      <input
+        type="range" min="0" max="100"
+        value={level}
+        onChange={(e) => onLevel(Number(e.target.value))}
+        disabled={!on}
+        aria-label={`${name} level`}
+      />
+    </div>
+  );
+}
 
-// PROTOTYPE (#58, layout B): every level in one place, like a mixer's channel strip —
-// the tonal center, the metronome (with its on/off), and on Scale Degrees the drone.
-// Compare against layout A, where each slider sits with the settings responsible for
-// its sound. One of the two gets deleted once the comparison is made.
 export default function MixerSection({ settings, updateSettings, showDrone = false }) {
   return (
-    <details className="settings-section mixer" open>
+    <details className="settings-section" open>
       <summary>Mixer</summary>
-      <div className="settings-body">
-        <LevelSlider
-          label="Tone"
-          value={settings.toneVolume}
-          onChange={(toneVolume) => updateSettings({ toneVolume })}
+      <div className="settings-body mixer">
+        <Channel
+          name="Tone"
+          on={settings.toneAudio}
+          onToggle={(toneAudio) => updateSettings({ toneAudio })}
+          level={settings.toneVolume}
+          onLevel={(toneVolume) => updateSettings({ toneVolume })}
         />
         {showDrone && (
-          <LevelSlider
-            label="Drone"
-            value={settings.scaleDegreesDroneVolume}
-            onChange={(scaleDegreesDroneVolume) => updateSettings({ scaleDegreesDroneVolume })}
+          <Channel
+            name="Drone"
+            on={settings.droneAudio}
+            onToggle={(droneAudio) => updateSettings({ droneAudio })}
+            level={settings.scaleDegreesDroneVolume}
+            onLevel={(scaleDegreesDroneVolume) => updateSettings({ scaleDegreesDroneVolume })}
           />
         )}
-        <div className="mixer-channel">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={settings.metronomeAudio}
-              onChange={(e) => updateSettings({ metronomeAudio: e.target.checked })}
-            />
-          </label>
-          <LevelSlider
-            label="Metronome"
-            value={settings.metronomeVolume}
-            onChange={(metronomeVolume) => updateSettings({ metronomeVolume })}
-            disabled={!settings.metronomeAudio}
-          />
-        </div>
+        <Channel
+          name="Metronome"
+          on={settings.metronomeAudio}
+          onToggle={(metronomeAudio) => updateSettings({ metronomeAudio })}
+          level={settings.metronomeVolume}
+          onLevel={(metronomeVolume) => updateSettings({ metronomeVolume })}
+        />
       </div>
     </details>
   );

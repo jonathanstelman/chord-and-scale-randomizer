@@ -288,6 +288,8 @@ export function useRandomizer(settings, options = {}) {
     if (!playerRef.current) playerRef.current = new TonalCenterPlayer();
     playerRef.current.setMetronomeVolume(settingsRef.current.metronomeVolume);
     playerRef.current.setToneVolume(settingsRef.current.toneVolume);
+    playerRef.current.setToneMuted(!settingsRef.current.toneAudio);
+    playerRef.current.setDroneMuted(!settingsRef.current.droneAudio);
     if (droneRef.current) {
       playerRef.current.setDroneVolume(droneRef.current.volume);
       playerRef.current.startDrone(droneRef.current.notes);
@@ -429,6 +431,14 @@ export function useRandomizer(settings, options = {}) {
   useEffect(() => {
     if (isRunning) playerRef.current?.setToneVolume(settings.toneVolume);
   }, [isRunning, settings.toneVolume]);
+
+  useEffect(() => {
+    if (isRunning) playerRef.current?.setToneMuted(!settings.toneAudio);
+  }, [isRunning, settings.toneAudio]);
+
+  useEffect(() => {
+    if (isRunning) playerRef.current?.setDroneMuted(!settings.droneAudio);
+  }, [isRunning, settings.droneAudio]);
 
   // The drone follows Root/Scale/Sound live, but not while paused — see
   // docs/architecture/randomizer.md's Scale Degrees section for both halves of that.

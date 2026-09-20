@@ -208,12 +208,6 @@ export class TonalCenterPlayer {
     // a chord that has already been replaced.
     this.suspended = null;
     this.stopCurrent(time);
-    if (soundType === 'none') {
-      // Silent mode: still advances the beat clock and click track (see useRandomizer),
-      // just doesn't sound the tonal center itself — e.g. for practicing against the
-      // metronome alone, or singing/playing the answer before checking it.
-      return;
-    }
     if (soundType === 'arpeggio') {
       // Reset so every new chord starts its sweep at the root — see
       // docs/architecture/audio.md for why this needs to be explicit now.
@@ -275,9 +269,21 @@ export class TonalCenterPlayer {
   }
 
   // Same 0-100 slider semantics as setMetronomeVolume, on the node both tonal-center
-  // synths feed. Use the Sound type "No Sound" for actual silence.
+  // synths feed. Silence is the mixer's mute (setToneMuted), not slider 0.
   setToneVolume(percent) {
     this.toneVolume.volume.value = sliderPercentToDb(percent);
+  }
+
+  // The mixer's mutes. Muting the node rather than stopping the synths keeps the beat
+  // clock, the queue and the metronome running exactly as they would — a muted tone is
+  // for singing the answer before checking it, and a muted drone for hearing the
+  // target bare. The metronome's mute is the hook's: it just doesn't call click().
+  setToneMuted(muted) {
+    this.toneVolume.mute = muted;
+  }
+
+  setDroneMuted(muted) {
+    this.droneVolume.mute = muted;
   }
 
   // Use the separate metronome on/off toggle for actual silence — see sliderPercentToDb.

@@ -1116,20 +1116,25 @@
   gap: 0.85rem;
 }
 
-.metronome-control {
-  display: flex;
-  flex-wrap: wrap;
+/* ---------- Mixer ---------- */
+
+/* A channel strip per sound source, on one grid so every row has its name, mute and
+   slider in the same three columns and every slider is the same length. The name
+   column is sized to "Metronome", the longest; the mute is a bare checkbox, unlabeled
+   on screen because the row *is* its label (it carries an accessible name). */
+.mixer {
+  display: grid;
+  grid-template-columns: 6.5rem auto 1fr;
+  column-gap: 0.75rem;
+  row-gap: 0.85rem;
   align-items: center;
-  gap: 1.25rem;
 }
 
-/* One inline caption-and-slider row for every level control (LevelSlider) — the
-   metronome's, the tonal center's, the drone's — so a slider looks the same wherever
-   it sits. */
-.level-slider {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.mixer-channel {
+  display: contents;
+}
+
+.mixer-channel-name {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.08em;
@@ -1137,43 +1142,19 @@
   color: var(--paper-dim);
 }
 
-.level-slider input[type='range'] {
+.mixer-channel input[type='checkbox'] {
   accent-color: var(--brass);
-  width: 8rem;
+  margin: 0;
 }
 
-.level-slider input[type='range']:disabled {
-  opacity: 0.4;
-}
-
-/* PROTOTYPE (#58, layout B): a channel strip — captions in a column, sliders filling
-   the width, the metronome's on/off in the gutter before its slider. */
-.mixer .level-slider {
+.mixer-channel input[type='range'] {
+  accent-color: var(--brass);
   width: 100%;
+  min-width: 0;
 }
 
-.mixer .level-slider span {
-  width: 6rem;
-  flex: none;
-}
-
-.mixer .level-slider input[type='range'] {
-  width: auto;
-  flex: 1;
-}
-
-.mixer-channel {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.mixer-channel .checkbox-label {
-  gap: 0;
-}
-
-.mixer-channel .level-slider {
-  flex: 1;
+.mixer-channel input[type='range']:disabled {
+  opacity: 0.4;
 }
 
 /* ---------- Mode blocks ---------- */

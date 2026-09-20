@@ -4,7 +4,6 @@ import { pitchClassName } from '../music/spelling';
 import RootsPicker from './RootsPicker';
 import TimingSection from './TimingSection';
 import DisplaySection from './DisplaySection';
-import LevelSlider from './LevelSlider';
 import MixerSection from './MixerSection';
 import { SCALE_GROUPS, scaleOptionLabel } from './scaleOptions';
 
@@ -13,31 +12,18 @@ import { SCALE_GROUPS, scaleOptionLabel } from './scaleOptions';
 // and why. It has no Advanced panel: Roots was the only thing in it, and Roots now sits
 // inside Notes under the mode it actually applies to.
 function PureToneControls({
-  settings, updateSettings, toggleRoot, setAllRootsEnabled, layout,
+  settings, updateSettings, toggleRoot, setAllRootsEnabled,
 }) {
   const isScaleMode = settings.pureToneMode === 'scale';
-  const mixer = layout === 'mixer';
 
   return (
     <div className="controls">
       {/* Same two-column split as Controls — one group per column, since this tab's
           settings surface is deliberately smaller. */}
       <div className="controls-column controls-column--player">
-        <TimingSection settings={settings} updateSettings={updateSettings} showMetronome={!mixer} />
-        {mixer && <MixerSection settings={settings} updateSettings={updateSettings} />}
+        <TimingSection settings={settings} updateSettings={updateSettings} />
         <DisplaySection settings={settings} updateSettings={updateSettings} />
-        {!mixer && (
-          <details className="settings-section" open>
-            <summary>Sound</summary>
-            <div className="settings-body">
-              <LevelSlider
-                label="Level"
-                value={settings.toneVolume}
-                onChange={(toneVolume) => updateSettings({ toneVolume })}
-              />
-            </div>
-          </details>
-        )}
+        <MixerSection settings={settings} updateSettings={updateSettings} />
       </div>
 
       <div className="controls-column controls-column--pickers">
