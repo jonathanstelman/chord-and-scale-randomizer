@@ -6,14 +6,19 @@ import { tonalCenterPhrase } from '../music/pool';
  * view, and un-docks when it scrolls back — true picture-in-picture, not an always-on
  * widget.
  *
- * Shows the current tonal center, the queue behind it, and a metronome cue. Still no
- * transport, tempo or volume: those are one scroll away, and the console is for
- * staying on the beat rather than being a second control surface.
+ * Running, it shows the current tonal center, the queue behind it, and a metronome cue.
+ * Idle, it shows the wordmark and a play key — see docs/architecture/randomizer.md's
+ * "PiP console" for why the idle state is deliberately this thin, and for where this
+ * docks at all (in practice, phones).
+ *
+ * Still no tempo or volume: those are one scroll away, and the console is for staying on
+ * the beat rather than being a second control surface.
  *
  * `displayRef` points at the in-flow display element this shadows.
  */
 export default function PipConsole({
-  displayRef, current, queue, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap, onStop,
+  displayRef, current, queue, showCurrent, showNext, isRunning, beatIndex, totalBeats, isGap,
+  onStart, onStop,
 }) {
   const [displayVisible, setDisplayVisible] = useState(true);
 
@@ -32,13 +37,35 @@ export default function PipConsole({
     return () => observer.disconnect();
   }, [displayRef]);
 
-  // Only meaningful mid-session. Leaving it mounted while stopped would also mean a
-  // stale tonal center hanging in the corner.
-  if (!isRunning || displayVisible) return null;
+  if (displayVisible) return null;
+
+  // One key that swaps, never a disabled twin — the same rule the display's deck
+  // follows. Why the console has a transport at all: docs/architecture/randomizer.md's
+  // "PiP console".
+  const transport = (
+    <button
+      type="button"
+      className={`pip-key${isRunning ? ' pip-key--stop' : ''}`}
+      onClick={isRunning ? onStop : onStart}
+      aria-label={isRunning ? 'Stop session' : 'Play session'}
+      title={isRunning ? 'Stop session' : 'Play session'}
+    >
+      <span aria-hidden="true">{isRunning ? '■' : '▶'}</span>
+    </button>
+  );
+
+  if (!isRunning) {
+    return (
+      <div className="pip-console pip-console--idle">
+        <span className="pip-wordmark">Musical Chairs</span>
+        {transport}
+      </div>
+    );
+  }
 
   // Mirrors Display: listening mode hides the readout everywhere, so the console must
   // not become a way to peek at the answer the main display is deliberately withholding.
-  // Same for showNext, which gates the next readout in NowPlaying.
+  // Same for showNext, which gates the queue in NowPlaying.
   const readout = isGap
     ? 'Get ready…'
     : showCurrent && current
@@ -61,15 +88,7 @@ export default function PipConsole({
           })}
         </span>
 
-        <button
-          type="button"
-          className="pip-close"
-          onClick={onStop}
-          aria-label="Stop session"
-          title="Stop session"
-        >
-          <span aria-hidden="true">✕</span>
-        </button>
+        {transport}
       </div>
 
       <span className={`pip-readout${isGap ? ' pip-readout--gap' : ''}`}>{readout}</span>

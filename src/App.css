@@ -402,27 +402,62 @@
   min-width: 0;
 }
 
-.pip-close {
+/* The console's counterpart to .deck-key: one key that swaps ▶/■ rather than a pair
+   with one disabled. Same square-key shape, scaled down. */
+.pip-key {
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  /* ▶/■ render thin and undersized in the inherited body font — the same reason
+     .deck-key takes the system face. */
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
   line-height: 1;
   color: var(--paper-dim);
   background: transparent;
   border: 1px solid var(--paper-faint);
-  border-radius: 50%;
+  border-radius: 0.3rem;
   cursor: pointer;
-  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out, background 0.15s ease-out;
 }
 
-.pip-close:hover {
+.pip-key:hover {
+  color: var(--paper);
+  border-color: var(--paper-medium);
+}
+
+.pip-key--stop {
   color: var(--flame);
   border-color: var(--flame);
+}
+
+.pip-key--stop:hover {
+  color: var(--flame);
+  border-color: var(--flame);
+  background: color-mix(in srgb, var(--flame) 12%, transparent);
+}
+
+/* Idle: wordmark and play key on one row, and nothing else. The display one scroll up
+   already carries the worked example — see docs/architecture/randomizer.md's "PiP
+   console". */
+.pip-console--idle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.pip-wordmark {
+  font-family: var(--font-display);
+  font-variation-settings: var(--fvs-ui);
+  font-size: 0.95rem;
+  line-height: 1.15;
+  color: var(--paper);
+  min-width: 0;
 }
 
 /* ---------- Now Playing (current/next readout + beat progress) ---------- */

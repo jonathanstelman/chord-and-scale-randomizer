@@ -110,6 +110,7 @@ export default function App() {
         beatIndex={beatIndex}
         totalBeats={totalBeats}
         isGap={isGap}
+        onStart={start}
         onStop={stop}
       />
 
