@@ -61,9 +61,9 @@ one that doesn't, it just starts closed.
 
 | Accent | Mode | Where it shows |
 |---|---|---|
-| cobalt | Chords & Scales | tab underline, idle card's chair |
-| brass | Pure Tone | tab underline, idle card's chair |
-| flame | Scale Degrees | tab underline, idle card's chair |
+| cobalt | Chords & Scales | tab underline, masthead divider, idle card's chair |
+| brass | Pure Tone | tab underline, masthead divider, idle card's chair |
+| flame | Scale Degrees | tab underline, masthead divider, idle card's chair |
 
 That's the *code*. Each colour also has a UI job that isn't one — cobalt draws
 structural lines, brass is the attention accent (the "next" sticker, active toggles,
@@ -77,8 +77,11 @@ big coloured squares rather than the chips, checkboxes and radios everything els
 so they read as out of place; and colouring the tab and the idle chair by mode gives
 switching tabs a visible change of state that the page otherwise lacked. So the blocks
 became plain checkboxes (`.mode-row`, styled like the Roots grid), and the accents
-carry exactly one meaning. `tabs.js` is the single mapping; `TabNav` sets it as a
-custom property on each button and `Display` passes it to the chair.
+carry exactly one meaning. `tabs.js` is the single mapping. `App` sets the active
+mode's accent as `--mode-accent` on the root for anything page-level that carries it
+(the masthead divider); `TabNav` sets each button's own as `--tab-accent`, since every
+button has one and only the active one shows; `Display` passes it to the chair as a
+prop, since the chair's accent is a fill on a path, not a CSS colour.
 
 ## The chair motif
 

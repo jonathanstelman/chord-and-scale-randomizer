@@ -31,7 +31,9 @@
 .masthead {
   padding-bottom: 1.25rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid var(--cobalt);
+  /* The divider takes the active mode's accent (set on .app) — with the tab underline
+     and the idle chair, it's what makes switching modes read as a change of state. */
+  border-bottom: 2px solid var(--mode-accent, var(--cobalt));
 }
 
 .masthead-top {
