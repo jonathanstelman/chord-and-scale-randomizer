@@ -98,6 +98,6 @@ cluster": ~34px chairs (40px for the fallen one), tight spacing, sitting low.
 ## Links
 
 - Issue: [#21](https://github.com/jonathanstelman/chord-and-scale-randomizer/issues/21)
-- Build order for the wider initiative: `docs/ui-ux-overhaul.md`
+- What the wider initiative shipped: `CHANGELOG.md`
 - The interactive specimen sheet was also published as a Claude artifact during design;
   `specimen.html` here is the same page, self-contained.

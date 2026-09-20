@@ -33,9 +33,9 @@ Read the one relevant to what you're doing, not all of them — that's the point
   images, comparison sheets. Nothing here ships or runs at build time; it exists so a
   motif can be *changed* without redoing the design conversation. Read the relevant
   `README.md` there before altering artwork the app renders.
-- `docs/ui-ux-overhaul.md` — build order/dependency chain for the practice-mode UI/UX
-  overhaul (issues #21–#31); the Project's Priority/Size fields don't capture this on
-  their own, so check here before picking up the next piece of that initiative
+- `CHANGELOG.md` — what shipped and why, newest first. The practice-mode UI/UX overhaul
+  (#20–#31, #45) is recorded there now that it's complete, including what was
+  deliberately *not* done
 - [GitHub Project](https://github.com/users/jonathanstelman/projects/3/views/1) — active
   and planned work (backlog lives here, not in a markdown file). `gh issue list` alone
   won't show it — Priority/Size/Status live on the Project, not the issue: use
